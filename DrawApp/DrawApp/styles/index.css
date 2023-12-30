@@ -91,12 +91,12 @@ button.MainButtons img {
   display: grid;
   grid-template-columns: repeat(var(--length), auto);
   grid-template-rows: repeat(var(--height), auto);
-  gap: 2px;
   border: 4px solid black;
   background-color: white;
 }
 .pixelCanvas.active {
-  border: 4px solid black;
+  box-shadow: inset -2px 0 0 black, inset 0 -2px 0 black, inset 2px 0 0 black,
+    inset 0 2px 0 black;
 }
 #TopSection h1 {
   font-size: 40px;
@@ -118,4 +118,11 @@ button.MainButtons img {
   font-weight: bold;
   font-size: small;
   background-color: var(--backgroundColor);
+}
+#CanvasSizeTitle {
+  font-size: 20px;
+  font-weight: 100;
+  margin: 0;
+  padding: 0;
+  font-style: italic;
 }
