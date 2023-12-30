@@ -11,12 +11,17 @@ button.MainButtons {
   text-align: center;
   display: inline-block;
   font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
   min-height: 250px;
   height: fit-content;
   min-width: 150px;
   margin: 10px;
   border-radius: 10px;
+}
+button.MainButtons img {
+  height: 100px;
+  width: 100px;
 }
 #PrimaryButtons_1 {
   border: 3px solid red;
@@ -86,13 +91,15 @@ button.MainButtons {
   display: grid;
   grid-template-columns: repeat(var(--length), auto);
   grid-template-rows: repeat(var(--height), auto);
-  gap: 3px;
+  gap: 2px;
   background-color: black;
   border: 3px solid black;
 }
 .pixelCanvas {
   background-color: antiquewhite;
-  aspect-ratio: 1;
+}
+.pixelCanvas.active {
+  background-color: white;
 }
 #TopSection h1 {
   font-size: 40px;
