@@ -126,3 +126,42 @@ button.MainButtons img {
   padding: 0;
   font-style: italic;
 }
+:not(input):not(textarea),
+:not(input):not(textarea)::after,
+:not(input):not(textarea)::before {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+input,
+button,
+textarea,
+:focus {
+  outline: none;
+}
+#Circle {
+  position: relative;
+  top: 25%;
+  left: 25%;
+  height: 50px;
+  width: 50px;
+  background-color: black;
+  border-radius: 50%;
+}
+.pixelCanvas {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.Pixelcircle {
+  width: 50%;
+  height: 50%;
+  background-color: black;
+  border-radius: 50%;
+}
+.PixelLetter {
+  font-weight: bold;
+  text-align: center;
+  margin: auto;
+  position: absolute;
+}

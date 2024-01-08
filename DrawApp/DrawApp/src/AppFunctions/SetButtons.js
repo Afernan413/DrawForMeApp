@@ -1,0 +1,144 @@
+let palette = [
+  { hex: "#000000", name: "Black" },
+  { hex: "#FFFFFF", name: "White" },
+  { hex: "#FF0000", name: "Red" },
+  { hex: "#00FF00", name: "Green" },
+  { hex: "#0000FF", name: "Blue" },
+  { hex: "#FFFF00", name: "Yellow" },
+  { hex: "#FF00FF", name: "Magenta" },
+  { hex: "#00FFFF", name: "Cyan" },
+  { hex: "#800000", name: "Maroon" },
+  { hex: "#808000", name: "Olive" },
+  { hex: "#008000", name: "Dark Green" },
+  { hex: "#800080", name: "Purple" },
+  { hex: "#008080", name: "Teal" },
+  { hex: "#FFA500", name: "Orange" },
+  { hex: "#A52A2A", name: "Brown" },
+  { hex: "#DEB887", name: "Burlywood" },
+  { hex: "#5F9EA0", name: "Cadet Blue" },
+  { hex: "#7FFF00", name: "Chartreuse" },
+  { hex: "#D2691E", name: "Chocolate" },
+  { hex: "#FF7F50", name: "Coral" },
+  { hex: "#6495ED", name: "Cornflower Blue" },
+  { hex: "#DC143C", name: "Crimson" },
+  { hex: "#00FFFF", name: "Aqua" },
+  { hex: "#00008B", name: "Dark Blue" },
+  { hex: "#008B8B", name: "Dark Cyan" },
+];
+let lettersAndSymbols = [];
+
+// Add lowercase letters
+for (let i = 97; i <= 122; i++) {
+  lettersAndSymbols.push(String.fromCharCode(i));
+}
+
+// Add symbols that can be typed without pressing shift
+let symbols = "`1234567890-=[]\\;',./";
+for (let i = 0; i < symbols.length; i++) {
+  lettersAndSymbols.push(symbols[i]);
+}
+function SetNewFileButtons() {
+  Button1.innerHTML = "Portrait";
+  Button2.innerHTML = "Landscape";
+  Button3.innerHTML = "Square";
+  Button4.innerHTML = "";
+  Button5.innerHTML = "";
+  Button6.innerHTML = "Go Back";
+  CurrentPage = "PickCanvas";
+  return;
+}
+function SetNavigationButtons() {
+  Button1.innerHTML =
+    "<img src='../assets/Icons/LeftArrow.png' alt='Left-Arrow' />";
+  Button1.setAttribute("arrow", "LeftArrow");
+  Button2.innerHTML =
+    "<img src='../assets/Icons/UpArrow.png' alt='Up-Arrow' />";
+  Button2.setAttribute("arrow", "UpArrow");
+  Button3.innerHTML =
+    "<img src='../assets/Icons/DownArrow.png' alt='Down-Arrow' />";
+  Button3.setAttribute("arrow", "DownArrow");
+  Button4.innerHTML =
+    "<img src='../assets/Icons/RightArrow.png' alt='Right-Arrow' />";
+  Button4.setAttribute("arrow", "RightArrow");
+  Button5.innerHTML = "Fill";
+  Button6.innerHTML = "More";
+  CurrentPage = CanvasMode;
+  return;
+}
+function setMoreButtons() {
+  Button1.innerHTML = "Change Color";
+  Button1.removeAttribute("arrow");
+  Button2.innerHTML = "Change Fill";
+  Button2.removeAttribute("arrow");
+  Button3.innerHTML = "Change Palette";
+  Button3.removeAttribute("arrow");
+  Button4.innerHTML = "Save";
+  Button4.removeAttribute("arrow");
+  Button5.innerHTML = "Print";
+  Button6.innerHTML = "Go Back";
+  CurrentPage = CanvasMode + "More";
+  return;
+}
+let FormattedPallete = "";
+Object.values(palette).forEach((value) => {
+  let index = Object.values(palette).indexOf(value) + 1;
+  let string = value.name.toString();
+  FormattedPallete += string;
+  FormattedPallete += "<br><br>";
+  if (index !== 0 && index % 5 == 0) {
+    FormattedPallete += "oops";
+  }
+});
+FormattedPallete = FormattedPallete.split("oops");
+function setChangeColorButtons() {
+  Button1.innerHTML = FormattedPallete[0] + "oops";
+  Button2.innerHTML = FormattedPallete[1] + "oops";
+  Button3.innerHTML = FormattedPallete[2] + "oops";
+  Button4.innerHTML = FormattedPallete[3] + "oops";
+  Button5.innerHTML = FormattedPallete[4] + "oops";
+  Button6.innerHTML =
+    "Eraser<br><br>Standard<br><br>Unknown<br><br>Unknown<br><br>Unknown<br><br>Go Back";
+  CurrentPage = CanvasMode + "ChangeColor";
+  return;
+}
+function setSelectColorButtons(bool, buttonClickedOptions) {
+  console.log(bool);
+  if (bool === true) {
+    Button1.innerHTML = buttonClickedOptions[0];
+    Button2.innerHTML = buttonClickedOptions[1];
+    Button3.innerHTML = buttonClickedOptions[2];
+    Button4.innerHTML = buttonClickedOptions[3];
+    Button5.innerHTML = buttonClickedOptions[4];
+    Button6.innerHTML = "oops";
+    CurrentPage = CanvasMode + "SelectColor";
+  } else {
+    Button1.innerHTML = buttonClickedOptions[0];
+    Button2.innerHTML = buttonClickedOptions[1];
+    Button3.innerHTML = buttonClickedOptions[2];
+    Button4.innerHTML = buttonClickedOptions[3];
+    Button5.innerHTML = buttonClickedOptions[4];
+    Button6.innerHTML = "Go Back";
+    CurrentPage = CanvasMode + "SelectColorMore";
+  }
+  return;
+}
+function setChangeFillButtons() {
+  Button1.innerHTML = "SOLID";
+  Button2.innerHTML = "DOT";
+  Button3.innerHTML = "LETTER";
+  Button4.innerHTML = "BLANK";
+  Button5.innerHTML = "BLANK";
+  Button6.innerHTML = "Go Back";
+  CurrentPage = CanvasMode + "ChangeFill";
+  return;
+}
+function setLetterButtons(Shift = false) {
+  Button1.innerHTML = lettersAndSymbols.slice(0, 5).join("");
+  Button2.innerHTML = lettersAndSymbols.slice(5, 10).join("");
+  Button3.innerHTML = lettersAndSymbols.slice(10, 16).join("");
+  Button4.innerHTML = lettersAndSymbols.slice(16, 22).join("");
+  Button5.innerHTML = lettersAndSymbols.slice(22, 28).join("");
+  Button6.innerHTML = "Go Back";
+  CurrentPage = CanvasMode + "ChangeFillLetter";
+  return;
+}

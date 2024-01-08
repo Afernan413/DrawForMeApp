@@ -1,90 +1,203 @@
 const { BrowserWindow } = require("@electron/remote");
+var color2Name = require("color-2-name");
 
 ///////////////////////////////GET ITEMS///////////////////////////////////////////////////////
-const GridContainer = document.querySelector("#CanvasContainer");
+var GridContainer = document.querySelector("#CanvasContainer");
 const GridSizeTitle = document.querySelector("#CanvasSizeTitle");
 const OriginalButtons = document.querySelector("#ButtonsContainer").innerHTML;
 const ButtonsContainer = document.querySelector("#ButtonsContainer");
-const Button1 = document.querySelector("#PrimaryButtons_1");
-const Button2 = document.querySelector("#PrimaryButtons_2");
-const Button3 = document.querySelector("#PrimaryButtons_3");
-const Button4 = document.querySelector("#PrimaryButtons_4");
-const Button5 = document.querySelector("#PrimaryButtons_5");
-const Button6 = document.querySelector("#PrimaryButtons_6");
-const color = document
+
+let colorOptions;
+
+var Button1 = document.querySelector("#PrimaryButtons_1");
+var Button2 = document.querySelector("#PrimaryButtons_2");
+var Button3 = document.querySelector("#PrimaryButtons_3");
+var Button4 = document.querySelector("#PrimaryButtons_4");
+var Button5 = document.querySelector("#PrimaryButtons_5");
+var Button6 = document.querySelector("#PrimaryButtons_6");
+var CurrentPage = "Home";
+var CurrentSelectionContainer = document.querySelector(
+  "#CurrentSelectionContainer"
+);
+var color = document
   .querySelector("#CurrentSelectionContainer")
   .computedStyleMap()
   .get("--backgroundColor");
-const pixels = document.querySelectorAll(".pixelCanvas");
-const currWindow = BrowserWindow.getFocusedWindow();
+var FillMode = "Solid";
+var currWindow = BrowserWindow.getFocusedWindow();
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 function PortraitMode() {
   CanvasMode = "Portrait";
-  if (pixels.length == 0) {
+  if (document.querySelectorAll(".pixelCanvas").length == 0) {
     createGrid(30, 50);
   }
   SetNavigationButtons();
   if (Navigating == false) {
     NavigateGrid();
-    Navigating = true;
   }
   updatePixel();
+  return;
 }
 function LandscapeMode() {
   CanvasMode = "Landscape";
-  if (pixels.length == 0) {
+  if (document.querySelectorAll(".pixelCanvas").length == 0) {
     createGrid(50, 30);
   }
   SetNavigationButtons();
   if (Navigating == false) {
     NavigateGrid();
-    Navigating = true;
   }
   updatePixel();
+  return;
 }
 function SquareMode() {
   CanvasMode = "Square";
-  if (pixels.length == 0) {
+  if (document.querySelectorAll(".pixelCanvas").length == 0) {
     createGrid(50, 50);
   }
   SetNavigationButtons();
   if (Navigating == false) {
     NavigateGrid();
-    Navigating = true;
   }
   updatePixel();
+  return;
 }
 
 //Button 1 listener
 Button1.addEventListener("click", () => {
-  if (Button1.innerHTML.includes("New File")) {
+  if (CurrentPage == "Home") {
     SetNewFileButtons();
     return;
   }
-  if (Button1.innerHTML.includes("Portrait")) {
+  if (CurrentPage == "PickCanvas") {
     PortraitMode();
     return;
   }
-  return;
+  if (CurrentPage == CanvasMode) {
+    NavigateGrid(Button1);
+    return;
+  }
+  if (CurrentPage == CanvasMode + "More") {
+    colorOptions = ChangeColor();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeColor") {
+    setSelectColorButtons(true, colorOptions[0].innerHTML.split("<br><br>"));
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectColor") {
+    color = palette.filter((e) => e.name == colorOptions[0].innerHTML)[0].hex;
+    var r = document.querySelector("#CurrentSelectionContainer");
+    r.style.setProperty("--backgroundColor", color);
+    setMoreButtons();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectColorMore") {
+    color = "transparent";
+    var r = document.querySelector("#CurrentSelectionContainer");
+    r.style.setProperty("--backgroundColor", color);
+    document.querySelector("#Circle").hidden = true;
+    FillMode = "Solid";
+    setMoreButtons();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeFill") {
+    document.querySelector("#Circle").hidden = true;
+    FillMode = "Solid";
+    setMoreButtons();
+    return;
+  }
 });
 //Button 2 listener
 Button2.addEventListener("click", () => {
-  if (Button2.innerHTML.includes("Landscape")) {
+  if (CurrentPage == "PickCanvas") {
     LandscapeMode();
+    return;
+  }
+  if (CurrentPage == CanvasMode) {
+    NavigateGrid(Button2);
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeColor") {
+    setSelectColorButtons(true, colorOptions[1].innerHTML.split("<br><br>"));
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectColor") {
+    color = palette.filter((e) => e.name == colorOptions[1].innerHTML)[0].hex;
+    var r = document.querySelector("#CurrentSelectionContainer");
+    r.style.setProperty("--backgroundColor", color);
+    setMoreButtons();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "More") {
+    colorOptions = ChangeFill();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeFill") {
+    document.querySelector("#Circle").hidden = false;
+    if (color == "transparent") {
+      color = "white";
+    }
+    var r = document.querySelector("#CurrentSelectionContainer");
+    r.style.setProperty("--backgroundColor", color);
+    FillMode = "Circle";
+    setMoreButtons();
     return;
   }
 });
 //Button 3 listener
 Button3.addEventListener("click", () => {
-  if (Button3.innerHTML.includes("Square")) {
+  if (CurrentPage == "PickCanvas") {
     SquareMode();
+    return;
+  }
+  if (CurrentPage == CanvasMode) {
+    NavigateGrid(Button3);
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeColor") {
+    setSelectColorButtons(true, colorOptions[2].innerHTML.split("<br><br>"));
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectColor") {
+    color = palette.filter((e) => e.name == colorOptions[2].innerHTML)[0].hex;
+    var r = document.querySelector("#CurrentSelectionContainer");
+    r.style.setProperty("--backgroundColor", color);
+    setMoreButtons();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeFill") {
+    document.querySelector("#Circle").hidden = true;
+    document.querySelector("#Letter").hidden = false;
+    if (color == "transparent") {
+      color = "white";
+    }
+    var r = document.querySelector("#CurrentSelectionContainer");
+    r.style.setProperty("--backgroundColor", color);
+    FillMode = "Letter";
+    setLetterButtons();
     return;
   }
 });
 //Button 4 listener
 Button4.addEventListener("click", () => {
   if (Button4.innerHTML.includes("Import Image")) {
+    return;
+  }
+  if (CurrentPage == CanvasMode) {
+    NavigateGrid(Button4);
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeColor") {
+    setSelectColorButtons(true, colorOptions[3].innerHTML.split("<br><br>"));
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectColor") {
+    color = palette.filter((e) => e.name == colorOptions[3].innerHTML)[0].hex;
+    var r = document.querySelector("#CurrentSelectionContainer");
+    r.style.setProperty("--backgroundColor", color);
+    setMoreButtons();
     return;
   }
 });
@@ -94,7 +207,23 @@ Button5.addEventListener("click", () => {
     return;
   }
   if (Button5.innerHTML.includes("Fill")) {
-    FillPixel();
+    if (FillMode == "Letter") {
+      FillPixel(color, document.querySelector("#Letter").innerHTML);
+    } else {
+      FillPixel(color);
+    }
+
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeColor") {
+    setSelectColorButtons(true, colorOptions[4].innerHTML.split("<br><br>"));
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectColor") {
+    color = palette.filter((e) => e.name == colorOptions[4].innerHTML)[0].hex;
+    var r = document.querySelector("#CurrentSelectionContainer");
+    r.style.setProperty("--backgroundColor", color);
+    setMoreButtons();
     return;
   }
 });
@@ -108,20 +237,43 @@ Button6.addEventListener("click", () => {
     currWindow.destroy();
   }
   if (Button6.innerHTML.includes("Go Back")) {
-    if (Button6.getAttribute("currentpage") == "PickCanvas") {
+    if (CurrentPage == "PickCanvas") {
       document.location.reload();
     }
-    if (Button6.getAttribute("currentpage") == "Landscape") {
+    if (CurrentPage == "LandscapeMore") {
       LandscapeMode();
       return;
     }
-    if (Button6.getAttribute("currentpage") == "Portrait") {
+    if (CurrentPage == "PortraitMore") {
       PortraitMode();
       return;
     }
-    if (Button6.getAttribute("currentpage") == "Square") {
+    if (CurrentPage == "SquareMore") {
       SquareMode();
       return;
     }
+  }
+  if (CurrentPage == CanvasMode + "ChangeColor") {
+    setSelectColorButtons(
+      false,
+      "Eraser<br><br>Standard<br><br>Unknown<br><br>Unknown<br><br>Unknown<br><br>Go Back".split(
+        "<br><br>"
+      )
+    );
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectColor") {
+    colorOptions = ChangeColor();
+    return;
+  }
+  if (
+    CurrentPage == CanvasMode + "SelectColorMore" ||
+    CurrentPage.includes(CanvasMode + "ChangeFill")
+  ) {
+    if (Button6.innerHTML.includes("Go Back")) {
+      setMoreButtons();
+      return;
+    }
+    return;
   }
 });
