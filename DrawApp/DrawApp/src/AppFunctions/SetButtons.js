@@ -33,12 +33,14 @@ for (let i = 97; i <= 122; i++) {
 }
 
 WrittingModeOptions = WrittingModeOptions.concat([
-  "shift",
-  "punctuation",
-  "space",
-  "back",
-  "more...",
+  "Shift",
+  "Symbols",
+  "Space",
+  "Move",
+  "Change Fill",
 ]);
+
+let Shift = false;
 
 //format button Options
 let FormattedWrittingModeOptions = "";
@@ -50,6 +52,44 @@ for (let i = 0; i < WrittingModeOptions.length; i++) {
   }
 }
 FormattedWrittingModeOptions = FormattedWrittingModeOptions.split("oops");
+
+let Symbols = [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "0",
+  "+",
+  "-",
+  "*",
+  "/",
+  "=",
+  ".",
+  ",",
+  "?",
+  "!",
+  "^",
+  "(",
+  ")",
+  "@",
+  '"',
+  "'",
+  ";",
+].concat(["Shift", "Letters", "Space", "Move", "Change Fill"]);
+let FormattedSymbolsModeOptions = "";
+for (let i = 0; i < Symbols.length; i++) {
+  FormattedSymbolsModeOptions += Symbols[i];
+  FormattedSymbolsModeOptions += "<br><br>";
+  if (i !== 0 && (i + 1) % 5 == 0 && i !== 29) {
+    FormattedSymbolsModeOptions += "oops";
+  }
+}
+FormattedSymbolsModeOptions = FormattedSymbolsModeOptions.split("oops");
 function SetNewFileButtons() {
   Button1.innerHTML = "Portrait";
   Button2.innerHTML = "Landscape";
@@ -73,9 +113,19 @@ function SetNavigationButtons() {
   Button4.innerHTML =
     "<img src='../assets/Icons/RightArrow.png' alt='Right-Arrow' />";
   Button4.setAttribute("arrow", "RightArrow");
-  Button5.innerHTML = "Fill";
-  Button6.innerHTML = "More";
-  CurrentPage = CanvasMode;
+  if (
+    CurrentPage == CanvasMode + "SelectFillLetterMore" ||
+    CurrentPage == CanvasMode + "SelectFillSymbolsMore"
+  ) {
+    Button5.innerHTML = "";
+    Button6.innerHTML = "Go Back";
+    CurrentPage = CanvasMode + "SelectFillLetterMove";
+  } else {
+    Button5.innerHTML = "Fill";
+    Button6.innerHTML = "More";
+    CurrentPage = CanvasMode;
+  }
+
   return;
 }
 function setMoreButtons() {
@@ -145,7 +195,7 @@ function setChangeFillButtons() {
   CurrentPage = CanvasMode + "ChangeFill";
   return;
 }
-function setLetterButtons(Shift = false) {
+function setLetterButtons() {
   if (!Shift) {
     Button1.innerHTML = FormattedWrittingModeOptions[0];
     Button2.innerHTML = FormattedWrittingModeOptions[1];
@@ -175,11 +225,29 @@ function setSelectLetterButtons(bool = false, buttonClickedOptions) {
   Button5.innerHTML = buttonClickedOptions[4];
   if (bool === true) {
     Button6.innerHTML = buttonClickedOptions[5];
-    CurrentPage = CanvasMode + "SelectFillLetterMore";
+    if (CurrentPage == CanvasMode + "ChangeFillSymbols") {
+      CurrentPage = CanvasMode + "SelectFillSymbolsMore";
+    } else {
+      CurrentPage = CanvasMode + "SelectFillLetterMore";
+    }
   } else {
     Button6.innerHTML = "oops";
-    CurrentPage = CanvasMode + "SelectFillLetter";
+    if (CurrentPage == CanvasMode + "ChangeFillSymbols") {
+      CurrentPage = CanvasMode + "SelectFillSymbols";
+    } else {
+      CurrentPage = CanvasMode + "SelectFillLetter";
+    }
   }
 
+  return;
+}
+function setSymbolsButtons() {
+  Button1.innerHTML = FormattedSymbolsModeOptions[0];
+  Button2.innerHTML = FormattedSymbolsModeOptions[1];
+  Button3.innerHTML = FormattedSymbolsModeOptions[2];
+  Button4.innerHTML = FormattedSymbolsModeOptions[3];
+  Button5.innerHTML = FormattedSymbolsModeOptions[4];
+  Button6.innerHTML = FormattedSymbolsModeOptions[5];
+  CurrentPage = CanvasMode + "ChangeFillSymbols";
   return;
 }

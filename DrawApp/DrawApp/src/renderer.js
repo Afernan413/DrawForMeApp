@@ -74,7 +74,10 @@ Button1.addEventListener("click", () => {
     PortraitMode();
     return;
   }
-  if (CurrentPage == CanvasMode) {
+  if (
+    CurrentPage == CanvasMode ||
+    CurrentPage == CanvasMode + "SelectFillLetterMove"
+  ) {
     NavigateGrid(Button1);
     return;
   }
@@ -111,17 +114,32 @@ Button1.addEventListener("click", () => {
     setMoreButtons();
     return;
   }
-  if (CurrentPage == CanvasMode + "ChangeFillLetter") {
+  if (
+    CurrentPage == CanvasMode + "ChangeFillLetter" ||
+    CurrentPage == CanvasMode + "ChangeFillSymbols"
+  ) {
     setSelectLetterButtons(false, Button1.innerHTML.split("<br><br>"));
     return;
   }
-  if (CurrentPage.includes(CanvasMode + "SelectFillLetter")) {
+  if (
+    CurrentPage.includes(CanvasMode + "SelectFillLetter") ||
+    (CurrentPage.includes(CanvasMode + "SelectFillSymbols") &&
+      CurrentPage.includes("Move") == false)
+  ) {
     FillMode = "Letter";
     document.querySelector("#Letter").hidden = false;
     document.querySelector("#Circle").hidden = true;
     document.querySelector("#Letter").innerHTML = Button1.innerHTML;
     FillPixel(color, document.querySelector("#Letter").innerHTML);
-    setLetterButtons();
+    if (
+      CurrentPage == CanvasMode + "SelectFillSymbols" ||
+      CurrentPage == CanvasMode + "SelectFillSymbolsMore"
+    ) {
+      setSymbolsButtons();
+    } else {
+      setLetterButtons();
+    }
+
     return;
   }
 });
@@ -131,7 +149,10 @@ Button2.addEventListener("click", () => {
     LandscapeMode();
     return;
   }
-  if (CurrentPage == CanvasMode) {
+  if (
+    CurrentPage == CanvasMode ||
+    CurrentPage == CanvasMode + "SelectFillLetterMove"
+  ) {
     NavigateGrid(Button2);
     return;
   }
@@ -163,18 +184,46 @@ Button2.addEventListener("click", () => {
     setMoreButtons();
     return;
   }
-  if (CurrentPage == CanvasMode + "ChangeFillLetter") {
+  if (
+    CurrentPage == CanvasMode + "ChangeFillLetter" ||
+    CurrentPage == CanvasMode + "ChangeFillSymbols"
+  ) {
     setSelectLetterButtons(false, Button2.innerHTML.split("<br><br>"));
     return;
   }
-  if (CurrentPage == CanvasMode + "SelectFillLetter") {
+  if (
+    CurrentPage == CanvasMode + "SelectFillLetter" ||
+    CurrentPage == CanvasMode + "SelectFillSymbols"
+  ) {
     FillMode = "Letter";
     document.querySelector("#Letter").hidden = false;
     document.querySelector("#Circle").hidden = true;
     document.querySelector("#Letter").innerHTML = Button2.innerHTML;
     FillPixel(color, document.querySelector("#Letter").innerHTML);
-    setLetterButtons();
+    if (CurrentPage == CanvasMode + "SelectFillSymbols") {
+      setSymbolsButtons();
+    } else {
+      setLetterButtons();
+    }
     return;
+  }
+  if (
+    CurrentPage == CanvasMode + "SelectFillLetterMore" ||
+    CurrentPage == CanvasMode + "SelectFillSymbolsMore"
+  ) {
+    if (Shift == true) {
+      Shift = false;
+    } else {
+      Shift = true;
+    }
+    if (
+      CurrentPage == CanvasMode + "SelectFillSymbols" ||
+      CurrentPage == CanvasMode + "SelectFillSymbolsMore"
+    ) {
+      setSymbolsButtons();
+    } else {
+      setLetterButtons();
+    }
   }
 });
 //Button 3 listener
@@ -183,7 +232,10 @@ Button3.addEventListener("click", () => {
     SquareMode();
     return;
   }
-  if (CurrentPage == CanvasMode) {
+  if (
+    CurrentPage == CanvasMode ||
+    CurrentPage == CanvasMode + "SelectFillLetterMove"
+  ) {
     NavigateGrid(Button3);
     return;
   }
@@ -210,16 +262,34 @@ Button3.addEventListener("click", () => {
     setLetterButtons();
     return;
   }
-  if (CurrentPage == CanvasMode + "ChangeFillLetter") {
+  if (
+    CurrentPage == CanvasMode + "ChangeFillLetter" ||
+    CurrentPage == CanvasMode + "ChangeFillSymbols"
+  ) {
     setSelectLetterButtons(false, Button3.innerHTML.split("<br><br>"));
     return;
   }
-  if (CurrentPage == CanvasMode + "SelectFillLetter") {
+  if (
+    CurrentPage == CanvasMode + "SelectFillLetter" ||
+    CurrentPage == CanvasMode + "SelectFillSymbols"
+  ) {
     FillMode = "Letter";
     document.querySelector("#Letter").hidden = false;
     document.querySelector("#Circle").hidden = true;
     document.querySelector("#Letter").innerHTML = Button3.innerHTML;
     FillPixel(color, document.querySelector("#Letter").innerHTML);
+    if (CurrentPage == CanvasMode + "SelectFillSymbols") {
+      setSymbolsButtons();
+    } else {
+      setLetterButtons();
+    }
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectFillLetterMore") {
+    setSymbolsButtons();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectFillSymbolsMore") {
     setLetterButtons();
     return;
   }
@@ -229,7 +299,10 @@ Button4.addEventListener("click", () => {
   if (Button4.innerHTML.includes("Import Image")) {
     return;
   }
-  if (CurrentPage == CanvasMode) {
+  if (
+    CurrentPage == CanvasMode ||
+    CurrentPage == CanvasMode + "SelectFillLetterMove"
+  ) {
     NavigateGrid(Button4);
     return;
   }
@@ -244,18 +317,46 @@ Button4.addEventListener("click", () => {
     setMoreButtons();
     return;
   }
-  if (CurrentPage == CanvasMode + "ChangeFillLetter") {
+  if (
+    CurrentPage == CanvasMode + "ChangeFillLetter" ||
+    CurrentPage == CanvasMode + "ChangeFillSymbols"
+  ) {
     setSelectLetterButtons(false, Button4.innerHTML.split("<br><br>"));
     return;
   }
-  if (CurrentPage == CanvasMode + "SelectFillLetter") {
+  if (
+    CurrentPage == CanvasMode + "SelectFillLetter" ||
+    CurrentPage == CanvasMode + "SelectFillSymbols"
+  ) {
     FillMode = "Letter";
     document.querySelector("#Letter").hidden = false;
     document.querySelector("#Circle").hidden = true;
     document.querySelector("#Letter").innerHTML = Button4.innerHTML;
     FillPixel(color, document.querySelector("#Letter").innerHTML);
-    setLetterButtons();
+    if (CurrentPage == CanvasMode + "SelectFillSymbols") {
+      setSymbolsButtons();
+    } else {
+      setLetterButtons();
+    }
     return;
+  }
+  if (
+    CurrentPage == CanvasMode + "SelectFillLetterMore" ||
+    CurrentPage == CanvasMode + "SelectFillSymbolsMore"
+  ) {
+    if (currentPixel !== document.querySelectorAll(".pixelCanvas").length - 1) {
+      currentPixel++;
+      updatePixel();
+      if (
+        CurrentPage == CanvasMode + "SelectFillSymbols" ||
+        CurrentPage == CanvasMode + "SelectFillSymbolsMore"
+      ) {
+        setSymbolsButtons();
+      } else {
+        setLetterButtons();
+      }
+      return;
+    }
   }
 });
 //Button 5 listener
@@ -283,18 +384,34 @@ Button5.addEventListener("click", () => {
     setMoreButtons();
     return;
   }
-  if (CurrentPage == CanvasMode + "ChangeFillLetter") {
+  if (
+    CurrentPage == CanvasMode + "ChangeFillLetter" ||
+    CurrentPage == CanvasMode + "ChangeFillSymbols"
+  ) {
     setSelectLetterButtons(false, Button5.innerHTML.split("<br><br>"));
     return;
   }
-  if (CurrentPage == CanvasMode + "SelectFillLetter") {
+  if (
+    CurrentPage == CanvasMode + "SelectFillLetter" ||
+    CurrentPage == CanvasMode + "SelectFillSymbols"
+  ) {
     FillMode = "Letter";
     document.querySelector("#Letter").hidden = false;
     document.querySelector("#Circle").hidden = true;
     document.querySelector("#Letter").innerHTML = Button5.innerHTML;
     FillPixel(color, document.querySelector("#Letter").innerHTML);
-    setLetterButtons();
+    if (CurrentPage == CanvasMode + "SelectFillSymbols") {
+      setSymbolsButtons();
+    } else {
+      setLetterButtons();
+    }
     return;
+  }
+  if (
+    CurrentPage == CanvasMode + "SelectFillLetterMore" ||
+    CurrentPage == CanvasMode + "SelectFillSymbolsMore"
+  ) {
+    SetNavigationButtons();
   }
 });
 //Button 6 listener
@@ -340,7 +457,10 @@ Button6.addEventListener("click", () => {
     CurrentPage == CanvasMode + "SelectColorMore" ||
     CurrentPage.includes(CanvasMode + "ChangeFill")
   ) {
-    if (CurrentPage == CanvasMode + "ChangeFillLetter") {
+    if (
+      CurrentPage == CanvasMode + "ChangeFillLetter" ||
+      CurrentPage == CanvasMode + "ChangeFillSymbols"
+    ) {
       setSelectLetterButtons(true, Button6.innerHTML.split("<br><br>"));
       return;
     }
@@ -351,8 +471,23 @@ Button6.addEventListener("click", () => {
     return;
   }
 
-  if (CurrentPage == CanvasMode + "SelectFillLetter") {
-    setLetterButtons();
+  if (
+    CurrentPage == CanvasMode + "SelectFillLetter" ||
+    CurrentPage == CanvasMode + "SelectFillSymbols" ||
+    CurrentPage.includes("SelectFillLetterMove")
+  ) {
+    if (CurrentPage == CanvasMode + "SelectFillSymbols") {
+      setSymbolsButtons();
+    } else {
+      setLetterButtons();
+    }
+    return;
+  }
+  if (
+    CurrentPage == CanvasMode + "SelectFillLetterMore" ||
+    CurrentPage == CanvasMode + "SelectFillSymbolsMore"
+  ) {
+    setChangeFillButtons();
     return;
   }
 });
