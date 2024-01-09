@@ -6,6 +6,10 @@ function FillPixel(color, Letter) {
   }
   if (FillMode == "Letter") {
     activeBox.innerHTML = `<div class="PixelLetter">${Letter}</div>`;
+    if (currentPixel !== document.querySelectorAll(".pixelCanvas").length - 1) {
+      currentPixel++;
+      updatePixel();
+    }
   }
   if (color == "transparent") {
     activeBox.innerHTML = "";

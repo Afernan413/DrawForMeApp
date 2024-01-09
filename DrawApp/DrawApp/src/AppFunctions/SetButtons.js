@@ -25,18 +25,31 @@ let palette = [
   { hex: "#00008B", name: "Dark Blue" },
   { hex: "#008B8B", name: "Dark Cyan" },
 ];
-let lettersAndSymbols = [];
+let WrittingModeOptions = [];
 
 // Add lowercase letters
 for (let i = 97; i <= 122; i++) {
-  lettersAndSymbols.push(String.fromCharCode(i));
+  WrittingModeOptions.push(String.fromCharCode(i));
 }
 
-// Add symbols that can be typed without pressing shift
-let symbols = "`1234567890-=[]\\;',./";
-for (let i = 0; i < symbols.length; i++) {
-  lettersAndSymbols.push(symbols[i]);
+WrittingModeOptions = WrittingModeOptions.concat([
+  "shift",
+  "punctuation",
+  "space",
+  "back",
+  "more...",
+]);
+
+//format button Options
+let FormattedWrittingModeOptions = "";
+for (let i = 0; i < WrittingModeOptions.length; i++) {
+  FormattedWrittingModeOptions += WrittingModeOptions[i];
+  FormattedWrittingModeOptions += "<br><br>";
+  if (i !== 0 && (i + 1) % 5 == 0 && i !== 29) {
+    FormattedWrittingModeOptions += "oops";
+  }
 }
+FormattedWrittingModeOptions = FormattedWrittingModeOptions.split("oops");
 function SetNewFileButtons() {
   Button1.innerHTML = "Portrait";
   Button2.innerHTML = "Landscape";
@@ -133,12 +146,40 @@ function setChangeFillButtons() {
   return;
 }
 function setLetterButtons(Shift = false) {
-  Button1.innerHTML = lettersAndSymbols.slice(0, 5).join("");
-  Button2.innerHTML = lettersAndSymbols.slice(5, 10).join("");
-  Button3.innerHTML = lettersAndSymbols.slice(10, 16).join("");
-  Button4.innerHTML = lettersAndSymbols.slice(16, 22).join("");
-  Button5.innerHTML = lettersAndSymbols.slice(22, 28).join("");
-  Button6.innerHTML = "Go Back";
+  if (!Shift) {
+    Button1.innerHTML = FormattedWrittingModeOptions[0];
+    Button2.innerHTML = FormattedWrittingModeOptions[1];
+    Button3.innerHTML = FormattedWrittingModeOptions[2];
+    Button4.innerHTML = FormattedWrittingModeOptions[3];
+    Button5.innerHTML = FormattedWrittingModeOptions[4];
+    Button6.innerHTML = FormattedWrittingModeOptions[5];
+  } else {
+    Button1.innerHTML = FormattedWrittingModeOptions[0].toLocaleUpperCase();
+    Button2.innerHTML = FormattedWrittingModeOptions[1].toLocaleUpperCase();
+    Button3.innerHTML = FormattedWrittingModeOptions[2].toLocaleUpperCase();
+    Button4.innerHTML = FormattedWrittingModeOptions[3].toLocaleUpperCase();
+    Button5.innerHTML = FormattedWrittingModeOptions[4].toLocaleUpperCase();
+    Button6.innerHTML = "Z".concat(
+      FormattedWrittingModeOptions[5].split("z")[1]
+    );
+  }
+
   CurrentPage = CanvasMode + "ChangeFillLetter";
+  return;
+}
+function setSelectLetterButtons(bool = false, buttonClickedOptions) {
+  Button1.innerHTML = buttonClickedOptions[0];
+  Button2.innerHTML = buttonClickedOptions[1];
+  Button3.innerHTML = buttonClickedOptions[2];
+  Button4.innerHTML = buttonClickedOptions[3];
+  Button5.innerHTML = buttonClickedOptions[4];
+  if (bool === true) {
+    Button6.innerHTML = buttonClickedOptions[5];
+    CurrentPage = CanvasMode + "SelectFillLetterMore";
+  } else {
+    Button6.innerHTML = "oops";
+    CurrentPage = CanvasMode + "SelectFillLetter";
+  }
+
   return;
 }

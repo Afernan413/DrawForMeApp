@@ -114,7 +114,6 @@ button.MainButtons img {
   top: 10%;
   margin-top: 10px;
   margin-bottom: 10px;
-  text-decoration: underline;
   font-weight: bold;
   font-size: small;
   background-color: var(--backgroundColor);
@@ -164,4 +163,7 @@ textarea,
   text-align: center;
   margin: auto;
   position: absolute;
+}
+#Letter {
+  font-size: 500%;
 }
