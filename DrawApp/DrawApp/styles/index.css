@@ -7,6 +7,12 @@ body {
   display: flex;
   background-color: antiquewhite;
 }
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+}
 button.MainButtons {
   text-align: center;
   display: inline-block;
