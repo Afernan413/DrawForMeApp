@@ -12,14 +12,17 @@ function createGrid(length, height) {
   GridContainer.style.setProperty("--length", length);
   GridContainer.style.setProperty("--height", height);
   if (length == 30 && height == 50) {
+    GridContainer.setAttribute("CanvasType", "Portrait");
     GridContainer.style.setProperty("--canvasWidth", "375px");
     GridContainer.style.setProperty("--canvasHeight", "625px");
     GridSizeTitle.innerHTML = CanvasMode;
   } else if (length == 50 && height == 30) {
+    GridContainer.setAttribute("CanvasType", "Landscape");
     GridContainer.style.setProperty("--canvasWidth", "1050px");
     GridContainer.style.setProperty("--canvasHeight", "630px");
     GridSizeTitle.innerHTML = CanvasMode;
   } else if (length == 50 && height == 50) {
+    GridContainer.setAttribute("CanvasType", "Square");
     GridContainer.style.setProperty("--canvasWidth", "635px");
     GridContainer.style.setProperty("--canvasHeight", "635px");
     GridSizeTitle.innerHTML = CanvasMode;

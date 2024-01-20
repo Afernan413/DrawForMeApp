@@ -118,6 +118,21 @@ button.MainButtons img {
   font-size: small;
   background-color: var(--backgroundColor);
 }
+#FileStatusContainer {
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-style: italic;
+
+  background-color: white;
+  border: 3px solid black;
+  position: fixed;
+  right: 5%;
+  top: 10%;
+}
+
 #CanvasSizeTitle {
   font-size: 20px;
   font-weight: 100;
@@ -166,4 +181,53 @@ textarea,
 }
 #Letter {
   font-size: 500%;
+}
+#FileSelection {
+  position: static;
+  background-color: white;
+  border: 3px solid black;
+  height: 600px;
+  width: 500px;
+  overflow-y: scroll;
+}
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* make scrollbar transparent */
+}
+#FileSelection > h1 {
+  font-size: 40px;
+  text-decoration: underline;
+  text-underline-offset: 7px;
+  font-style: italic;
+}
+#PathLocation {
+  font-size: 20px;
+  font-weight: 100;
+  margin: 0;
+  padding-bottom: 10px;
+  font-style: italic;
+}
+div.File {
+  padding: 10px;
+  border: 3px solid black;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+}
+#FileList > div:last-child {
+  border-bottom: 3px solid black;
+}
+div.File.active {
+  background-color: lightgrey;
+}
+#CustomFileNameBar {
+  margin: 0;
+  font-weight: bold;
+  font-style: italic;
+  background-color: white;
+  border: 3px solid black;
+  height: 20px;
+  overflow-x: clip;
+  white-space: nowrap;
+  direction: rtl;
 }

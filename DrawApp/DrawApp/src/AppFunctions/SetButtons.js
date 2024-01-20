@@ -160,7 +160,7 @@ function setChangeColorButtons() {
   Button4.innerHTML = FormattedPallete[3] + "oops";
   Button5.innerHTML = FormattedPallete[4] + "oops";
   Button6.innerHTML =
-    "Eraser<br><br>Standard<br><br>Unknown<br><br>Unknown<br><br>Unknown<br><br>Go Back";
+    "Eraser<br><br>Standard<br><br><br><br><br><br><br><br>Go Back";
   CurrentPage = CanvasMode + "ChangeColor";
   return;
 }
@@ -189,8 +189,8 @@ function setChangeFillButtons() {
   Button1.innerHTML = "SOLID";
   Button2.innerHTML = "DOT";
   Button3.innerHTML = "LETTER";
-  Button4.innerHTML = "BLANK";
-  Button5.innerHTML = "BLANK";
+  Button4.innerHTML = "";
+  Button5.innerHTML = "";
   Button6.innerHTML = "Go Back";
   CurrentPage = CanvasMode + "ChangeFill";
   return;
@@ -249,5 +249,59 @@ function setSymbolsButtons() {
   Button5.innerHTML = FormattedSymbolsModeOptions[4];
   Button6.innerHTML = FormattedSymbolsModeOptions[5];
   CurrentPage = CanvasMode + "ChangeFillSymbols";
+  return;
+}
+function setFileLookupButtons() {
+  Button1.innerHTML =
+    "<img src='../assets/Icons/DownArrow.png' alt='Down-Arrow' />";
+
+  Button2.innerHTML =
+    "<img src='../assets/Icons/DownDown.png' alt='DownDown-Arrow' />";
+
+  Button3.innerHTML =
+    "<img src='../assets/Icons/UpArrow.png' alt='Up-Arrow' />";
+
+  Button4.innerHTML =
+    "<img src='../assets/Icons/UpUpArrow.png' alt='UpUp-Arrow' />";
+  Button5.innerHTML = "Select";
+  Button6.innerHTML = "oops";
+  CurrentPage = CanvasMode + "FileLookup";
+  return;
+}
+
+function setSaveButtons() {
+  Button1.innerHTML = "Save with current name";
+  Button2.innerHTML = "";
+  Button3.innerHTML = "Save with new name";
+  Button4.innerHTML = "";
+  Button5.innerHTML = "Save with default name";
+  Button6.innerHTML = "Cancel";
+  CurrentPage = CanvasMode + "Save";
+  return;
+}
+function saveKeyboardButtons() {
+  Button1.innerHTML = FormattedWrittingModeOptions[0];
+  Button2.innerHTML = FormattedWrittingModeOptions[1];
+  Button3.innerHTML = FormattedWrittingModeOptions[2];
+  Button4.innerHTML = FormattedWrittingModeOptions[3];
+  Button5.innerHTML = FormattedWrittingModeOptions[4];
+  Button6.innerHTML = "z<br><br><br><br><br><br>Space<br><br>Back<br><br>Done";
+  CurrentPage = CanvasMode + "SetCustomNameKeys";
+  return;
+}
+function saveKeyboardSetLetters(bool = false, buttonClickedOptions) {
+  Button1.innerHTML = buttonClickedOptions[0];
+  Button2.innerHTML = buttonClickedOptions[1];
+  Button3.innerHTML = buttonClickedOptions[2];
+  Button4.innerHTML = buttonClickedOptions[3];
+  Button5.innerHTML = buttonClickedOptions[4];
+  if (bool === true) {
+    Button6.innerHTML = buttonClickedOptions[5];
+    CurrentPage = CanvasMode + "SetCustomNameLettersMore";
+  } else {
+    Button6.innerHTML = "oops";
+    CurrentPage = CanvasMode + "SetCustomNameLetters";
+  }
+
   return;
 }

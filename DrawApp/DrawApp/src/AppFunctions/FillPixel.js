@@ -1,4 +1,11 @@
 function FillPixel(color, Letter) {
+  if (
+    CurrentPage == CanvasMode + "SetCustomNameLetters" ||
+    CurrentPage == CanvasMode + "SetCustomNameLettersMore"
+  ) {
+    document.getElementById("CustomFileNameBar").innerHTML += Letter;
+    return;
+  }
   const activeBox = document.getElementById("pixel-" + currentPixel);
   const PreviewBox = document.getElementById("CurrentSelectionContainer");
   if (FillMode == "Circle") {
