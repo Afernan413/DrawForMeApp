@@ -162,6 +162,7 @@ function saveFile(mode) {
       "'" + FileName + "'";
     return;
   }
+
   return;
 }
 function setNewName() {
@@ -179,5 +180,6 @@ function setNewName() {
   document.getElementById("CustomFileNameBar").setAttribute("hidden", "");
   document.getElementById("FileStatusContainer").innerHTML =
     "'" + FileName + "'";
+
   return;
 }

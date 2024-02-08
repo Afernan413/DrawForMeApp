@@ -268,8 +268,30 @@ function setFileLookupButtons() {
   CurrentPage = CanvasMode + "FileLookup";
   return;
 }
+function setPrintLookupButtons() {
+  Button1.innerHTML =
+    "<img src='../assets/Icons/DownArrow.png' alt='Down-Arrow' />";
+
+  Button2.innerHTML =
+    "<img src='../assets/Icons/DownDown.png' alt='DownDown-Arrow' />";
+
+  Button3.innerHTML =
+    "<img src='../assets/Icons/UpArrow.png' alt='Up-Arrow' />";
+
+  Button4.innerHTML =
+    "<img src='../assets/Icons/UpUpArrow.png' alt='UpUp-Arrow' />";
+  Button5.innerHTML = "Select";
+  Button6.innerHTML = "oops";
+  CurrentPage = CanvasMode + "PrinterLookup";
+  return;
+}
 
 function setSaveButtons() {
+  if (FileName == undefined) {
+    document.getElementById("PrimaryButtons_1").disabled = true;
+  } else {
+    document.getElementById("PrimaryButtons_1").disabled = false;
+  }
   Button1.innerHTML = "Save with current name";
   Button2.innerHTML = "";
   Button3.innerHTML = "Save with new name";
@@ -280,6 +302,7 @@ function setSaveButtons() {
   return;
 }
 function saveKeyboardButtons() {
+  document.getElementById("PrimaryButtons_1").disabled = false;
   Button1.innerHTML = FormattedWrittingModeOptions[0];
   Button2.innerHTML = FormattedWrittingModeOptions[1];
   Button3.innerHTML = FormattedWrittingModeOptions[2];
@@ -290,6 +313,7 @@ function saveKeyboardButtons() {
   return;
 }
 function saveKeyboardSetLetters(bool = false, buttonClickedOptions) {
+  document.getElementById("PrimaryButtons_1").disabled = false;
   Button1.innerHTML = buttonClickedOptions[0];
   Button2.innerHTML = buttonClickedOptions[1];
   Button3.innerHTML = buttonClickedOptions[2];

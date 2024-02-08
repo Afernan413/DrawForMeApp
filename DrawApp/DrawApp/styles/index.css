@@ -188,7 +188,8 @@ textarea,
 #Letter {
   font-size: 500%;
 }
-#FileSelection {
+#FileSelection,
+#PrinterSelection {
   position: static;
   background-color: white;
   border: 3px solid black;
@@ -200,7 +201,8 @@ textarea,
   width: 0px;
   background: transparent; /* make scrollbar transparent */
 }
-#FileSelection > h1 {
+#FileSelection > h1,
+#PrinterSelection > h1 {
   font-size: 40px;
   text-decoration: underline;
   text-underline-offset: 7px;
@@ -213,17 +215,20 @@ textarea,
   padding-bottom: 10px;
   font-style: italic;
 }
-div.File {
+div.File,
+div.Printer {
   padding: 10px;
   border: 3px solid black;
   border-left: none;
   border-right: none;
   border-bottom: none;
 }
-#FileList > div:last-child {
+#FileList > div:last-child,
+#PrinterList > div:last-child {
   border-bottom: 3px solid black;
 }
-div.File.active {
+div.File.active,
+div.Printer.active {
   background-color: lightgrey;
 }
 #CustomFileNameBar {

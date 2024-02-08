@@ -5,6 +5,7 @@
     <title>Draw Abey</title>
     <link rel="stylesheet" href="../styles/index.css" />
     <script defer src="./renderer.js"></script>
+    <script src="./AppFunctions/Printing.js"></script>
     <script defer src="./AppFunctions/SetButtons.js"></script>
     <script defer src="./AppFunctions/SetCanvas.js"></script>
     <script defer src="./AppFunctions/GridNavigation.js"></script>
@@ -12,7 +13,7 @@
     <script defer src="./AppFunctions/ChangeColor.js"></script>
     <script defer src="./AppFunctions/GetProjects.js"></script>
   </head>
-  <body>
+  <body id="body">
     <section id="TopSection">
       <h1>Art By Abey...</h1>
       <div id="CanvasContainer"></div>
@@ -20,6 +21,10 @@
         <h1>Select a file</h1>
         <div id="PathLocation"></div>
         <div id="FileList"></div>
+      </div>
+      <div id="PrinterSelection" hidden>
+        <h1>Select a printer</h1>
+        <div id="PrinterList"></div>
       </div>
       <h1 id="CanvasSizeTitle"></h1>
       <div id="CurrentSelectionContainer">

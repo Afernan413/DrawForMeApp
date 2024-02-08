@@ -1,4 +1,6 @@
 const { BrowserWindow, app } = require("@electron/remote");
+var PHE = require("print-html-element");
+
 var color2Name = require("color-2-name");
 const { ipcRenderer } = require("electron");
 const fs = require("fs");
@@ -27,8 +29,14 @@ var color = document
 var FillMode = "Solid";
 var currWindow = BrowserWindow.getFocusedWindow();
 
-///////////////////////////////////////////////////////////////////////////////////////////////
+var printers = [];
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+function printCanvas() {
+  setPrintLookupButtons();
+  document.querySelector("#CanvasContainer").style.display = "none";
+  GetPrinters();
+}
 function PortraitMode() {
   CanvasMode = "Portrait";
   if (document.querySelectorAll(".pixelCanvas").length == 0) {
@@ -74,6 +82,10 @@ Button1.addEventListener("click", () => {
   }
   if (CurrentPage == "PickCanvas") {
     PortraitMode();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "PrinterLookup") {
+    navigatePrinterList(Button1);
     return;
   }
   if (CurrentPage == CanvasMode + "FileLookup") {
@@ -170,6 +182,10 @@ Button1.addEventListener("click", () => {
 Button2.addEventListener("click", () => {
   if (CurrentPage == "PickCanvas") {
     LandscapeMode();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "PrinterLookup") {
+    navigatePrinterList(Button2);
     return;
   }
   if (CurrentPage == CanvasMode + "FileLookup") {
@@ -272,6 +288,10 @@ Button3.addEventListener("click", () => {
     SquareMode();
     return;
   }
+  if (CurrentPage == CanvasMode + "PrinterLookup") {
+    navigatePrinterList(Button3);
+    return;
+  }
   if (CurrentPage == CanvasMode + "FileLookup") {
     navigateFileList(Button3);
     return;
@@ -357,6 +377,10 @@ Button4.addEventListener("click", () => {
   if (Button4.innerHTML.includes("Import Image")) {
     return;
   }
+  if (CurrentPage == CanvasMode + "PrinterLookup") {
+    navigatePrinterList(Button4);
+    return;
+  }
   if (CurrentPage == CanvasMode + "FileLookup") {
     navigateFileList(Button4);
     return;
@@ -370,7 +394,6 @@ Button4.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "More") {
     setSaveButtons();
-
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
@@ -449,6 +472,10 @@ Button5.addEventListener("click", () => {
     selectFile();
     return;
   }
+  if (CurrentPage == CanvasMode + "PrinterLookup") {
+    selectPrinter();
+    return;
+  }
   if (Button5.innerHTML.includes("Fill")) {
     if (FillMode == "Letter") {
       FillPixel(color, document.querySelector("#Letter").innerHTML);
@@ -518,6 +545,10 @@ Button5.addEventListener("click", () => {
       .querySelector("#CustomFileNameBar")
       .innerHTML.slice(0, -1);
     saveKeyboardButtons();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "More") {
+    printCanvas();
     return;
   }
 });
