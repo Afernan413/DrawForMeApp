@@ -160,8 +160,8 @@ textarea,
   position: relative;
   top: 25%;
   left: 25%;
-  height: 50px;
-  width: 50px;
+  height: 2.5vw;
+  width: 2.5vw;
   background-color: black;
   border-radius: 50%;
 }
@@ -183,7 +183,7 @@ textarea,
   position: absolute;
 }
 #Letter {
-  font-size: 500%;
+  font-size: 3vw;
 }
 #FileSelection,
 #PrinterSelection {
