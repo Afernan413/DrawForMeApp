@@ -13,18 +13,19 @@ function createGrid(length, height) {
   GridContainer.style.setProperty("--height", height);
   if (length == 30 && height == 50) {
     GridContainer.setAttribute("CanvasType", "Portrait");
-    GridContainer.style.setProperty("--canvasWidth", "375px");
-    GridContainer.style.setProperty("--canvasHeight", "625px");
+    GridContainer.style.setProperty("--canvasWidth", "40vh");
+    GridContainer.style.setProperty("--canvasHeight", "60vh");
     GridSizeTitle.innerHTML = CanvasMode;
   } else if (length == 50 && height == 30) {
+    GridContainer.style.setProperty("margin-top", "10vh");
     GridContainer.setAttribute("CanvasType", "Landscape");
-    GridContainer.style.setProperty("--canvasWidth", "1050px");
-    GridContainer.style.setProperty("--canvasHeight", "630px");
+    GridContainer.style.setProperty("--canvasWidth", "60vh");
+    GridContainer.style.setProperty("--canvasHeight", "40vh");
     GridSizeTitle.innerHTML = CanvasMode;
   } else if (length == 50 && height == 50) {
     GridContainer.setAttribute("CanvasType", "Square");
-    GridContainer.style.setProperty("--canvasWidth", "635px");
-    GridContainer.style.setProperty("--canvasHeight", "635px");
+    GridContainer.style.setProperty("--canvasWidth", "60vh");
+    GridContainer.style.setProperty("--canvasHeight", "60vh");
     GridSizeTitle.innerHTML = CanvasMode;
   }
   for (let i = 0; i < length * height; i++) {

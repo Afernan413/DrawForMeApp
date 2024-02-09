@@ -6,6 +6,7 @@ body {
   max-height: fit-content;
   display: flex;
   background-color: antiquewhite;
+  overflow: hidden;
 }
 img {
   -webkit-user-drag: none;
@@ -19,9 +20,9 @@ button.MainButtons {
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  min-height: 250px;
+  min-height: 25vh;
   height: fit-content;
-  min-width: 150px;
+  min-width: 9vw;
   margin: 10px;
   border-radius: 10px;
 }
@@ -59,6 +60,7 @@ button.MainButtons img {
   text-align: center;
 }
 #BottomSection {
+  padding-top: 10px;
   width: fit-content;
   height: fit-content;
   position: absolute;
@@ -142,8 +144,6 @@ button.MainButtons img {
 #CanvasSizeTitle {
   font-size: 20px;
   font-weight: 100;
-  margin: 0;
-  padding: 0;
   font-style: italic;
 }
 :not(input):not(textarea),

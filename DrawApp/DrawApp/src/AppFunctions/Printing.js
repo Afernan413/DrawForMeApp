@@ -34,6 +34,8 @@ function updatePrinterSelection() {
   const activePrinter = document.getElementById("printer-" + currentPrinter);
   if (activePrinter) {
     activePrinter.classList.add("active");
+  } else {
+    return;
   }
   activePrinter.scrollIntoViewIfNeeded();
   return;
@@ -84,6 +86,7 @@ function navigatePrinterList(Movement) {
 function selectPrinter() {
   const winContents = BrowserWindow.getFocusedWindow().webContents;
   const activePrinter = document.getElementById("printer-" + currentPrinter);
+  if (!activePrinter) return;
   PrinterName = activePrinter.innerHTML;
   document.getElementById("PrinterSelection").setAttribute("hidden", "");
   document.querySelector("#CanvasContainer").style.display = "grid";

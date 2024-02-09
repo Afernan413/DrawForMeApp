@@ -1,4 +1,4 @@
-const DocumentsPath = app.getPath("documents");
+const DocumentsPath = app.getPath("home");
 var ProjectsPath;
 var projects = [];
 var projectNames = [];
@@ -6,10 +6,10 @@ let currentFile = 1;
 let FileName;
 var doneTyping = false;
 try {
-  fs.mkdirSync(DocumentsPath + "\\ArtByAbey\\Projects");
-  ProjectsPath = DocumentsPath + "\\ArtByAbey\\Projects";
+  fs.mkdirSync(DocumentsPath + "/ArtByAbey/Projects", { recursive: true });
+  ProjectsPath = DocumentsPath + "/ArtByAbey/Projects";
 } catch (error) {}
-ProjectsPath = DocumentsPath + "\\ArtByAbey\\Projects";
+ProjectsPath = DocumentsPath + "/ArtByAbey/Projects";
 
 function GetProjects() {
   document.getElementById("FileSelection").removeAttribute("hidden");
@@ -45,7 +45,9 @@ function updateFileSelection() {
   if (activeFile) {
     activeFile.classList.add("active");
   }
-  activeFile.scrollIntoViewIfNeeded();
+  if (activeFile) {
+    activeFile.scrollIntoViewIfNeeded();
+  }
   return;
 }
 function navigateFileList(Movement) {
@@ -93,9 +95,10 @@ function navigateFileList(Movement) {
 }
 function selectFile() {
   const activeFile = document.getElementById("file-" + currentFile);
+  if (!activeFile) return;
   FileName = activeFile.innerHTML;
   var selectedFile = fs
-    .readFileSync(ProjectsPath + "\\" + activeFile.innerHTML + ".json")
+    .readFileSync(ProjectsPath + "/" + activeFile.innerHTML + ".json")
     .toString();
   document.getElementById("FileSelection").setAttribute("hidden", "");
   if (selectedFile.includes("Portrait") === true) {
@@ -117,9 +120,10 @@ function saveFile(mode) {
     .outerHTML.toString();
   if (mode == "setCurrent") {
     FileName = FileName;
-    fs.writeFileSync(ProjectsPath + "\\" + FileName + ".json", fileContent);
+    fs.writeFileSync(ProjectsPath + "/" + FileName + ".json", fileContent);
     return;
   } else if (mode == "setNew") {
+    document.getElementById("CanvasSizeTitle").setAttribute("hidden", "");
     document.getElementById("CustomFileNameBar").removeAttribute("hidden");
     document
       .getElementById("CustomFileNameBar")
@@ -142,8 +146,8 @@ function saveFile(mode) {
     if (minute < 10) {
       minute = "0" + minute;
     }
-    if (fs.existsSync(ProjectsPath + "\\" + FileName + ".json") === true) {
-      fs.unlinkSync(ProjectsPath + "\\" + FileName + ".json");
+    if (fs.existsSync(ProjectsPath + "/" + FileName + ".json") === true) {
+      fs.unlinkSync(ProjectsPath + "/" + FileName + ".json");
     }
     FileName =
       CanvasMode +
@@ -157,7 +161,7 @@ function saveFile(mode) {
       seconds +
       " " +
       suffix;
-    fs.writeFileSync(ProjectsPath + "\\" + FileName + ".json", fileContent);
+    fs.writeFileSync(ProjectsPath + "/" + FileName + ".json", fileContent);
     document.getElementById("FileStatusContainer").innerHTML =
       "'" + FileName + "'";
     return;
@@ -169,14 +173,14 @@ function setNewName() {
   let fileContent = document
     .getElementById("CanvasContainer")
     .outerHTML.toString();
-  if (fs.existsSync(ProjectsPath + "\\" + FileName + ".json") === true) {
-    fs.unlinkSync(ProjectsPath + "\\" + FileName + ".json");
+  if (fs.existsSync(ProjectsPath + "/" + FileName + ".json") === true) {
+    fs.unlinkSync(ProjectsPath + "/" + FileName + ".json");
   }
   FileName = document.getElementById("CustomFileNameBar").innerHTML;
   if (FileName == undefined) {
     FileName = "NewFile";
   }
-  fs.writeFileSync(ProjectsPath + "\\" + FileName + ".json", fileContent);
+  fs.writeFileSync(ProjectsPath + "/" + FileName + ".json", fileContent);
   document.getElementById("CustomFileNameBar").setAttribute("hidden", "");
   document.getElementById("FileStatusContainer").innerHTML =
     "'" + FileName + "'";

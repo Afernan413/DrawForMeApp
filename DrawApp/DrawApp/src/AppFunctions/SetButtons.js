@@ -265,7 +265,7 @@ function setFileLookupButtons() {
     "<img src='../assets/Icons/UpUpArrow.png' alt='UpUp-Arrow' />";
   Button5.innerHTML = "Select";
   Button6.innerHTML = "oops";
-  CurrentPage = CanvasMode + "FileLookup";
+  CurrentPage = "FileLookup";
   return;
 }
 function setPrintLookupButtons() {

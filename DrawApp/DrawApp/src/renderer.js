@@ -88,7 +88,7 @@ Button1.addEventListener("click", () => {
     navigatePrinterList(Button1);
     return;
   }
-  if (CurrentPage == CanvasMode + "FileLookup") {
+  if (CurrentPage == "FileLookup") {
     navigateFileList(Button1);
     return;
   }
@@ -188,7 +188,7 @@ Button2.addEventListener("click", () => {
     navigatePrinterList(Button2);
     return;
   }
-  if (CurrentPage == CanvasMode + "FileLookup") {
+  if (CurrentPage == "FileLookup") {
     navigateFileList(Button2);
     return;
   }
@@ -292,7 +292,7 @@ Button3.addEventListener("click", () => {
     navigatePrinterList(Button3);
     return;
   }
-  if (CurrentPage == CanvasMode + "FileLookup") {
+  if (CurrentPage == "FileLookup") {
     navigateFileList(Button3);
     return;
   }
@@ -381,7 +381,7 @@ Button4.addEventListener("click", () => {
     navigatePrinterList(Button4);
     return;
   }
-  if (CurrentPage == CanvasMode + "FileLookup") {
+  if (CurrentPage == "FileLookup") {
     navigateFileList(Button4);
     return;
   }
@@ -468,7 +468,7 @@ Button5.addEventListener("click", () => {
   if (Button5.innerHTML.includes("Fonts And Fills")) {
     return;
   }
-  if (CurrentPage == CanvasMode + "FileLookup") {
+  if (CurrentPage == "FileLookup") {
     selectFile();
     return;
   }
@@ -642,7 +642,18 @@ Button6.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "SetCustomNameLettersMore") {
     setNewName();
+    document.getElementById("CanvasSizeTitle").removeAttribute("hidden");
     window[CanvasMode.toString() + "Mode"]();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "PrinterLookup") {
+    setMoreButtons();
+    document.getElementById("PrinterSelection").setAttribute("hidden", "");
+    document.querySelector("#CanvasContainer").style.display = "grid";
+    return;
+  }
+  if (CurrentPage == "FileLookup") {
+    document.location.reload();
     return;
   }
 });
