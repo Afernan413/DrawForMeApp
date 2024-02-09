@@ -21,7 +21,7 @@ function GetProjects() {
     }
   });
   document.getElementById("PathLocation").innerHTML =
-    "File Path: " + ProjectsPath;
+    "File Path: " + ProjectsPath.replaceAll("\\", "/");
   if (document.getElementById("FileList").innerHTML == "") {
     let counter = 1;
     projects.forEach((project) => {

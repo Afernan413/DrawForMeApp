@@ -22,7 +22,7 @@ button.MainButtons {
   cursor: pointer;
   min-height: 25vh;
   height: fit-content;
-  min-width: 9vw;
+  min-width: 8vw;
   margin: 10px;
   border-radius: 10px;
 }
@@ -114,14 +114,12 @@ button.MainButtons img {
 }
 #CurrentSelectionContainer {
   --backgroundColor: white;
-  width: 100px;
-  height: 100px;
+  width: 5vw;
+  height: 5vw;
   border: 3px solid black;
   position: fixed;
   right: 80%;
   top: 10%;
-  margin-top: 10px;
-  margin-bottom: 10px;
   font-weight: bold;
   font-size: small;
   background-color: var(--backgroundColor);
@@ -133,7 +131,6 @@ button.MainButtons img {
   align-items: center;
   font-weight: bold;
   font-style: italic;
-
   background-color: white;
   border: 3px solid black;
   position: fixed;
