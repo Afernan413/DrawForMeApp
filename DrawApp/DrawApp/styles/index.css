@@ -239,3 +239,19 @@ div.Printer.active {
   white-space: nowrap;
   direction: rtl;
 }
+@media print {
+  body {
+    background-color: white;
+  }
+  #BottomSection,
+  #FileStatusContainer,
+  #CurrentSelectionContainer,
+  #CanvasSizeTitle,
+  #ApplicationTitle {
+    display: none;
+  }
+
+  #CanvasContainer * {
+    visibility: visible;
+  }
+}
