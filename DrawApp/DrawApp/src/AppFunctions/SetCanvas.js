@@ -37,5 +37,8 @@ function createGrid(length, height) {
   }
   pixelLength = length;
   pixelHeight = height;
+  const canvas = document.getElementById("CanvasContainer").outerHTML;
+
+  require("electron").ipcRenderer.send("canvas-update", canvas);
   return;
 }

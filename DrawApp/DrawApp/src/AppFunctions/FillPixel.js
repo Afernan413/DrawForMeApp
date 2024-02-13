@@ -26,5 +26,7 @@ function FillPixel(color, Letter) {
   }
   activeBox.style.backgroundColor =
     getComputedStyle(PreviewBox).backgroundColor;
+  const canvas = document.getElementById("CanvasContainer").outerHTML;
+  require("electron").ipcRenderer.send("canvas-update", canvas);
   return;
 }

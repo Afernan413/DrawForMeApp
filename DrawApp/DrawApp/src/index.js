@@ -1,4 +1,12 @@
-const { app, BrowserWindow, screen, webContents } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  desktopCapturer,
+  ipcMain,
+  contextBridge,
+  ipcRenderer,
+  screen,
+} = require("electron");
 require("@electron/remote/main").initialize();
 
 const path = require("path");
@@ -25,12 +33,36 @@ const createWindow = () => {
       enableRemoteModule: false,
     },
   });
+
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "index.html"));
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
   require("@electron/remote/main").enable(mainWindow.webContents);
+  let displays = screen.getAllDisplays();
+  let externalDisplay = displays.find((display) => {
+    return display.bounds.x !== 0 || display.bounds.y !== 0;
+  });
+
+  if (externalDisplay) {
+    contentWindow = new BrowserWindow({
+      x: externalDisplay.bounds.x,
+      y: externalDisplay.bounds.y,
+      movable: false,
+      titleBarStyle: "hidden",
+      center: true,
+      fullscreen: true,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        enableRemoteModule: false,
+      },
+    });
+    contentWindow.maximize();
+    contentWindow.loadFile(path.join(__dirname, "ContentScreen.html"));
+    require("@electron/remote/main").enable(contentWindow.webContents);
+  }
 };
 
 // This method will be called when Electron has finished
@@ -57,3 +89,9 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+ipcMain.on("canvas-update", (event, canvasData) => {
+  if (contentWindow) {
+    contentWindow.webContents.send("update-canvas", canvasData);
+  }
+});

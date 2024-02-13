@@ -1,4 +1,13 @@
-const { BrowserWindow, app } = require("@electron/remote");
+const {
+  BrowserWindow,
+  BrowserView,
+  app,
+  desktopCapturer,
+  screen,
+  remote,
+} = require("@electron/remote");
+const electron = require("electron");
+const path = require("path");
 var PHE = require("print-html-element");
 
 var color2Name = require("color-2-name");
@@ -30,7 +39,7 @@ var FillMode = "Solid";
 var currWindow = BrowserWindow.getFocusedWindow();
 
 var printers = [];
-
+let contentWindow;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 function printCanvas() {
   setPrintLookupButtons();
@@ -38,6 +47,7 @@ function printCanvas() {
   GetPrinters();
 }
 function PortraitMode() {
+  
   CanvasMode = "Portrait";
   if (document.querySelectorAll(".pixelCanvas").length == 0) {
     createGrid(30, 50);
@@ -73,6 +83,7 @@ function SquareMode() {
   updatePixel();
   return;
 }
+
 
 //Button 1 listener
 Button1.addEventListener("click", () => {
@@ -559,7 +570,9 @@ Button6.addEventListener("click", () => {
     return;
   }
   if (Button6.innerHTML.includes("Quit")) {
-    currWindow.destroy();
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.close();
+    });
   }
   if (Button6.innerHTML.includes("Go Back")) {
     if (CurrentPage == "PickCanvas") {
