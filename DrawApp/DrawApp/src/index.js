@@ -6,6 +6,7 @@ const {
   contextBridge,
   ipcRenderer,
   screen,
+  globalShortcut,
 } = require("electron");
 require("@electron/remote/main").initialize();
 
@@ -31,6 +32,7 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
+      devTools: false,
     },
   });
 
@@ -38,7 +40,6 @@ const createWindow = () => {
   mainWindow.loadFile(path.join(__dirname, "index.html"));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
   require("@electron/remote/main").enable(mainWindow.webContents);
   let displays = screen.getAllDisplays();
   let externalDisplay = displays.find((display) => {
@@ -57,6 +58,7 @@ const createWindow = () => {
         nodeIntegration: true,
         contextIsolation: false,
         enableRemoteModule: false,
+        devTools: false,
       },
     });
     contentWindow.maximize();
@@ -94,4 +96,16 @@ ipcMain.on("canvas-update", (event, canvasData) => {
   if (contentWindow) {
     contentWindow.webContents.send("update-canvas", canvasData);
   }
+});
+app.on("browser-window-focus", function () {
+  globalShortcut.register("CommandOrControl+R", () => {
+    console.log("CommandOrControl+R is pressed: Shortcut Disabled");
+  });
+  globalShortcut.register("F5", () => {
+    console.log("F5 is pressed: Shortcut Disabled");
+  });
+});
+app.on("browser-window-blur", function () {
+  globalShortcut.unregister("CommandOrControl+R");
+  globalShortcut.unregister("F5");
 });

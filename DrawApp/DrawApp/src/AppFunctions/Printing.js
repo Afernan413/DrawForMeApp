@@ -1,5 +1,7 @@
 var PrinterList = [];
 let currentPrinter = 1;
+var swal = require("sweetalert");
+
 function GetPrinters() {
   document.getElementById("PrinterSelection").removeAttribute("hidden");
   const winContents = BrowserWindow.getFocusedWindow().webContents;
@@ -8,7 +10,8 @@ function GetPrinters() {
     PrinterList.forEach((printer) => {
       console.log(printer.name);
     });
-    if (document.getElementById("PrinterList").innerHTML == "") {
+    if (document.getElementById("PrinterList")) {
+      document.getElementById("PrinterList").innerHTML = "";
       let counter = 1;
       PrinterList.forEach((printer) => {
         document.getElementById(
@@ -17,6 +20,10 @@ function GetPrinters() {
           printer.name
         }</div>`;
       });
+      PrinterList.push("Save As PDF");
+      document.getElementById(
+        "PrinterList"
+      ).innerHTML += `<div class="Printer" id="printer-${counter++}">Save As PDF</div>`;
     }
     if (PrinterList.length !== 0) {
       document
@@ -84,26 +91,45 @@ function navigatePrinterList(Movement) {
   return;
 }
 function selectPrinter() {
-  const winContents = BrowserWindow.getFocusedWindow().webContents;
+  const winContents = BrowserWindow.getAllWindows()[0].webContents;
   const activePrinter = document.getElementById("printer-" + currentPrinter);
   if (!activePrinter) return;
   PrinterName = activePrinter.innerHTML;
   document.getElementById("PrinterSelection").setAttribute("hidden", "");
   document.querySelector("#CanvasContainer").style.display = "grid";
   console.log(PrinterName);
-  winContents.print({
-    silent: true,
-    printBackground: true,
-    deviceName: PrinterName,
-    scaleFactor: 100,
-    pageRanges: [
-      {
-        from: 0,
-        to: 1,
-      },
-    ],
-    color: true,
-    pageSize: "A4",
-  });
+  if (PrinterName == "Save As PDF") {
+    fs.mkdirSync(DocumentsPath + "/ArtByAbey/Artworks", { recursive: true });
+    var filepath1 = DocumentsPath + "/ArtByAbey/Artworks";
+    var options = {
+      color: true,
+      marginsType: 0,
+      pageSize: "A4",
+      printBackground: true,
+      printSelectionOnly: false,
+      landscape: CanvasMode == "Portrait" ? false : true,
+    };
+    let win = BrowserWindow.getAllWindows()[0];
+    swal("File saved as PDF in " + filepath1.replaceAll("/", "\\"), {
+      buttons: false,
+      timer: 5000,
+    });
+    win.webContents.printToPDF(options).then((data) => {
+      fs.writeFileSync(filepath1 + "/" + FileName + ".pdf", data);
+    });
+  } else {
+    winContents.print({
+      silent: true,
+      printBackground: true,
+      deviceName: PrinterName,
+      pageRanges: [
+        {
+          from: 0,
+          to: 1,
+        },
+      ],
+      color: true,
+    });
+  }
   return;
 }

@@ -9,7 +9,7 @@ const {
 const electron = require("electron");
 const path = require("path");
 var PHE = require("print-html-element");
-
+var tinycolor = require("tinycolor2");
 var color2Name = require("color-2-name");
 const { ipcRenderer } = require("electron");
 const fs = require("fs");
@@ -41,13 +41,17 @@ var currWindow = BrowserWindow.getFocusedWindow();
 var printers = [];
 let contentWindow;
 ///////////////////////////////////////////////////////////////////////////////////////////////
+function ContentWindow() {
+  const canvas = document.getElementById("CanvasContainer").outerHTML;
+  require("electron").ipcRenderer.send("canvas-update", canvas);
+  return;
+}
 function printCanvas() {
   setPrintLookupButtons();
   document.querySelector("#CanvasContainer").style.display = "none";
   GetPrinters();
 }
 function PortraitMode() {
-  
   CanvasMode = "Portrait";
   if (document.querySelectorAll(".pixelCanvas").length == 0) {
     createGrid(30, 50);
@@ -84,7 +88,6 @@ function SquareMode() {
   return;
 }
 
-
 //Button 1 listener
 Button1.addEventListener("click", () => {
   if (CurrentPage == "Home") {
@@ -97,6 +100,12 @@ Button1.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "PrinterLookup") {
     navigatePrinterList(Button1);
+    return;
+  }
+  if (CurrentPage == CanvasMode + "Quit") {
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.reload();
+    });
     return;
   }
   if (CurrentPage == "FileLookup") {
@@ -140,7 +149,7 @@ Button1.addEventListener("click", () => {
     document.querySelector("#Letter").innerHTML = "";
 
     FillMode = "Solid";
-    setMoreButtons();
+    colorOptions = ChangeColor();
     return;
   }
   if (
@@ -199,6 +208,11 @@ Button2.addEventListener("click", () => {
     navigatePrinterList(Button2);
     return;
   }
+  if (CurrentPage == CanvasMode + "Quit") {
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.close();
+    });
+  }
   if (CurrentPage == "FileLookup") {
     navigateFileList(Button2);
     return;
@@ -229,7 +243,7 @@ Button2.addEventListener("click", () => {
     document.querySelector("#Circle").hidden = false;
     document.querySelector("#Letter").hidden = true;
     document.querySelector("#Letter").innerHTML = "";
-    if (color == "transparent") {
+    if (color == "transparent" || tinycolor(color).isLight() == false) {
       color = "white";
     }
     var r = document.querySelector("#CurrentSelectionContainer");
@@ -297,6 +311,10 @@ Button3.addEventListener("click", () => {
   }
   if (CurrentPage == "PickCanvas") {
     SquareMode();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "More") {
+    setQuitButtons();
     return;
   }
   if (CurrentPage == CanvasMode + "PrinterLookup") {
@@ -485,6 +503,7 @@ Button5.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "PrinterLookup") {
     selectPrinter();
+    SetNavigationButtons();
     return;
   }
   if (Button5.innerHTML.includes("Fill")) {
@@ -573,6 +592,10 @@ Button6.addEventListener("click", () => {
     BrowserWindow.getAllWindows().forEach((win) => {
       win.close();
     });
+  }
+  if (CurrentPage == CanvasMode + "Quit") {
+    setMoreButtons();
+    return;
   }
   if (Button6.innerHTML.includes("Go Back")) {
     if (CurrentPage == "PickCanvas") {

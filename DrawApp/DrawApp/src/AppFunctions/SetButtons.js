@@ -128,12 +128,22 @@ function SetNavigationButtons() {
 
   return;
 }
+function setQuitButtons() {
+  Button1.innerHTML = "Quit To Home";
+  Button2.innerHTML = "Quit To Desktop";
+  Button3.innerHTML = "";
+  Button4.innerHTML = "";
+  Button5.innerHTML = "";
+  Button6.innerHTML = "oops";
+  CurrentPage = CanvasMode + "Quit";
+  return;
+}
 function setMoreButtons() {
   Button1.innerHTML = "Change Color";
   Button1.removeAttribute("arrow");
   Button2.innerHTML = "Change Fill";
   Button2.removeAttribute("arrow");
-  Button3.innerHTML = "Change Palette";
+  Button3.innerHTML = "Quit";
   Button3.removeAttribute("arrow");
   Button4.innerHTML = "Save";
   Button4.removeAttribute("arrow");

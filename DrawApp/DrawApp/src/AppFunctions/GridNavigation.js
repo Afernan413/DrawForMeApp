@@ -9,8 +9,7 @@ function updatePixel() {
   if (activeBox) {
     activeBox.classList.add("active");
   }
-  const canvas = document.getElementById("CanvasContainer").outerHTML;
-  require("electron").ipcRenderer.send("canvas-update", canvas);
+  ContentWindow();
   return;
 }
 

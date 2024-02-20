@@ -242,16 +242,9 @@ div.Printer.active {
 @media print {
   body {
     background-color: white;
+    -webkit-print-color-adjust: exact;
   }
-  #BottomSection,
-  #FileStatusContainer,
-  #CurrentSelectionContainer,
-  #CanvasSizeTitle,
-  #ApplicationTitle {
-    display: none;
-  }
-
-  #CanvasContainer * {
-    visibility: visible;
+  .pixelCanvas.active {
+    box-shadow: none;
   }
 }
