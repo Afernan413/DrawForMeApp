@@ -32,7 +32,7 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
-      devTools: false,
+      devTools: true,
     },
   });
 
@@ -45,26 +45,22 @@ const createWindow = () => {
   let externalDisplay = displays.find((display) => {
     return display.bounds.x !== 0 || display.bounds.y !== 0;
   });
-
-  if (externalDisplay) {
-    contentWindow = new BrowserWindow({
-      x: externalDisplay.bounds.x,
-      y: externalDisplay.bounds.y,
-      movable: false,
-      titleBarStyle: "hidden",
-      center: true,
-      fullscreen: true,
-      webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
-        enableRemoteModule: false,
-        devTools: false,
-      },
-    });
-    contentWindow.maximize();
-    contentWindow.loadFile(path.join(__dirname, "ContentScreen.html"));
-    require("@electron/remote/main").enable(contentWindow.webContents);
-  }
+  contentWindow = new BrowserWindow({
+    x: externalDisplay ? externalDisplay.bounds.x : 0,
+    y: externalDisplay ? externalDisplay.bounds.y : 0,
+    movable: false,
+    titleBarStyle: "hidden",
+    center: true,
+    fullscreen: true,
+    webPreferences: {
+      nodeIntegration: true,
+      enableRemoteModule: false,
+      devTools: false,
+    },
+  });
+  contentWindow.maximize();
+  contentWindow.loadFile(path.join(__dirname, "ContentScreen.html"));
+  require("@electron/remote/main").enable(contentWindow.webContents);
 };
 
 // This method will be called when Electron has finished

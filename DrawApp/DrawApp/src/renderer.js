@@ -37,6 +37,7 @@ var color = document
   .get("--backgroundColor");
 var FillMode = "Solid";
 var currWindow = BrowserWindow.getFocusedWindow();
+var childWdindow = BrowserWindow.getAllWindows()[0];
 
 var printers = [];
 let contentWindow;
@@ -210,7 +211,7 @@ Button2.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "Quit") {
     BrowserWindow.getAllWindows().forEach((win) => {
-      win.close();
+      win.destroy();
     });
   }
   if (CurrentPage == "FileLookup") {
@@ -590,7 +591,7 @@ Button6.addEventListener("click", () => {
   }
   if (Button6.innerHTML.includes("Quit")) {
     BrowserWindow.getAllWindows().forEach((win) => {
-      win.close();
+      win.destroy();
     });
   }
   if (CurrentPage == CanvasMode + "Quit") {
@@ -691,5 +692,48 @@ Button6.addEventListener("click", () => {
   if (CurrentPage == "FileLookup") {
     document.location.reload();
     return;
+  }
+});
+
+//event listener for keyboard input
+
+addEventListener("keypress", function (event) {
+  console.log(event.key);
+  // If the user presses the "Enter" key on the keyboard
+  if (event.key === "1") {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    Button1.click();
+  }
+  if (event.key === "2") {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    Button2.click();
+  }
+  if (event.key === "3") {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    Button3.click();
+  }
+  if (event.key === "4") {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    Button4.click();
+  }
+  if (event.key === "5") {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    Button5.click();
+  }
+  if (event.key === "6") {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    Button6.click();
   }
 });
