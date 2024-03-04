@@ -32,7 +32,7 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
-      devTools: true,
+      devTools: false,
     },
   });
 
@@ -54,11 +54,14 @@ const createWindow = () => {
     fullscreen: true,
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
       enableRemoteModule: false,
       devTools: false,
     },
   });
-  contentWindow.maximize();
+  if (externalDisplay) {
+    contentWindow.maximize();
+  }
   contentWindow.loadFile(path.join(__dirname, "ContentScreen.html"));
   require("@electron/remote/main").enable(contentWindow.webContents);
 };

@@ -118,7 +118,11 @@ function selectPrinter() {
       fs.writeFileSync(filepath1 + "/" + FileName + ".pdf", data);
     });
   } else {
-    winContents.print({
+    swal("Currently using printers is not functioning as intended :)", {
+      buttons: false,
+      timer: 5000,
+    });
+    /* winContents.print({
       silent: true,
       printBackground: true,
       deviceName: PrinterName,
@@ -129,7 +133,7 @@ function selectPrinter() {
         },
       ],
       color: true,
-    });
+    }); */
   }
   return;
 }

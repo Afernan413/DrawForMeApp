@@ -112,6 +112,7 @@ function selectFile() {
     "'" + activeFile.innerHTML + "'";
   GridContainer.outerHTML = selectedFile;
   updatePixel();
+  document.getElementById("PrimaryButtons_1").disabled = false;
   return;
 }
 function saveFile(mode) {
@@ -121,6 +122,7 @@ function saveFile(mode) {
   if (mode == "setCurrent") {
     FileName = FileName;
     fs.writeFileSync(ProjectsPath + "/" + FileName + ".json", fileContent);
+    document.getElementById("PrimaryButtons_1").disabled = false;
     return;
   } else if (mode == "setNew") {
     document.getElementById("CanvasSizeTitle").setAttribute("hidden", "");
@@ -164,6 +166,7 @@ function saveFile(mode) {
     fs.writeFileSync(ProjectsPath + "/" + FileName + ".json", fileContent);
     document.getElementById("FileStatusContainer").innerHTML =
       "'" + FileName + "'";
+    document.getElementById("PrimaryButtons_1").disabled = false;
     return;
   }
 
