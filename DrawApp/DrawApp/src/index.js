@@ -32,7 +32,7 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
-      devTools: false,
+      devTools: true,
     },
   });
 
@@ -108,3 +108,6 @@ app.on("browser-window-blur", function () {
   globalShortcut.unregister("CommandOrControl+R");
   globalShortcut.unregister("F5");
 });
+try {
+  require("electron-reloader")(module);
+} catch (_) {}

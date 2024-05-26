@@ -1,30 +1,3 @@
-let palette = [
-  { hex: "#000000", name: "Black" },
-  { hex: "#FFFFFF", name: "White" },
-  { hex: "#FF0000", name: "Red" },
-  { hex: "#00FF00", name: "Green" },
-  { hex: "#0000FF", name: "Blue" },
-  { hex: "#FFFF00", name: "Yellow" },
-  { hex: "#FF00FF", name: "Magenta" },
-  { hex: "#00FFFF", name: "Cyan" },
-  { hex: "#800000", name: "Maroon" },
-  { hex: "#808000", name: "Olive" },
-  { hex: "#008000", name: "Dark Green" },
-  { hex: "#800080", name: "Purple" },
-  { hex: "#008080", name: "Teal" },
-  { hex: "#FFA500", name: "Orange" },
-  { hex: "#A52A2A", name: "Brown" },
-  { hex: "#DEB887", name: "Burlywood" },
-  { hex: "#5F9EA0", name: "Cadet Blue" },
-  { hex: "#7FFF00", name: "Chartreuse" },
-  { hex: "#D2691E", name: "Chocolate" },
-  { hex: "#FF7F50", name: "Coral" },
-  { hex: "#6495ED", name: "Cornflower Blue" },
-  { hex: "#DC143C", name: "Crimson" },
-  { hex: "#00FFFF", name: "Aqua" },
-  { hex: "#00008B", name: "Dark Blue" },
-  { hex: "#008B8B", name: "Dark Cyan" },
-];
 let WrittingModeOptions = [];
 
 // Add lowercase letters
@@ -100,6 +73,21 @@ function SetNewFileButtons() {
   CurrentPage = "PickCanvas";
   return;
 }
+function setInitialColorButtons() {
+  document.getElementById("CanvasSizeTitle").hidden = true;
+  document.getElementById("CustomFileNameBar").innerText =
+    "Please select an initial color";
+  document.getElementById("CustomFileNameBar").hidden = false;
+  Button6.innerHTML = "Go Back";
+  if (CurrentPage.includes("File")) {
+    CurrentPage = CanvasMode + "InitialColorFile";
+  } else {
+    CurrentPage = CanvasMode + "InitialColor";
+  }
+
+  colorOptions = ChangeColor();
+  return;
+}
 function SetNavigationButtons() {
   Button1.innerHTML =
     "<img src='../assets/Icons/LeftArrow.png' alt='Left-Arrow' />";
@@ -129,6 +117,7 @@ function SetNavigationButtons() {
   return;
 }
 function setQuitButtons() {
+  document.getElementById("PrimaryButtons_1").disabled = false;
   Button1.innerHTML = "Quit To Home";
   Button2.innerHTML = "Quit To Desktop";
   Button3.innerHTML = "";
@@ -143,7 +132,7 @@ function setMoreButtons() {
   Button1.removeAttribute("arrow");
   Button2.innerHTML = "Change Fill";
   Button2.removeAttribute("arrow");
-  Button3.innerHTML = "Quit";
+  Button3.innerHTML = "";
   Button3.removeAttribute("arrow");
   Button4.innerHTML = "Save";
   Button4.removeAttribute("arrow");
@@ -155,43 +144,69 @@ function setMoreButtons() {
 let FormattedPallete = "";
 Object.values(palette).forEach((value) => {
   let index = Object.values(palette).indexOf(value) + 1;
-  let string = value.name.toString();
-  FormattedPallete += string;
-  FormattedPallete += "<br><br>";
+  let string = value.hex;
+  FormattedPallete +=
+    "<canvas style='background-color:" +
+    string +
+    "; width:60%; border:1px solid black'></canvas>";
+  FormattedPallete += "<br>";
   if (index !== 0 && index % 5 == 0) {
     FormattedPallete += "oops";
   }
 });
 FormattedPallete = FormattedPallete.split("oops");
 function setChangeColorButtons() {
-  Button1.innerHTML = FormattedPallete[0] + "oops";
-  Button2.innerHTML = FormattedPallete[1] + "oops";
-  Button3.innerHTML = FormattedPallete[2] + "oops";
-  Button4.innerHTML = FormattedPallete[3] + "oops";
-  Button5.innerHTML = FormattedPallete[4] + "oops";
-  Button6.innerHTML =
-    "Eraser<br><br>Standard<br><br><br><br><br><br><br><br>Go Back";
-  CurrentPage = CanvasMode + "ChangeColor";
+  Button1.innerHTML = FormattedPallete[0];
+  Button2.innerHTML = FormattedPallete[1];
+  Button3.innerHTML = FormattedPallete[2];
+  Button4.innerHTML = FormattedPallete[3];
+  Button5.innerHTML = FormattedPallete[4];
+  if (CurrentPage == CanvasMode + "InitialColor") {
+    Button6.innerHTML = "Go Back";
+    CurrentPage = CanvasMode + "ChangeInitialColor";
+  } else if (CurrentPage == CanvasMode + "InitialColorFile") {
+    Button6.innerHTML = "Go Back";
+    CurrentPage = CanvasMode + "ChangeInitialColorFile";
+  } else {
+    Button6.innerHTML =
+      "Eraser<br><br>Standard<br><br><br><br><br><br><br><br>Go Back<br><br>";
+    CurrentPage = CanvasMode + "ChangeColor";
+  }
+
   return;
 }
-function setSelectColorButtons(bool, buttonClickedOptions) {
-  console.log(bool);
-  if (bool === true) {
+function setSelectColorButtons(bool, buttonClickedOptions, isInitial = false) {
+  console.log(buttonClickedOptions);
+  if (isInitial === true) {
     Button1.innerHTML = buttonClickedOptions[0];
     Button2.innerHTML = buttonClickedOptions[1];
     Button3.innerHTML = buttonClickedOptions[2];
     Button4.innerHTML = buttonClickedOptions[3];
     Button5.innerHTML = buttonClickedOptions[4];
     Button6.innerHTML = "oops";
-    CurrentPage = CanvasMode + "SelectColor";
+    if (CurrentPage.includes("File")) {
+      CurrentPage = CanvasMode + "SelectInitialColorFile";
+    } else {
+      CurrentPage = CanvasMode + "SelectInitialColor";
+    }
   } else {
-    Button1.innerHTML = buttonClickedOptions[0];
-    Button2.innerHTML = buttonClickedOptions[1];
-    Button3.innerHTML = buttonClickedOptions[2];
-    Button4.innerHTML = buttonClickedOptions[3];
-    Button5.innerHTML = buttonClickedOptions[4];
-    Button6.innerHTML = "Go Back";
-    CurrentPage = CanvasMode + "SelectColorMore";
+    if (bool === true) {
+      Button1.innerHTML = buttonClickedOptions[0];
+      Button2.innerHTML = buttonClickedOptions[1];
+      Button3.innerHTML = buttonClickedOptions[2];
+      Button4.innerHTML = buttonClickedOptions[3];
+      Button5.innerHTML = buttonClickedOptions[4];
+      Button6.innerHTML = "oops";
+      CurrentPage = CanvasMode + "SelectColor";
+    } else {
+      Button1.innerHTML = buttonClickedOptions[0];
+      Button2.innerHTML = buttonClickedOptions[1];
+      Button3.innerHTML = buttonClickedOptions[2];
+      Button4.innerHTML = buttonClickedOptions[3];
+      Button5.innerHTML = buttonClickedOptions[4];
+      Button6.innerHTML = "Go Back";
+      CurrentPage = CanvasMode + "SelectColorMore";
+    }
   }
   return;
 }
@@ -303,11 +318,11 @@ function setSaveButtons() {
     document.getElementById("PrimaryButtons_1").disabled = false;
   }
   Button1.innerHTML = "Save with current name";
-  Button2.innerHTML = "";
-  Button3.innerHTML = "Save with new name";
+  Button2.innerHTML = "Save with new name";
+  Button3.innerHTML = "Save with default name";
   Button4.innerHTML = "";
-  Button5.innerHTML = "Save with default name";
-  Button6.innerHTML = "Cancel";
+  Button5.innerHTML = "Quit";
+  Button6.innerHTML = "oops";
   CurrentPage = CanvasMode + "Save";
   return;
 }

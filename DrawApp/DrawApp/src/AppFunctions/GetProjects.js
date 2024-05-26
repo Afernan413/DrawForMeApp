@@ -8,7 +8,9 @@ var doneTyping = false;
 try {
   fs.mkdirSync(DocumentsPath + "/ArtByAbey/Projects", { recursive: true });
   ProjectsPath = DocumentsPath + "/ArtByAbey/Projects";
-} catch (error) {}
+} catch (error) {
+  console.log("The directory already exists");
+}
 ProjectsPath = DocumentsPath + "/ArtByAbey/Projects";
 
 function GetProjects() {
@@ -36,6 +38,7 @@ function GetProjects() {
       .classList.add("active");
   }
   setFileLookupButtons();
+  return;
 }
 function updateFileSelection() {
   document.querySelectorAll("div.File").forEach((file) => {
@@ -102,17 +105,21 @@ function selectFile() {
     .toString();
   document.getElementById("FileSelection").setAttribute("hidden", "");
   if (selectedFile.includes("Portrait") === true) {
-    PortraitMode();
+    CanvasMode = "Portrait";
   } else if (selectedFile.includes("Landscape") === true) {
-    LandscapeMode();
+    CanvasMode = "Landscape";
   } else if (selectedFile.includes("Square") === true) {
-    SquareMode();
+    CanvasMode = "Square";
   }
+  CurrentPage = CanvasMode + "InitialColorFile";
+  window[CanvasMode.toString() + "Mode"]();
+
   document.getElementById("FileStatusContainer").innerHTML =
     "'" + activeFile.innerHTML + "'";
   GridContainer.outerHTML = selectedFile;
   updatePixel();
   document.getElementById("PrimaryButtons_1").disabled = false;
+
   return;
 }
 function saveFile(mode) {

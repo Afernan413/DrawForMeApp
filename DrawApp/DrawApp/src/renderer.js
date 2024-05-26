@@ -20,7 +20,33 @@ const OriginalButtons = document.querySelector("#ButtonsContainer").innerHTML;
 const ButtonsContainer = document.querySelector("#ButtonsContainer");
 
 let colorOptions;
-
+let palette = [
+  { hex: "#000000", name: "Black" },
+  { hex: "#FFFFFF", name: "White" },
+  { hex: "#FF0000", name: "Red" },
+  { hex: "#00FF00", name: "Green" },
+  { hex: "#0000FF", name: "Blue" },
+  { hex: "#FFFF00", name: "Yellow" },
+  { hex: "#FF00FF", name: "Magenta" },
+  { hex: "#00FFFF", name: "Cyan" },
+  { hex: "#800000", name: "Maroon" },
+  { hex: "#808000", name: "Olive" },
+  { hex: "#008000", name: "Dark Green" },
+  { hex: "#800080", name: "Purple" },
+  { hex: "#008080", name: "Teal" },
+  { hex: "#FFA500", name: "Orange" },
+  { hex: "#A52A2A", name: "Brown" },
+  { hex: "#DEB887", name: "Burlywood" },
+  { hex: "#5F9EA0", name: "Cadet Blue" },
+  { hex: "#7FFF00", name: "Chartreuse" },
+  { hex: "#D2691E", name: "Chocolate" },
+  { hex: "#FF7F50", name: "Coral" },
+  { hex: "#6495ED", name: "Cornflower Blue" },
+  { hex: "#DC143C", name: "Crimson" },
+  { hex: "#00FFFF", name: "Aqua" },
+  { hex: "#00008B", name: "Dark Blue" },
+  { hex: "#008B8B", name: "Dark Cyan" },
+];
 var Button1 = document.querySelector("#PrimaryButtons_1");
 var Button2 = document.querySelector("#PrimaryButtons_2");
 var Button3 = document.querySelector("#PrimaryButtons_3");
@@ -36,7 +62,7 @@ var color = document
   .computedStyleMap()
   .get("--backgroundColor");
 var FillMode = "Solid";
-var currWindow = BrowserWindow.getFocusedWindow();
+var currWindow = BrowserWindow.getAllWindows()[1];
 var childWdindow = BrowserWindow.getAllWindows()[0];
 
 var printers = [];
@@ -57,7 +83,14 @@ function PortraitMode() {
   if (document.querySelectorAll(".pixelCanvas").length == 0) {
     createGrid(30, 50);
   }
-  SetNavigationButtons();
+  if (
+    CurrentPage == "PortraitInitialColor" ||
+    CurrentPage == "PortraitInitialColorFile"
+  ) {
+    setInitialColorButtons();
+  } else {
+    SetNavigationButtons();
+  }
   if (Navigating == false) {
     NavigateGrid();
   }
@@ -69,7 +102,14 @@ function LandscapeMode() {
   if (document.querySelectorAll(".pixelCanvas").length == 0) {
     createGrid(50, 30);
   }
-  SetNavigationButtons();
+  if (
+    CurrentPage == "LandscapeInitialColor" ||
+    CurrentPage == "LandscapeInitialColorFile"
+  ) {
+    setInitialColorButtons();
+  } else {
+    SetNavigationButtons();
+  }
   if (Navigating == false) {
     NavigateGrid();
   }
@@ -81,7 +121,14 @@ function SquareMode() {
   if (document.querySelectorAll(".pixelCanvas").length == 0) {
     createGrid(50, 50);
   }
-  SetNavigationButtons();
+  if (
+    CurrentPage == "SquareInitialColor" ||
+    CurrentPage == "SquareInitialColorFile"
+  ) {
+    setInitialColorButtons();
+  } else {
+    SetNavigationButtons();
+  }
   if (Navigating == false) {
     NavigateGrid();
   }
@@ -96,6 +143,7 @@ Button1.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == "PickCanvas") {
+    CurrentPage = "PortraitInitialColor";
     PortraitMode();
     return;
   }
@@ -124,14 +172,29 @@ Button1.addEventListener("click", () => {
     colorOptions = ChangeColor();
     return;
   }
-  if (CurrentPage == CanvasMode + "ChangeColor") {
-    setSelectColorButtons(true, colorOptions[0].innerHTML.split("<br><br>"));
+  if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
+    setSelectColorButtons(true, colorOptions[0].innerHTML.split("<br>"), true);
     return;
   }
-  if (CurrentPage == CanvasMode + "SelectColor") {
-    color = palette.filter((e) => e.name == colorOptions[0].innerHTML)[0].hex;
+  if (CurrentPage == CanvasMode + "ChangeColor") {
+    setSelectColorButtons(true, colorOptions[0].innerHTML.split("<br>"));
+    return;
+  }
+  if (
+    CurrentPage == CanvasMode + "SelectColor" ||
+    CurrentPage.includes(CanvasMode + "SelectInitialColor")
+  ) {
+    if (CurrentPage.includes(CanvasMode + "SelectInitialColor")) {
+      document.getElementById("CanvasSizeTitle").hidden = false;
+      document.getElementById("CustomFileNameBar").innerText = "";
+      document.getElementById("CustomFileNameBar").hidden = true;
+    }
+    color = colorOptions[0].innerHTML.split("background-color:")[1].slice(0, 7);
     var r = document.querySelector("#CurrentSelectionContainer");
-    r.style.setProperty("--backgroundColor", color);
+    r.style.setProperty(
+      "--backgroundColor",
+      colorOptions[0].innerHTML.split("background-color:")[1].slice(0, 7)
+    );
     window[CanvasMode.toString() + "Mode"]();
     return;
   }
@@ -202,6 +265,7 @@ Button1.addEventListener("click", () => {
 //Button 2 listener
 Button2.addEventListener("click", () => {
   if (CurrentPage == "PickCanvas") {
+    CurrentPage = "LandscapeInitialColor";
     LandscapeMode();
     return;
   }
@@ -226,11 +290,23 @@ Button2.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    setSelectColorButtons(true, colorOptions[1].innerHTML.split("<br><br>"));
+    setSelectColorButtons(true, colorOptions[1].innerHTML.split("<br>"));
     return;
   }
-  if (CurrentPage == CanvasMode + "SelectColor") {
-    color = palette.filter((e) => e.name == colorOptions[1].innerHTML)[0].hex;
+  if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
+    setSelectColorButtons(true, colorOptions[1].innerHTML.split("<br>"), true);
+    return;
+  }
+  if (
+    CurrentPage == CanvasMode + "SelectColor" ||
+    CurrentPage.includes(CanvasMode + "SelectInitialColor")
+  ) {
+    if (CurrentPage.includes(CanvasMode + "SelectInitialColor")) {
+      document.getElementById("CanvasSizeTitle").hidden = false;
+      document.getElementById("CustomFileNameBar").innerText = "";
+      document.getElementById("CustomFileNameBar").hidden = true;
+    }
+    color = colorOptions[1].innerHTML.split("background-color:")[1].slice(0, 7);
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);
     window[CanvasMode.toString() + "Mode"]();
@@ -303,6 +379,11 @@ Button2.addEventListener("click", () => {
     saveKeyboardButtons();
     return;
   }
+  if (CurrentPage == CanvasMode + "Save") {
+    saveFile("setNew");
+
+    return;
+  }
 });
 //Button 3 listener
 Button3.addEventListener("click", () => {
@@ -311,11 +392,8 @@ Button3.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == "PickCanvas") {
+    CurrentPage = "SquareInitialColor";
     SquareMode();
-    return;
-  }
-  if (CurrentPage == CanvasMode + "More") {
-    setQuitButtons();
     return;
   }
   if (CurrentPage == CanvasMode + "PrinterLookup") {
@@ -334,11 +412,23 @@ Button3.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    setSelectColorButtons(true, colorOptions[2].innerHTML.split("<br><br>"));
+    setSelectColorButtons(true, colorOptions[2].innerHTML.split("<br>"));
     return;
   }
-  if (CurrentPage == CanvasMode + "SelectColor") {
-    color = palette.filter((e) => e.name == colorOptions[2].innerHTML)[0].hex;
+  if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
+    setSelectColorButtons(true, colorOptions[2].innerHTML.split("<br>"), true);
+    return;
+  }
+  if (
+    CurrentPage == CanvasMode + "SelectColor" ||
+    CurrentPage.includes(CanvasMode + "SelectInitialColor")
+  ) {
+    if (CurrentPage.includes(CanvasMode + "SelectInitialColor")) {
+      document.getElementById("CanvasSizeTitle").hidden = false;
+      document.getElementById("CustomFileNameBar").innerText = "";
+      document.getElementById("CustomFileNameBar").hidden = true;
+    }
+    color = colorOptions[2].innerHTML.split("background-color:")[1].slice(0, 7);
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);
     window[CanvasMode.toString() + "Mode"]();
@@ -387,11 +477,6 @@ Button3.addEventListener("click", () => {
     setLetterButtons();
     return;
   }
-  if (CurrentPage == CanvasMode + "Save") {
-    saveFile("setNew");
-
-    return;
-  }
   if (CurrentPage == CanvasMode + "SetCustomNameKeys") {
     saveKeyboardSetLetters(false, Button3.innerHTML.split("<br><br>"));
     return;
@@ -399,6 +484,11 @@ Button3.addEventListener("click", () => {
   if (CurrentPage == CanvasMode + "SetCustomNameLetters") {
     FillPixel(color, Button3.innerHTML);
     saveKeyboardButtons();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "Save") {
+    saveFile("setDefault");
+    window[CanvasMode.toString() + "Mode"]();
     return;
   }
 });
@@ -427,11 +517,23 @@ Button4.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    setSelectColorButtons(true, colorOptions[3].innerHTML.split("<br><br>"));
+    setSelectColorButtons(true, colorOptions[3].innerHTML.split("<br>"));
     return;
   }
-  if (CurrentPage == CanvasMode + "SelectColor") {
-    color = palette.filter((e) => e.name == colorOptions[3].innerHTML)[0].hex;
+  if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
+    setSelectColorButtons(true, colorOptions[3].innerHTML.split("<br>"), true);
+    return;
+  }
+  if (
+    CurrentPage == CanvasMode + "SelectColor" ||
+    CurrentPage.includes(CanvasMode + "SelectInitialColor")
+  ) {
+    if (CurrentPage.includes(CanvasMode + "SelectInitialColor")) {
+      document.getElementById("CanvasSizeTitle").hidden = false;
+      document.getElementById("CustomFileNameBar").innerText = "";
+      document.getElementById("CustomFileNameBar").hidden = true;
+    }
+    color = colorOptions[3].innerHTML.split("background-color:")[1].slice(0, 7);
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);
     window[CanvasMode.toString() + "Mode"]();
@@ -517,11 +619,23 @@ Button5.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    setSelectColorButtons(true, colorOptions[4].innerHTML.split("<br><br>"));
+    setSelectColorButtons(true, colorOptions[4].innerHTML.split("<br>"));
     return;
   }
-  if (CurrentPage == CanvasMode + "SelectColor") {
-    color = palette.filter((e) => e.name == colorOptions[4].innerHTML)[0].hex;
+  if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
+    setSelectColorButtons(true, colorOptions[4].innerHTML.split("<br>"), true);
+    return;
+  }
+  if (
+    CurrentPage.includes(CanvasMode + "SelectColor") ||
+    CurrentPage.includes(CanvasMode + "SelectInitialColor")
+  ) {
+    if (CurrentPage.includes(CanvasMode + "SelectInitialColor")) {
+      document.getElementById("CanvasSizeTitle").hidden = false;
+      document.getElementById("CustomFileNameBar").innerText = "";
+      document.getElementById("CustomFileNameBar").hidden = true;
+    }
+    color = colorOptions[4].innerHTML.split("background-color:")[1].slice(0, 7);
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);
     window[CanvasMode.toString() + "Mode"]();
@@ -557,11 +671,6 @@ Button5.addEventListener("click", () => {
     SetNavigationButtons();
     return;
   }
-  if (CurrentPage == CanvasMode + "Save") {
-    saveFile("setDefault");
-    window[CanvasMode.toString() + "Mode"]();
-    return;
-  }
   if (CurrentPage == CanvasMode + "SetCustomNameKeys") {
     saveKeyboardSetLetters(false, Button5.innerHTML.split("<br><br>"));
     return;
@@ -580,6 +689,10 @@ Button5.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "More") {
     printCanvas();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "Save") {
+    setQuitButtons();
     return;
   }
 });
@@ -614,6 +727,18 @@ Button6.addEventListener("click", () => {
       SquareMode();
       return;
     }
+    if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
+      document.getElementById("CanvasSizeTitle").hidden = false;
+      document.getElementById("CustomFileNameBar").innerText = "";
+      document.getElementById("CustomFileNameBar").hidden = true;
+      clearGrid();
+      if (CurrentPage.includes("File")) {
+        document.location.reload();
+      } else {
+        SetNewFileButtons();
+      }
+      return;
+    }
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
     setSelectColorButtons(
@@ -626,6 +751,10 @@ Button6.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "SelectColor") {
     colorOptions = ChangeColor();
+    return;
+  }
+  if (CurrentPage.includes(CanvasMode + "SelectInitialColor")) {
+    setInitialColorButtons();
     return;
   }
   if (

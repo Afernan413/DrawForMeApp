@@ -1,6 +1,5 @@
 function ChangeColor() {
   setChangeColorButtons();
-  console.log("Change Color Clicked");
   let btns = document.querySelectorAll(".MainButtons");
   return btns;
 }

@@ -3,8 +3,11 @@ let pixelHeight;
 let CanvasMode;
 
 function clearGrid() {
+  document.getElementById("CanvasContainer").innerHTML = "";
+  document.getElementById("CanvasContainer").style = "";
   GridContainer.innerHTML = "";
   GridContainer.style = "";
+  childWdindow.reload();
   return;
 }
 function createGrid(length, height) {
