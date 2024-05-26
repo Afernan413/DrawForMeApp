@@ -130,6 +130,10 @@ function saveFile(mode) {
     FileName = FileName;
     fs.writeFileSync(ProjectsPath + "/" + FileName + ".json", fileContent);
     document.getElementById("PrimaryButtons_1").disabled = false;
+    swal("File saved in " + ProjectsPath.replaceAll("/", "\\"), {
+      buttons: false,
+      timer: 2500,
+    });
     return;
   } else if (mode == "setNew") {
     document.getElementById("CanvasSizeTitle").setAttribute("hidden", "");
@@ -174,6 +178,10 @@ function saveFile(mode) {
     document.getElementById("FileStatusContainer").innerHTML =
       "'" + FileName + "'";
     document.getElementById("PrimaryButtons_1").disabled = false;
+    swal("File saved in " + ProjectsPath.replaceAll("/", "\\"), {
+      buttons: false,
+      timer: 2500,
+    });
     return;
   }
 
@@ -194,6 +202,9 @@ function setNewName() {
   document.getElementById("CustomFileNameBar").setAttribute("hidden", "");
   document.getElementById("FileStatusContainer").innerHTML =
     "'" + FileName + "'";
-
+  swal("File saved in " + ProjectsPath.replaceAll("/", "\\"), {
+    buttons: false,
+    timer: 2500,
+  });
   return;
 }

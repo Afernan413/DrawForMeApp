@@ -322,7 +322,7 @@ function setSaveButtons() {
   Button3.innerHTML = "Save with default name";
   Button4.innerHTML = "";
   Button5.innerHTML = "Quit";
-  Button6.innerHTML = "oops";
+  Button6.innerHTML = "Back";
   CurrentPage = CanvasMode + "Save";
   return;
 }

@@ -246,7 +246,6 @@ Button1.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "Save") {
     saveFile("setCurrent");
-    window[CanvasMode.toString() + "Mode"]();
     return;
   }
   if (CurrentPage == CanvasMode + "SetCustomNameKeys") {
@@ -381,7 +380,6 @@ Button2.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "Save") {
     saveFile("setNew");
-
     return;
   }
 });
@@ -488,7 +486,6 @@ Button3.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "Save") {
     saveFile("setDefault");
-    window[CanvasMode.toString() + "Mode"]();
     return;
   }
 });
@@ -708,7 +705,7 @@ Button6.addEventListener("click", () => {
     });
   }
   if (CurrentPage == CanvasMode + "Quit") {
-    setMoreButtons();
+    setSaveButtons();
     return;
   }
   if (Button6.innerHTML.includes("Go Back")) {
@@ -809,7 +806,7 @@ Button6.addEventListener("click", () => {
   if (CurrentPage == CanvasMode + "SetCustomNameLettersMore") {
     setNewName();
     document.getElementById("CanvasSizeTitle").removeAttribute("hidden");
-    window[CanvasMode.toString() + "Mode"]();
+    setSaveButtons();
     return;
   }
   if (CurrentPage == CanvasMode + "PrinterLookup") {
