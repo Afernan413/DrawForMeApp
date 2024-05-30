@@ -136,7 +136,7 @@ function saveFile(mode) {
     });
     return;
   } else if (mode == "setNew") {
-    document.getElementById("CanvasSizeTitle").setAttribute("hidden", "");
+    //document.getElementById("CanvasSizeTitle").setAttribute("hidden", "");
     document.getElementById("CustomFileNameBar").removeAttribute("hidden");
     document
       .getElementById("CustomFileNameBar")

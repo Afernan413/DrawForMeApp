@@ -15,7 +15,7 @@ const { ipcRenderer } = require("electron");
 const fs = require("fs");
 ///////////////////////////////GET ITEMS///////////////////////////////////////////////////////
 var GridContainer = document.querySelector("#CanvasContainer");
-const GridSizeTitle = document.querySelector("#CanvasSizeTitle");
+//const GridSizeTitle = document.querySelector("#CanvasSizeTitle");
 const OriginalButtons = document.querySelector("#ButtonsContainer").innerHTML;
 const ButtonsContainer = document.querySelector("#ButtonsContainer");
 
@@ -185,7 +185,7 @@ Button1.addEventListener("click", () => {
     CurrentPage.includes(CanvasMode + "SelectInitialColor")
   ) {
     if (CurrentPage.includes(CanvasMode + "SelectInitialColor")) {
-      document.getElementById("CanvasSizeTitle").hidden = false;
+      //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
     }
@@ -220,7 +220,7 @@ Button1.addEventListener("click", () => {
     CurrentPage == CanvasMode + "ChangeFillLetter" ||
     CurrentPage == CanvasMode + "ChangeFillSymbols"
   ) {
-    setSelectLetterButtons(false, Button1.innerHTML.split("<br><br>"));
+    setSelectLetterButtons(false, Button1.innerHTML.split("<br>"));
     return;
   }
   if (
@@ -249,7 +249,7 @@ Button1.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "SetCustomNameKeys") {
-    saveKeyboardSetLetters(false, Button1.innerHTML.split("<br><br>"));
+    saveKeyboardSetLetters(false, Button1.innerHTML.split("<br>"));
     return;
   }
   if (
@@ -301,7 +301,7 @@ Button2.addEventListener("click", () => {
     CurrentPage.includes(CanvasMode + "SelectInitialColor")
   ) {
     if (CurrentPage.includes(CanvasMode + "SelectInitialColor")) {
-      document.getElementById("CanvasSizeTitle").hidden = false;
+      //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
     }
@@ -332,7 +332,7 @@ Button2.addEventListener("click", () => {
     CurrentPage == CanvasMode + "ChangeFillLetter" ||
     CurrentPage == CanvasMode + "ChangeFillSymbols"
   ) {
-    setSelectLetterButtons(false, Button2.innerHTML.split("<br><br>"));
+    setSelectLetterButtons(false, Button2.innerHTML.split("<br>"));
     return;
   }
   if (
@@ -370,7 +370,7 @@ Button2.addEventListener("click", () => {
     }
   }
   if (CurrentPage == CanvasMode + "SetCustomNameKeys") {
-    saveKeyboardSetLetters(false, Button2.innerHTML.split("<br><br>"));
+    saveKeyboardSetLetters(false, Button2.innerHTML.split("<br>"));
     return;
   }
   if (CurrentPage == CanvasMode + "SetCustomNameLetters") {
@@ -422,7 +422,7 @@ Button3.addEventListener("click", () => {
     CurrentPage.includes(CanvasMode + "SelectInitialColor")
   ) {
     if (CurrentPage.includes(CanvasMode + "SelectInitialColor")) {
-      document.getElementById("CanvasSizeTitle").hidden = false;
+      //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
     }
@@ -448,7 +448,7 @@ Button3.addEventListener("click", () => {
     CurrentPage == CanvasMode + "ChangeFillLetter" ||
     CurrentPage == CanvasMode + "ChangeFillSymbols"
   ) {
-    setSelectLetterButtons(false, Button3.innerHTML.split("<br><br>"));
+    setSelectLetterButtons(false, Button3.innerHTML.split("<br>"));
     return;
   }
   if (
@@ -476,7 +476,7 @@ Button3.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "SetCustomNameKeys") {
-    saveKeyboardSetLetters(false, Button3.innerHTML.split("<br><br>"));
+    saveKeyboardSetLetters(false, Button3.innerHTML.split("<br>"));
     return;
   }
   if (CurrentPage == CanvasMode + "SetCustomNameLetters") {
@@ -526,7 +526,7 @@ Button4.addEventListener("click", () => {
     CurrentPage.includes(CanvasMode + "SelectInitialColor")
   ) {
     if (CurrentPage.includes(CanvasMode + "SelectInitialColor")) {
-      document.getElementById("CanvasSizeTitle").hidden = false;
+     // document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
     }
@@ -540,7 +540,7 @@ Button4.addEventListener("click", () => {
     CurrentPage == CanvasMode + "ChangeFillLetter" ||
     CurrentPage == CanvasMode + "ChangeFillSymbols"
   ) {
-    setSelectLetterButtons(false, Button4.innerHTML.split("<br><br>"));
+    setSelectLetterButtons(false, Button4.innerHTML.split("<br>"));
     return;
   }
   if (
@@ -578,7 +578,7 @@ Button4.addEventListener("click", () => {
     }
   }
   if (CurrentPage == CanvasMode + "SetCustomNameKeys") {
-    saveKeyboardSetLetters(false, Button4.innerHTML.split("<br><br>"));
+    saveKeyboardSetLetters(false, Button4.innerHTML.split("<br>"));
     return;
   }
   if (CurrentPage == CanvasMode + "SetCustomNameLetters") {
@@ -628,7 +628,7 @@ Button5.addEventListener("click", () => {
     CurrentPage.includes(CanvasMode + "SelectInitialColor")
   ) {
     if (CurrentPage.includes(CanvasMode + "SelectInitialColor")) {
-      document.getElementById("CanvasSizeTitle").hidden = false;
+      //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
     }
@@ -642,7 +642,7 @@ Button5.addEventListener("click", () => {
     CurrentPage == CanvasMode + "ChangeFillLetter" ||
     CurrentPage == CanvasMode + "ChangeFillSymbols"
   ) {
-    setSelectLetterButtons(false, Button5.innerHTML.split("<br><br>"));
+    setSelectLetterButtons(false, Button5.innerHTML.split("<br>"));
     return;
   }
   if (
@@ -669,7 +669,7 @@ Button5.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "SetCustomNameKeys") {
-    saveKeyboardSetLetters(false, Button5.innerHTML.split("<br><br>"));
+    saveKeyboardSetLetters(false, Button5.innerHTML.split("<br>"));
     return;
   }
   if (CurrentPage == CanvasMode + "SetCustomNameLetters") {
@@ -725,7 +725,7 @@ Button6.addEventListener("click", () => {
       return;
     }
     if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
-      document.getElementById("CanvasSizeTitle").hidden = false;
+      //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
       clearGrid();
@@ -740,8 +740,8 @@ Button6.addEventListener("click", () => {
   if (CurrentPage == CanvasMode + "ChangeColor") {
     setSelectColorButtons(
       false,
-      "Eraser<br><br>Standard<br><br><br><br><br><br><br><br>Go Back".split(
-        "<br><br>"
+      "Eraser<br>Standard<br><br><br><br>Go Back".split(
+        "<br>"
       )
     );
     return;
@@ -762,7 +762,7 @@ Button6.addEventListener("click", () => {
       CurrentPage == CanvasMode + "ChangeFillLetter" ||
       CurrentPage == CanvasMode + "ChangeFillSymbols"
     ) {
-      setSelectLetterButtons(true, Button6.innerHTML.split("<br><br>"));
+      setSelectLetterButtons(true, Button6.innerHTML.split("<br>"));
       return;
     }
     if (Button6.innerHTML.includes("Go Back")) {
@@ -796,7 +796,7 @@ Button6.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "SetCustomNameKeys") {
-    saveKeyboardSetLetters(true, Button6.innerHTML.split("<br><br>"));
+    saveKeyboardSetLetters(true, Button6.innerHTML.split("<br>"));
     return;
   }
   if (CurrentPage == CanvasMode + "SetCustomNameLetters") {
@@ -805,7 +805,7 @@ Button6.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "SetCustomNameLettersMore") {
     setNewName();
-    document.getElementById("CanvasSizeTitle").removeAttribute("hidden");
+    //document.getElementById("CanvasSizeTitle").removeAttribute("hidden");
     setSaveButtons();
     return;
   }

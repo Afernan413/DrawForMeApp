@@ -19,7 +19,7 @@ let Shift = false;
 let FormattedWrittingModeOptions = "";
 for (let i = 0; i < WrittingModeOptions.length; i++) {
   FormattedWrittingModeOptions += WrittingModeOptions[i];
-  FormattedWrittingModeOptions += "<br><br>";
+  FormattedWrittingModeOptions += "<br>";
   if (i !== 0 && (i + 1) % 5 == 0 && i !== 29) {
     FormattedWrittingModeOptions += "oops";
   }
@@ -57,7 +57,7 @@ let Symbols = [
 let FormattedSymbolsModeOptions = "";
 for (let i = 0; i < Symbols.length; i++) {
   FormattedSymbolsModeOptions += Symbols[i];
-  FormattedSymbolsModeOptions += "<br><br>";
+  FormattedSymbolsModeOptions += "<br>";
   if (i !== 0 && (i + 1) % 5 == 0 && i !== 29) {
     FormattedSymbolsModeOptions += "oops";
   }
@@ -74,7 +74,7 @@ function SetNewFileButtons() {
   return;
 }
 function setInitialColorButtons() {
-  document.getElementById("CanvasSizeTitle").hidden = true;
+  // document.getElementById("CanvasSizeTitle").hidden = true;
   document.getElementById("CustomFileNameBar").innerText =
     "Please select an initial color";
   document.getElementById("CustomFileNameBar").hidden = false;
@@ -168,8 +168,7 @@ function setChangeColorButtons() {
     Button6.innerHTML = "Go Back";
     CurrentPage = CanvasMode + "ChangeInitialColorFile";
   } else {
-    Button6.innerHTML =
-      "Eraser<br><br>Standard<br><br><br><br><br><br><br><br>Go Back<br><br>";
+    Button6.innerHTML = "Eraser<br>Standard<br><br>Go Back<br>";
     CurrentPage = CanvasMode + "ChangeColor";
   }
 
@@ -333,7 +332,7 @@ function saveKeyboardButtons() {
   Button3.innerHTML = FormattedWrittingModeOptions[2];
   Button4.innerHTML = FormattedWrittingModeOptions[3];
   Button5.innerHTML = FormattedWrittingModeOptions[4];
-  Button6.innerHTML = "z<br><br><br><br><br><br>Space<br><br>Back<br><br>Done";
+  Button6.innerHTML = "z<br><br><br>Space<br>Back<br>Done";
   CurrentPage = CanvasMode + "SetCustomNameKeys";
   return;
 }

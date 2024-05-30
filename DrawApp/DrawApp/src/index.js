@@ -21,13 +21,15 @@ if (require("electron-squirrel-startup")) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
+    maximize: true,
     movable: false,
     resizable: false,
     maximizable: false,
     minimizable: false,
     titleBarStyle: "hidden",
     center: true,
-    fullscreen: true,
+    alwaysOnTop: true,
+    fullscreen: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -38,6 +40,8 @@ const createWindow = () => {
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "index.html"));
+  mainWindow.maximize();
+  mainWindow.isAlwaysOnTop(true);
 
   // Open the DevTools.
   require("@electron/remote/main").enable(mainWindow.webContents);
@@ -48,10 +52,10 @@ const createWindow = () => {
   contentWindow = new BrowserWindow({
     x: externalDisplay ? externalDisplay.bounds.x : 0,
     y: externalDisplay ? externalDisplay.bounds.y : 0,
-    movable: false,
+    movable: true,
     titleBarStyle: "hidden",
     center: true,
-    fullscreen: true,
+    fullscreen: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
