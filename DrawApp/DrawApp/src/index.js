@@ -21,6 +21,7 @@ if (require("electron-squirrel-startup")) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
+    zooming: false,
     maximize: true,
     movable: false,
     resizable: false,
@@ -34,7 +35,7 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
-      devTools: true,
+      devTools: false,
     },
   });
 
@@ -111,6 +112,14 @@ app.on("browser-window-focus", function () {
 app.on("browser-window-blur", function () {
   globalShortcut.unregister("CommandOrControl+R");
   globalShortcut.unregister("F5");
+});
+app.whenReady().then(() => {
+  globalShortcut.register("CommandOrControl+-", () => {
+    console.log("hotkey disabled");
+  });
+  globalShortcut.register("CommandOrControl++", () => {
+    console.log("hotkey disabled");
+  });
 });
 try {
   require("electron-reloader")(module);

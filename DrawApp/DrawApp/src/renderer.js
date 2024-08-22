@@ -13,6 +13,7 @@ var tinycolor = require("tinycolor2");
 var color2Name = require("color-2-name");
 const { ipcRenderer } = require("electron");
 const fs = require("fs");
+
 ///////////////////////////////GET ITEMS///////////////////////////////////////////////////////
 var GridContainer = document.querySelector("#CanvasContainer");
 //const GridSizeTitle = document.querySelector("#CanvasSizeTitle");
@@ -173,11 +174,15 @@ Button1.addEventListener("click", () => {
     return;
   }
   if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
-    setSelectColorButtons(true, colorOptions[0].innerHTML.split("<br>"), true);
+    setSelectColorButtons(
+      true,
+      colorOptions[0].innerHTML.split("</canvas>"),
+      true
+    );
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    setSelectColorButtons(true, colorOptions[0].innerHTML.split("<br>"));
+    setSelectColorButtons(true, colorOptions[0].innerHTML.split("</canvas>"));
     return;
   }
   if (
@@ -289,11 +294,15 @@ Button2.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    setSelectColorButtons(true, colorOptions[1].innerHTML.split("<br>"));
+    setSelectColorButtons(true, colorOptions[1].innerHTML.split("</canvas>"));
     return;
   }
   if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
-    setSelectColorButtons(true, colorOptions[1].innerHTML.split("<br>"), true);
+    setSelectColorButtons(
+      true,
+      colorOptions[1].innerHTML.split("</canvas>"),
+      true
+    );
     return;
   }
   if (
@@ -410,11 +419,15 @@ Button3.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    setSelectColorButtons(true, colorOptions[2].innerHTML.split("<br>"));
+    setSelectColorButtons(true, colorOptions[2].innerHTML.split("</canvas>"));
     return;
   }
   if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
-    setSelectColorButtons(true, colorOptions[2].innerHTML.split("<br>"), true);
+    setSelectColorButtons(
+      true,
+      colorOptions[2].innerHTML.split("</canvas>"),
+      true
+    );
     return;
   }
   if (
@@ -514,11 +527,15 @@ Button4.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    setSelectColorButtons(true, colorOptions[3].innerHTML.split("<br>"));
+    setSelectColorButtons(true, colorOptions[3].innerHTML.split("</canvas>"));
     return;
   }
   if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
-    setSelectColorButtons(true, colorOptions[3].innerHTML.split("<br>"), true);
+    setSelectColorButtons(
+      true,
+      colorOptions[3].innerHTML.split("</canvas>"),
+      true
+    );
     return;
   }
   if (
@@ -526,7 +543,7 @@ Button4.addEventListener("click", () => {
     CurrentPage.includes(CanvasMode + "SelectInitialColor")
   ) {
     if (CurrentPage.includes(CanvasMode + "SelectInitialColor")) {
-     // document.getElementById("CanvasSizeTitle").hidden = false;
+      // document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
     }
@@ -616,11 +633,15 @@ Button5.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    setSelectColorButtons(true, colorOptions[4].innerHTML.split("<br>"));
+    setSelectColorButtons(true, colorOptions[4].innerHTML.split("</canvas>"));
     return;
   }
   if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
-    setSelectColorButtons(true, colorOptions[4].innerHTML.split("<br>"), true);
+    setSelectColorButtons(
+      true,
+      colorOptions[4].innerHTML.split("</canvas>"),
+      true
+    );
     return;
   }
   if (
@@ -631,6 +652,9 @@ Button5.addEventListener("click", () => {
       //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
+    }
+    if (CurrentPage.includes("More")) {
+      return;
     }
     color = colorOptions[4].innerHTML.split("background-color:")[1].slice(0, 7);
     var r = document.querySelector("#CurrentSelectionContainer");
@@ -740,9 +764,7 @@ Button6.addEventListener("click", () => {
   if (CurrentPage == CanvasMode + "ChangeColor") {
     setSelectColorButtons(
       false,
-      "Eraser<br>Standard<br><br><br><br>Go Back".split(
-        "<br>"
-      )
+      "Eraser<br>Standard<br><br><br><br>Go Back".split("<br>")
     );
     return;
   }

@@ -18,7 +18,7 @@ button.MainButtons {
   overflow-y: clip;
   line-height: 2.75vh;
   text-align: center;
-  display: inline-block;
+  display: grid;
   font-size: 1.5vh;
   font-weight: bold;
   cursor: pointer;
@@ -29,6 +29,8 @@ button.MainButtons {
   border-radius: 10px;
   max-height: 25vh;
   max-width: 8vw;
+  justify-items: center;
+  align-content: space-evenly;
 }
 button.MainButtons img {
   height: 100px;

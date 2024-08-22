@@ -134,7 +134,7 @@ function setMoreButtons() {
   Button2.removeAttribute("arrow");
   Button3.innerHTML = "";
   Button3.removeAttribute("arrow");
-  Button4.innerHTML = "Save";
+  Button4.innerHTML = "Save <br> Quit";
   Button4.removeAttribute("arrow");
   Button5.innerHTML = "Print";
   Button6.innerHTML = "Go Back";
@@ -149,7 +149,6 @@ Object.values(palette).forEach((value) => {
     "<canvas style='background-color:" +
     string +
     "; width:60%; border:1px solid black'></canvas>";
-  FormattedPallete += "<br>";
   if (index !== 0 && index % 5 == 0) {
     FormattedPallete += "oops";
   }

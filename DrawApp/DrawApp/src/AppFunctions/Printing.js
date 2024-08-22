@@ -6,7 +6,12 @@ function GetPrinters() {
   document.getElementById("PrinterSelection").removeAttribute("hidden");
   const winContents = BrowserWindow.getFocusedWindow().webContents;
   winContents.getPrintersAsync().then((printers) => {
-    PrinterList = printers;
+    PrinterList = [];
+    printers.forEach((printer) => {
+      if (printer.status !== 0) {
+        PrinterList.push(printer);
+      }
+    });
     PrinterList.forEach((printer) => {
       console.log(printer.name);
     });
@@ -118,22 +123,22 @@ function selectPrinter() {
       fs.writeFileSync(filepath1 + "/" + FileName + ".pdf", data);
     });
   } else {
-    swal("Currently using printers is not functioning as intended :)", {
+    /* swal("Currently using printers is not functioning as intended :)", {
       buttons: false,
       timer: 5000,
-    });
-    /* winContents.print({
+    });*/
+    let win = BrowserWindow.getAllWindows()[0];
+    win.webContents.print({
       silent: true,
-      printBackground: true,
+      dpi: { horizontal: 600, vertical: 600 },
       deviceName: PrinterName,
-      pageRanges: [
-        {
-          from: 0,
-          to: 1,
-        },
-      ],
       color: true,
-    }); */
+      marginsType: 0,
+      pageSize: "A4",
+      printBackground: true,
+      printSelectionOnly: false,
+      landscape: CanvasMode == "Portrait" ? false : true,
+    });
   }
   return;
 }
