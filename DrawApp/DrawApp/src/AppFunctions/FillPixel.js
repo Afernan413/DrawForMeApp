@@ -15,6 +15,7 @@ function FillPixel(color, Letter) {
     if (Shift == true) {
       Shift = false;
     }
+
     activeBox.innerHTML = `<div class="PixelLetter">${Letter}</div>`;
     if (currentPixel !== document.querySelectorAll(".pixelCanvas").length - 1) {
       currentPixel++;

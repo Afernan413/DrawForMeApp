@@ -448,7 +448,7 @@ Button3.addEventListener("click", () => {
   if (CurrentPage == CanvasMode + "ChangeFill") {
     document.querySelector("#Circle").hidden = true;
     document.querySelector("#Letter").hidden = false;
-    if (color == "transparent") {
+    if (color == "transparent" || color2Name.closest(color).name !== "white") {
       color = "white";
     }
     var r = document.querySelector("#CurrentSelectionContainer");

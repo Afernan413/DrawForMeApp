@@ -8,6 +8,7 @@ function GetPrinters() {
   winContents.getPrintersAsync().then((printers) => {
     PrinterList = [];
     printers.forEach((printer) => {
+      console.log(printer.name, printer.options);
       if (printer.status !== 0) {
         PrinterList.push(printer);
       }
@@ -130,11 +131,10 @@ function selectPrinter() {
     let win = BrowserWindow.getAllWindows()[0];
     win.webContents.print({
       silent: true,
-      dpi: { horizontal: 600, vertical: 600 },
       deviceName: PrinterName,
       color: true,
       marginsType: 0,
-      pageSize: "A4",
+      pageSize: "Letter",
       printBackground: true,
       printSelectionOnly: false,
       landscape: CanvasMode == "Portrait" ? false : true,
