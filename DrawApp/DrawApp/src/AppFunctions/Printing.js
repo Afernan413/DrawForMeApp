@@ -8,14 +8,12 @@ function GetPrinters() {
   winContents.getPrintersAsync().then((printers) => {
     PrinterList = [];
     printers.forEach((printer) => {
-      console.log(printer.name, printer.options);
-      if (printer.status !== 0) {
+      console.log(printer);
+      if (printer.options["printer-location"] !== "") {
         PrinterList.push(printer);
       }
     });
-    PrinterList.forEach((printer) => {
-      console.log(printer.name);
-    });
+    PrinterList.forEach((printer) => {});
     if (document.getElementById("PrinterList")) {
       document.getElementById("PrinterList").innerHTML = "";
       let counter = 1;

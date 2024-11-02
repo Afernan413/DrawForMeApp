@@ -23,19 +23,16 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     zooming: false,
     maximize: true,
-    movable: false,
-    resizable: false,
     maximizable: false,
     minimizable: false,
     titleBarStyle: "hidden",
     center: true,
-    alwaysOnTop: true,
     fullscreen: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
-      devTools: true,
+      devTools: false,
     },
   });
 
@@ -91,6 +88,7 @@ app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
+  globalShortcut.unregisterAll();
 });
 
 // In this file you can include the rest of your app's specific main process
@@ -100,26 +98,6 @@ ipcMain.on("canvas-update", (event, canvasData) => {
   if (contentWindow) {
     contentWindow.webContents.send("update-canvas", canvasData);
   }
-});
-app.on("browser-window-focus", function () {
-  globalShortcut.register("CommandOrControl+R", () => {
-    console.log("CommandOrControl+R is pressed: Shortcut Disabled");
-  });
-  globalShortcut.register("F5", () => {
-    console.log("F5 is pressed: Shortcut Disabled");
-  });
-});
-app.on("browser-window-blur", function () {
-  globalShortcut.unregister("CommandOrControl+R");
-  globalShortcut.unregister("F5");
-});
-app.whenReady().then(() => {
-  globalShortcut.register("CommandOrControl+-", () => {
-    console.log("hotkey disabled");
-  });
-  globalShortcut.register("CommandOrControl++", () => {
-    console.log("hotkey disabled");
-  });
 });
 try {
   require("electron-reloader")(module);
