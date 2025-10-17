@@ -174,7 +174,6 @@ function setChangeColorButtons() {
   return;
 }
 function setSelectColorButtons(bool, buttonClickedOptions, isInitial = false) {
-  console.log(buttonClickedOptions);
   if (isInitial === true) {
     Button1.innerHTML = buttonClickedOptions[0];
     Button2.innerHTML = buttonClickedOptions[1];

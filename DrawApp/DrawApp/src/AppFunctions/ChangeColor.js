@@ -5,6 +5,5 @@ function ChangeColor() {
 }
 function ChangeFill() {
   setChangeFillButtons();
-  console.log("Change Fill Clicked");
   return;
 }

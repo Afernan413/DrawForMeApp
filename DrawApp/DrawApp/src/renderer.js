@@ -1,18 +1,7 @@
-const {
-  BrowserWindow,
-  BrowserView,
-  app,
-  desktopCapturer,
-  screen,
-  remote,
-} = require("@electron/remote");
-const electron = require("electron");
-const path = require("path");
-var PHE = require("print-html-element");
-var tinycolor = require("tinycolor2");
-var color2Name = require("color-2-name");
+const { BrowserWindow, app } = require("@electron/remote");
 const { ipcRenderer } = require("electron");
-const fs = require("fs");
+const tinycolor = require("tinycolor2");
+const color2Name = require("color-2-name");
 
 ///////////////////////////////GET ITEMS///////////////////////////////////////////////////////
 var GridContainer = document.querySelector("#CanvasContainer");
@@ -58,20 +47,21 @@ var CurrentPage = "Home";
 var CurrentSelectionContainer = document.querySelector(
   "#CurrentSelectionContainer"
 );
-var color = document
-  .querySelector("#CurrentSelectionContainer")
-  .computedStyleMap()
-  .get("--backgroundColor");
+var color = getComputedStyle(CurrentSelectionContainer)
+  .getPropertyValue("--backgroundColor")
+  .trim();
+if (!color) {
+  color = "#ffffff";
+}
 var FillMode = "Solid";
-var currWindow = BrowserWindow.getAllWindows()[1];
-var childWdindow = BrowserWindow.getAllWindows()[0];
 
-var printers = [];
-let contentWindow;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 function ContentWindow() {
-  const canvas = document.getElementById("CanvasContainer").outerHTML;
-  require("electron").ipcRenderer.send("canvas-update", canvas);
+  const canvasContainer = document.getElementById("CanvasContainer");
+  if (!canvasContainer) {
+    return;
+  }
+  ipcRenderer.send("canvas-update", canvasContainer.outerHTML);
   return;
 }
 function printCanvas() {
@@ -846,7 +836,6 @@ Button6.addEventListener("click", () => {
 //event listener for keyboard input
 
 addEventListener("keypress", function (event) {
-  console.log(event.key);
   // If the user presses the "Enter" key on the keyboard
   if (event.key === "1") {
     // Cancel the default action, if needed

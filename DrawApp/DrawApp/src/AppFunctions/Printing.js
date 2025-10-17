@@ -1,142 +1,174 @@
-var PrinterList = [];
+const path = require("path");
+const fs = require("fs");
+const { BrowserWindow, app } = require("@electron/remote");
+const swal = require("sweetalert");
+
+const artworksDirectory = path.join(app.getPath("home"), "ArtByAbey", "Artworks");
+fs.mkdirSync(artworksDirectory, { recursive: true });
+
+let PrinterList = [];
 let currentPrinter = 1;
-var swal = require("sweetalert");
+
+function sanitizeOutputFileName(name) {
+  if (!name) {
+    return "Artwork";
+  }
+  const trimmed = name.replace(/[<>:"/\\|?*\u0000-\u001F]/g, "").trim();
+  return trimmed || "Artwork";
+}
 
 function GetPrinters() {
-  document.getElementById("PrinterSelection").removeAttribute("hidden");
-  const winContents = BrowserWindow.getFocusedWindow().webContents;
-  winContents.getPrintersAsync().then((printers) => {
-    PrinterList = [];
-    printers.forEach((printer) => {
-      console.log(printer);
-      if (printer.options["printer-location"] !== "") {
-        PrinterList.push(printer);
-      }
+  const printerSelection = document.getElementById("PrinterSelection");
+  if (printerSelection) {
+    printerSelection.hidden = false;
+  }
+
+  const printerListContainer = document.getElementById("PrinterList");
+  if (!printerListContainer) {
+    return;
+  }
+
+  const focusedWindow =
+    BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+  if (!focusedWindow) {
+    return;
+  }
+
+  focusedWindow.webContents.getPrintersAsync().then((printers) => {
+    PrinterList = printers
+      .filter((printer) => Boolean(printer?.name))
+      .map((printer) => ({
+        name: printer.name,
+        deviceName: printer.name,
+      }))
+      .sort((a, b) => a.name.localeCompare(b));
+
+    PrinterList.push({
+      name: "Save As PDF",
+      deviceName: "__virtual__",
+      isVirtual: true,
     });
-    PrinterList.forEach((printer) => {});
-    if (document.getElementById("PrinterList")) {
-      document.getElementById("PrinterList").innerHTML = "";
-      let counter = 1;
-      PrinterList.forEach((printer) => {
-        document.getElementById(
-          "PrinterList"
-        ).innerHTML += `<div class="Printer" id="printer-${counter++}">${
-          printer.name
-        }</div>`;
-      });
-      PrinterList.push("Save As PDF");
-      document.getElementById(
-        "PrinterList"
-      ).innerHTML += `<div class="Printer" id="printer-${counter++}">Save As PDF</div>`;
-    }
-    if (PrinterList.length !== 0) {
-      document
-        .querySelector("#PrinterList > div:nth-child(1)")
-        .classList.add("active");
-    }
+
+    printerListContainer.innerHTML = "";
+    PrinterList.forEach((printer, index) => {
+      const listItem = document.createElement("div");
+      listItem.className = "Printer";
+      listItem.id = `printer-${index + 1}`;
+      listItem.textContent = printer.name;
+      printerListContainer.appendChild(listItem);
+    });
+
+    currentPrinter = Math.min(currentPrinter, PrinterList.length) || 1;
+    updatePrinterSelection();
   });
 
   setPrintLookupButtons();
 }
+
 function updatePrinterSelection() {
-  document.querySelectorAll("div.Printer").forEach((Printer) => {
-    Printer.classList.remove("active");
+  document.querySelectorAll("div.Printer").forEach((printer) => {
+    printer.classList.remove("active");
   });
-  const activePrinter = document.getElementById("printer-" + currentPrinter);
-  if (activePrinter) {
-    activePrinter.classList.add("active");
-  } else {
+
+  const activePrinter = document.getElementById(`printer-${currentPrinter}`);
+  if (!activePrinter) {
     return;
   }
-  activePrinter.scrollIntoViewIfNeeded();
-  return;
+
+  activePrinter.classList.add("active");
+  activePrinter.scrollIntoView({ block: "nearest" });
 }
+
+function movePrinterSelection(step) {
+  if (!PrinterList.length) {
+    return;
+  }
+
+  currentPrinter = Math.min(
+    Math.max(currentPrinter + step, 1),
+    PrinterList.length
+  );
+  updatePrinterSelection();
+}
+
 function navigatePrinterList(Movement) {
-  if (Movement == Button1) {
-    console.log("Down Arrow Clicked");
-    if (currentPrinter + 1 <= PrinterList.length) {
-      currentPrinter += 1;
-    }
-    console.log(currentPrinter);
-    updatePrinterSelection();
-    Button1.removeEventListener("click", () => {});
+  if (Movement === Button1) {
+    movePrinterSelection(1);
+  } else if (Movement === Button2) {
+    movePrinterSelection(4);
+  } else if (Movement === Button3) {
+    movePrinterSelection(-1);
+  } else if (Movement === Button4) {
+    movePrinterSelection(-4);
   }
-  if (Movement == Button2) {
-    console.log("DownDown Arrow Clicked");
-    if (currentPrinter + 4 <= PrinterList.length) {
-      currentPrinter += 4;
-    } else {
-      currentPrinter = PrinterList.length;
-    }
-    console.log(currentPrinter);
-    updatePrinterSelection();
-    Button2.removeEventListener("click", () => {});
-  }
-  if (Movement == Button3) {
-    console.log("Up Arrow Clicked");
-    if (currentPrinter - 1 >= 1) {
-      currentPrinter -= 1;
-    }
-    console.log(currentPrinter);
-    updatePrinterSelection();
-    Button3.removeEventListener("click", () => {});
-  }
-  if (Movement == Button4) {
-    console.log("UpUp Arrow Clicked");
-    if (currentPrinter - 4 >= 1) {
-      currentPrinter -= 4;
-    } else {
-      currentPrinter = 1;
-    }
-    console.log(currentPrinter);
-    updatePrinterSelection();
-    Button4.removeEventListener("click", () => {});
-  }
-  return;
 }
+
 function selectPrinter() {
-  const winContents = BrowserWindow.getAllWindows()[0].webContents;
-  const activePrinter = document.getElementById("printer-" + currentPrinter);
-  if (!activePrinter) return;
-  PrinterName = activePrinter.innerHTML;
-  document.getElementById("PrinterSelection").setAttribute("hidden", "");
-  document.querySelector("#CanvasContainer").style.display = "grid";
-  console.log(PrinterName);
-  if (PrinterName == "Save As PDF") {
-    fs.mkdirSync(DocumentsPath + "/ArtByAbey/Artworks", { recursive: true });
-    var filepath1 = DocumentsPath + "/ArtByAbey/Artworks";
-    var options = {
+  const selectedPrinter = PrinterList[currentPrinter - 1];
+  if (!selectedPrinter) {
+    return;
+  }
+
+  const printerSelection = document.getElementById("PrinterSelection");
+  if (printerSelection) {
+    printerSelection.hidden = true;
+  }
+
+  const canvasContainer = document.querySelector("#CanvasContainer");
+  if (canvasContainer) {
+    canvasContainer.style.display = "grid";
+  }
+
+  const availableWindows = BrowserWindow.getAllWindows().filter(
+    (win) => !win.isDestroyed()
+  );
+  const mainWindow =
+    BrowserWindow.getFocusedWindow() || availableWindows.find(Boolean);
+
+  if (!mainWindow) {
+    return;
+  }
+
+  if (selectedPrinter.isVirtual) {
+    const options = {
       color: true,
       marginsType: 0,
       pageSize: "A4",
       printBackground: true,
       printSelectionOnly: false,
-      landscape: CanvasMode == "Portrait" ? false : true,
+      landscape: CanvasMode === "Portrait" ? false : true,
     };
-    let win = BrowserWindow.getAllWindows()[0];
-    swal("File saved as PDF in " + filepath1.replaceAll("/", "\\"), {
+
+    swal(`File saved as PDF in ${path.normalize(artworksDirectory)}`, {
       buttons: false,
       timer: 5000,
     });
-    win.webContents.printToPDF(options).then((data) => {
-      fs.writeFileSync(filepath1 + "/" + FileName + ".pdf", data);
-    });
-  } else {
-    /* swal("Currently using printers is not functioning as intended :)", {
-      buttons: false,
-      timer: 5000,
-    });*/
-    let win = BrowserWindow.getAllWindows()[0];
-    win.webContents.print({
-      silent: true,
-      deviceName: PrinterName,
-      color: true,
-      marginsType: 0,
-      pageSize: "Letter",
-      printBackground: true,
-      printSelectionOnly: false,
-      landscape: CanvasMode == "Portrait" ? false : true,
-    });
+
+    mainWindow.webContents
+      .printToPDF(options)
+      .then((data) => {
+        const safeName = sanitizeOutputFileName(FileName);
+        const outputPath = path.join(artworksDirectory, `${safeName}.pdf`);
+        fs.writeFileSync(outputPath, data);
+      })
+      .catch(() => {
+        swal("Unable to save the PDF. Please try again.", {
+          buttons: false,
+          timer: 2500,
+        });
+      });
+
+    return;
   }
-  return;
+
+  mainWindow.webContents.print({
+    silent: true,
+    deviceName: selectedPrinter.deviceName,
+    color: true,
+    marginsType: 0,
+    pageSize: "Letter",
+    printBackground: true,
+    printSelectionOnly: false,
+    landscape: CanvasMode === "Portrait" ? false : true,
+  });
 }

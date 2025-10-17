@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-
     <meta charset="UTF-8" />
     <title>Draw Abey</title>
     <link rel="stylesheet" href="../styles/index.css" />
@@ -14,11 +12,27 @@
     </section>
   </body>
   <script>
-    require("electron").ipcRenderer.on("update-canvas", (event, canvasData) => {
-      $("#CanvasContainer").replaceWith($(canvasData));
-      $("#CanvasContainer").css("position", "relative");
-      $("#CanvasContainer").css("scale", "1.5");
-      $("#CanvasContainer").css("top", "15vh");
+    const { ipcRenderer } = require("electron");
+
+    function applyCanvasStyles(container) {
+      container.style.position = "relative";
+      container.style.transform = "scale(1.5)";
+      container.style.transformOrigin = "top left";
+      container.style.top = "15vh";
+    }
+
+    ipcRenderer.on("update-canvas", (_event, canvasData) => {
+      const template = document.createElement("template");
+      template.innerHTML = canvasData.trim();
+      const incomingCanvas = template.content.firstElementChild;
+      const currentCanvas = document.getElementById("CanvasContainer");
+
+      if (!incomingCanvas || !currentCanvas) {
+        return;
+      }
+
+      currentCanvas.replaceWith(incomingCanvas);
+      applyCanvasStyles(incomingCanvas);
     });
   </script>
 </html>
