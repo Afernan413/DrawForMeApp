@@ -329,7 +329,7 @@ Button2.addEventListener("click", () => {
     document.querySelector("#Letter").hidden = true;
     document.querySelector("#Letter").innerHTML = "";
     if (color == "transparent" || tinycolor(color).isLight() == false) {
-      color = "white";
+      color = color2Name.getColor("white").hex;
     }
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);
@@ -449,7 +449,7 @@ Button3.addEventListener("click", () => {
     document.querySelector("#Circle").hidden = true;
     document.querySelector("#Letter").hidden = false;
     if (color == "transparent" || color2Name.closest(color).name !== "white") {
-      color = "white";
+      color = color2Name.getColor("white").hex;
     }
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);

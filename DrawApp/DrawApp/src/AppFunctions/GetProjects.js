@@ -27,9 +27,8 @@ function GetProjects() {
   if (document.getElementById("FileList").innerHTML == "") {
     let counter = 1;
     projects.forEach((project) => {
-      document.getElementById(
-        "FileList"
-      ).innerHTML += `<div class="File" id="file-${counter++}">${project}</div>`;
+      document.getElementById("FileList").innerHTML +=
+        `<div class="File" id="file-${counter++}">${project}</div>`;
     });
   }
   if (projects.length !== 0) {
@@ -195,9 +194,12 @@ function setNewName() {
     fs.unlinkSync(ProjectsPath + "/" + FileName + ".json");
   }
   FileName = document.getElementById("CustomFileNameBar").innerHTML;
-  if (FileName == undefined) {
+  //if the filename is empty, set it to NewFile
+  if (FileName.trim() === "") {
     FileName = "NewFile";
   }
+  //remove any illegal characters from the filename
+  FileName = FileName.replace(/[\\\/:\*\?"<>\|]/g, "_");
   fs.writeFileSync(ProjectsPath + "/" + FileName + ".json", fileContent);
   document.getElementById("CustomFileNameBar").setAttribute("hidden", "");
   document.getElementById("FileStatusContainer").innerHTML =

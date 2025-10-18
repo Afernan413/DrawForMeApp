@@ -12,10 +12,83 @@ require("@electron/remote/main").initialize();
 
 const path = require("path");
 const { isMainThread } = require("worker_threads");
+const fs = require("fs");
+const os = require("os");
+const events = require('events');
+
+// Increase default max listeners slightly to avoid noisy MaxListenersExceededWarning
+// while guarding against legitimate memory leaks. It's better to fix duplicate
+// listener registration, but raising the limit here is a safe short-term mitigation.
+events.EventEmitter.defaultMaxListeners = 20;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();
+}
+
+// Ensure userData path is safe and doesn't contain trailing dots which can
+// cause Windows to fail when creating directories. Use a folder under
+// %APPDATA% with the product name from package.json (no trailing dots).
+try {
+  const appData =
+    app.getPath("appData") || path.join(os.homedir(), "AppData", "Roaming");
+  const safeName = "ArtByAbey";
+  const userDataPath = path.join(appData, safeName);
+  app.setPath("userData", userDataPath);
+
+  // Pre-create common cache directories the Chromium network stack expects.
+  const desiredDirs = [
+    path.join(userDataPath, "Network"),
+    path.join(userDataPath, "Code Cache", "js"),
+    path.join(userDataPath, "Code Cache", "wasm"),
+    path.join(userDataPath, "Shared Dictionary", "cache"),
+    path.join(userDataPath, "GPUCache"),
+  ];
+
+  const tryEnsureDirs = (baseDirs) => {
+    for (const dir of baseDirs) {
+      try {
+        fs.mkdirSync(dir, { recursive: true });
+      } catch (e) {
+        // Re-throw the error for handling by the caller
+        throw e;
+      }
+    }
+  };
+
+  try {
+    tryEnsureDirs(desiredDirs);
+  } catch (e) {
+    const msg = e && e.message ? e.message : String(e);
+    console.error(`Initial cache directory creation failed for ${userDataPath}:`, msg);
+
+    // If it's a permissions problem on Windows (Access is denied / EACCES),
+    // fall back to a temp directory so the app can continue running.
+    if (msg.includes('Access is denied') || e.code === 'EACCES' || e.errno === -4092) {
+      try {
+        const fallback = path.join(os.tmpdir(), 'ArtByAbey');
+        const fallbackDirs = [
+          path.join(fallback, 'Network'),
+          path.join(fallback, 'Code Cache', 'js'),
+          path.join(fallback, 'Code Cache', 'wasm'),
+          path.join(fallback, 'Shared Dictionary', 'cache'),
+          path.join(fallback, 'GPUCache'),
+        ];
+        tryEnsureDirs(fallbackDirs);
+        app.setPath('userData', fallback);
+        console.warn(`userData path fallback to temp dir due to permissions: ${fallback}`);
+      } catch (ee) {
+        console.error('Fallback cache directory creation also failed:', ee && ee.message ? ee.message : ee);
+      }
+    } else {
+      console.error('Could not create cache directories:', msg);
+    }
+  }
+} catch (err) {
+  console.error(
+    "Error setting up userData path:",
+    err && err.message ? err.message : err
+  );
 }
 
 const createWindow = () => {
@@ -32,7 +105,7 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
-      devTools: false,
+      devTools: process.env.NODE_ENV !== 'production',
     },
   });
 
@@ -41,8 +114,11 @@ const createWindow = () => {
   mainWindow.maximize();
   mainWindow.isAlwaysOnTop(true);
 
-  // Open the DevTools.
+  // Enable remote module for browser devtools access and open DevTools in dev.
   require("@electron/remote/main").enable(mainWindow.webContents);
+  if (process.env.NODE_ENV !== 'production') {
+    mainWindow.webContents.openDevTools({ mode: 'detach' });
+  }
   let displays = screen.getAllDisplays();
   let externalDisplay = displays.find((display) => {
     return display.bounds.x !== 0 || display.bounds.y !== 0;
@@ -58,7 +134,7 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
-      devTools: false,
+      devTools: process.env.NODE_ENV !== 'production',
     },
   });
   if (externalDisplay) {
@@ -66,6 +142,9 @@ const createWindow = () => {
   }
   contentWindow.loadFile(path.join(__dirname, "ContentScreen.html"));
   require("@electron/remote/main").enable(contentWindow.webContents);
+  if (process.env.NODE_ENV !== 'production') {
+    contentWindow.webContents.openDevTools({ mode: 'detach' });
+  }
 };
 
 // This method will be called when Electron has finished
@@ -99,6 +178,11 @@ ipcMain.on("canvas-update", (event, canvasData) => {
     contentWindow.webContents.send("update-canvas", canvasData);
   }
 });
+// Only enable the reloader in development mode. Re-executing the main module
+// can re-register listeners and lead to EventEmitter warnings like
+// "11 render-view-deleted listeners added to [WebContents]".
 try {
-  require("electron-reloader")(module);
+  if (process.env.NODE_ENV !== 'production') {
+    require("electron-reloader")(module);
+  }
 } catch (_) {}

@@ -107,6 +107,8 @@ function SetNavigationButtons() {
   ) {
     Button5.innerHTML = "";
     Button6.innerHTML = "Go Back";
+    var r = document.querySelector("#Letter");
+    r.innerText = "";
     CurrentPage = CanvasMode + "SelectFillLetterMove";
   } else {
     Button5.innerHTML = "Fill";
@@ -128,6 +130,13 @@ function setQuitButtons() {
   return;
 }
 function setMoreButtons() {
+  //make sure all buttons are enabled
+  document.getElementById("PrimaryButtons_1").disabled = false;
+  document.getElementById("PrimaryButtons_2").disabled = false;
+  document.getElementById("PrimaryButtons_3").disabled = false;
+  document.getElementById("PrimaryButtons_4").disabled = false;
+  document.getElementById("PrimaryButtons_5").disabled = false;
+  document.getElementById("PrimaryButtons_6").disabled = false;
   Button1.innerHTML = "Change Color";
   Button1.removeAttribute("arrow");
   Button2.innerHTML = "Change Fill";
