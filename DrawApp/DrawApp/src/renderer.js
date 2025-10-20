@@ -114,32 +114,34 @@ const OriginalButtons = document.querySelector("#ButtonsContainer").innerHTML;
 const ButtonsContainer = document.querySelector("#ButtonsContainer");
 
 let colorOptions;
+// Curated 25-color palette: chosen to cover hue wheel, neutrals, and useful midtones
+// Colors are objects with {hex, name} to match existing usage in SetButtons.js
 let palette = [
-  { hex: "#000000", name: "Black" },
-  { hex: "#FFFFFF", name: "White" },
-  { hex: "#FF0000", name: "Red" },
-  { hex: "#00FF00", name: "Green" },
-  { hex: "#0000FF", name: "Blue" },
-  { hex: "#FFFF00", name: "Yellow" },
-  { hex: "#FF00FF", name: "Magenta" },
-  { hex: "#00FFFF", name: "Cyan" },
-  { hex: "#800000", name: "Maroon" },
-  { hex: "#808000", name: "Olive" },
-  { hex: "#008000", name: "Dark Green" },
-  { hex: "#800080", name: "Purple" },
-  { hex: "#008080", name: "Teal" },
-  { hex: "#FFA500", name: "Orange" },
-  { hex: "#A52A2A", name: "Brown" },
-  { hex: "#DEB887", name: "Burlywood" },
-  { hex: "#5F9EA0", name: "Cadet Blue" },
-  { hex: "#7FFF00", name: "Chartreuse" },
-  { hex: "#D2691E", name: "Chocolate" },
-  { hex: "#FF7F50", name: "Coral" },
-  { hex: "#6495ED", name: "Cornflower Blue" },
-  { hex: "#DC143C", name: "Crimson" },
-  { hex: "#00FFFF", name: "Aqua" },
-  { hex: "#00008B", name: "Dark Blue" },
-  { hex: "#008B8B", name: "Dark Cyan" },
+  { hex: "#000000", name: "Black" },         // Anchor: black
+  { hex: "#FFFFFF", name: "White" },         // Anchor: white
+  { hex: "#7F7F7F", name: "Mid Gray" },     // Neutral midtone for desaturations
+  { hex: "#FF0000", name: "Primary Red" },  // Strong red
+  { hex: "#E25822", name: "Vermilion" },    // Warm orange-red
+  { hex: "#FFA500", name: "Orange" },       // Orange (warm)
+  { hex: "#FFD700", name: "Gold" },         // Yellow/gold (rich warm yellow)
+  { hex: "#FFFF66", name: "Lemon" },        // Light yellow (highlights)
+  { hex: "#00A86B", name: "Green" },        // Primary green (slightly muted)
+  { hex: "#007F5F", name: "Deep Green" },   // Deep/forest green
+  { hex: "#00FFCC", name: "Aqua Mint" },    // Cyan/green mix useful for blends
+  { hex: "#00BFFF", name: "Sky Blue" },     // Light bright blue
+  { hex: "#0000CD", name: "Royal Blue" },   // Medium-deep blue
+  { hex: "#4B0082", name: "Indigo" },       // Violet-blue bridge
+  { hex: "#8A2BE2", name: "Violet" },       // Vivid violet
+  { hex: "#FF00FF", name: "Magenta" },      // Magenta / fuchsia
+  { hex: "#FF69B4", name: "Hot Pink" },     // Pink for skin/highlights
+  { hex: "#A0522D", name: "Sienna" },       // Brown/red-leaning (earth)
+  { hex: "#8B4513", name: "Saddle Brown" }, // Dark brown (shadows)
+  { hex: "#F5DEB3", name: "Wheat" },        // Light warm beige
+  { hex: "#FFEFD5", name: "Papaya" },       // Very light warm tone
+  { hex: "#2F4F4F", name: "Charcoal" },     // Dark neutral with slight cool tint
+  { hex: "#556B2F", name: "Olive Drab" },   // Muted olive for natural blends
+  { hex: "#B22222", name: "Brick Red" },    // Muted strong red for contrast
+  { hex: "transparent", name: "Transparent" },  // transparent option (app checks for 'transparent')
 ];
 var Button1 = document.querySelector("#PrimaryButtons_1");
 var Button2 = document.querySelector("#PrimaryButtons_2");
