@@ -10,9 +10,102 @@ const electron = require("electron");
 const path = require("path");
 var PHE = require("print-html-element");
 var tinycolor = require("tinycolor2");
+window.tinycolor = tinycolor;
 var color2Name = require("color-2-name");
 const { ipcRenderer } = require("electron");
 const fs = require("fs");
+const BrushState = require("./AppFunctions/BrushState");
+
+// expose brush helpers for other scripts loaded via script tags
+window.BrushState = BrushState;
+
+function getBrushPreviewColor(strengthOverride) {
+  const brushStrength =
+    typeof strengthOverride === "number"
+      ? strengthOverride
+      : BrushState.getBrushStrength
+      ? BrushState.getBrushStrength()
+      : 1;
+  const selectionContainer = document.querySelector(
+    "#CurrentSelectionContainer"
+  );
+  const rawColor = selectionContainer
+    ? selectionContainer.style.getPropertyValue("--backgroundColor") ||
+      selectionContainer.style.backgroundColor ||
+      color ||
+      "#000000"
+    : color || "#000000";
+
+  if (window.tinycolor) {
+    const parsed = window.tinycolor(rawColor || "#000000");
+    if (parsed.isValid()) {
+      if (parsed.getAlpha() === 0) {
+        parsed.setAlpha(1);
+      }
+      return parsed.setAlpha(brushStrength).toRgbString();
+    }
+  }
+
+  return `rgba(0, 0, 0, ${brushStrength.toFixed(2)})`;
+}
+
+function updateBrushPreviewElement() {
+  const previewEl = document.getElementById("BrushPreview");
+  if (!previewEl) {
+    return;
+  }
+  const isSolidFill = FillMode === "Solid";
+  previewEl.hidden = !isSolidFill;
+  if (!isSolidFill) {
+    return;
+  }
+
+  const maxBrushSize = BrushState.MAX_BRUSH_SIZE || 10;
+  const brushSize = BrushState.getBrushSize
+    ? BrushState.getBrushSize()
+    : 1;
+  const brushStrength = BrushState.getBrushStrength
+    ? BrushState.getBrushStrength()
+    : 1;
+
+  const scale =
+    maxBrushSize <= 1 ? 1 : (brushSize - 1) / (maxBrushSize - 1);
+  const minPercent = 20;
+  const percent = minPercent + scale * (100 - minPercent);
+  previewEl.style.width = `${percent.toFixed(2)}%`;
+  previewEl.style.height = `${percent.toFixed(2)}%`;
+  previewEl.style.backgroundColor = getBrushPreviewColor(brushStrength);
+}
+
+function updateBrushStatsElement() {
+  const statsEl = document.getElementById("BrushStats");
+  if (!statsEl) {
+    return;
+  }
+  const brushSize = BrushState.getBrushSize
+    ? BrushState.getBrushSize()
+    : 1;
+  const brushStrength = BrushState.getBrushStrength
+    ? BrushState.getBrushStrength()
+    : 1;
+  const brushLabel = `${brushSize}x${brushSize}`;
+  const opacityLabel = `${Math.round(brushStrength * 100)}%`;
+  statsEl.innerHTML = `
+    <div><span>Brush Size: </span> <span>${brushLabel}</span></div>
+    <div><span>Opacity: </span><span>${opacityLabel}</span></div>
+  `;
+}
+
+function refreshBrushUI() {
+  updateBrushPreviewElement();
+  updateBrushStatsElement();
+  if (typeof window.updatePixel === "function") {
+    window.updatePixel();
+  }
+}
+
+window.getBrushPreviewColor = getBrushPreviewColor;
+window.refreshBrushUI = refreshBrushUI;
 
 ///////////////////////////////GET ITEMS///////////////////////////////////////////////////////
 var GridContainer = document.querySelector("#CanvasContainer");
@@ -201,6 +294,7 @@ Button1.addEventListener("click", () => {
       colorOptions[0].innerHTML.split("background-color:")[1].slice(0, 7)
     );
     window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
     return;
   }
   if (CurrentPage == CanvasMode + "SelectColorMore") {
@@ -210,6 +304,23 @@ Button1.addEventListener("click", () => {
     document.querySelector("#Circle").hidden = true;
     FillMode = "Solid";
     window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "BrushMenu") {
+    setBrushSizeButtons();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "BrushSize") {
+    BrushState.increaseBrushSize();
+    setBrushSizeButtons();
+    refreshBrushUI();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "BrushStrength") {
+    BrushState.increaseBrushStrength();
+    setBrushStrengthButtons();
+    refreshBrushUI();
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeFill") {
@@ -219,6 +330,7 @@ Button1.addEventListener("click", () => {
 
     FillMode = "Solid";
     colorOptions = ChangeColor();
+    refreshBrushUI();
     return;
   }
   if (
@@ -246,7 +358,7 @@ Button1.addEventListener("click", () => {
     } else {
       setLetterButtons();
     }
-
+    refreshBrushUI();
     return;
   }
   if (CurrentPage == CanvasMode + "Save") {
@@ -305,6 +417,11 @@ Button2.addEventListener("click", () => {
     );
     return;
   }
+  if (CurrentPage == CanvasMode + "SelectColorMore") {
+    setBrushMenuButtons();
+    refreshBrushUI();
+    return;
+  }
   if (
     CurrentPage == CanvasMode + "SelectColor" ||
     CurrentPage.includes(CanvasMode + "SelectInitialColor")
@@ -318,6 +435,23 @@ Button2.addEventListener("click", () => {
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);
     window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "BrushMenu") {
+    setBrushStrengthButtons();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "BrushSize") {
+    BrushState.decreaseBrushSize();
+    setBrushSizeButtons();
+    refreshBrushUI();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "BrushStrength") {
+    BrushState.decreaseBrushStrength();
+    setBrushStrengthButtons();
+    refreshBrushUI();
     return;
   }
   if (CurrentPage == CanvasMode + "More") {
@@ -328,13 +462,12 @@ Button2.addEventListener("click", () => {
     document.querySelector("#Circle").hidden = false;
     document.querySelector("#Letter").hidden = true;
     document.querySelector("#Letter").innerHTML = "";
-    if (color == "transparent" || tinycolor(color).isLight() == false) {
-      color = color2Name.getColor("white").hex;
-    }
+    color = color2Name.getColor("white").hex;
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);
     FillMode = "Circle";
     window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
     return;
   }
   if (
@@ -358,6 +491,7 @@ Button2.addEventListener("click", () => {
     } else {
       setLetterButtons();
     }
+    refreshBrushUI();
     return;
   }
   if (
@@ -430,6 +564,18 @@ Button3.addEventListener("click", () => {
     );
     return;
   }
+  if (CurrentPage == CanvasMode + "BrushSize") {
+    BrushState.resetBrushSize();
+    setBrushSizeButtons();
+    refreshBrushUI();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "BrushStrength") {
+    BrushState.resetBrushStrength();
+    setBrushStrengthButtons();
+    refreshBrushUI();
+    return;
+  }
   if (
     CurrentPage == CanvasMode + "SelectColor" ||
     CurrentPage.includes(CanvasMode + "SelectInitialColor")
@@ -443,18 +589,18 @@ Button3.addEventListener("click", () => {
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);
     window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeFill") {
     document.querySelector("#Circle").hidden = true;
     document.querySelector("#Letter").hidden = false;
-    if (color == "transparent" || color2Name.closest(color).name !== "white") {
-      color = color2Name.getColor("white").hex;
-    }
+    color = color2Name.getColor("white").hex;
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);
     FillMode = "Letter";
     setLetterButtons();
+    refreshBrushUI();
     return;
   }
   if (
@@ -478,6 +624,7 @@ Button3.addEventListener("click", () => {
     } else {
       setLetterButtons();
     }
+    refreshBrushUI();
     return;
   }
   if (CurrentPage == CanvasMode + "SelectFillLetterMore") {
@@ -551,6 +698,7 @@ Button4.addEventListener("click", () => {
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);
     window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
     return;
   }
   if (
@@ -574,6 +722,7 @@ Button4.addEventListener("click", () => {
     } else {
       setLetterButtons();
     }
+    refreshBrushUI();
     return;
   }
   if (
@@ -623,6 +772,12 @@ Button5.addEventListener("click", () => {
     SetNavigationButtons();
     return;
   }
+  if (CurrentPage == CanvasMode + "BrushMenu") {
+    BrushState.resetBrush();
+    setBrushMenuButtons();
+    refreshBrushUI();
+    return;
+  }
   if (Button5.innerHTML.includes("Fill")) {
     if (FillMode == "Letter") {
       FillPixel(color, document.querySelector("#Letter").innerHTML);
@@ -660,6 +815,7 @@ Button5.addEventListener("click", () => {
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);
     window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
     return;
   }
   if (
@@ -683,6 +839,7 @@ Button5.addEventListener("click", () => {
     } else {
       setLetterButtons();
     }
+    refreshBrushUI();
     return;
   }
   if (
@@ -732,6 +889,17 @@ Button6.addEventListener("click", () => {
     setSaveButtons();
     return;
   }
+  if (CurrentPage == CanvasMode + "BrushMenu") {
+    setColorToolButtons();
+    return;
+  }
+  if (
+    CurrentPage == CanvasMode + "BrushSize" ||
+    CurrentPage == CanvasMode + "BrushStrength"
+  ) {
+    setBrushMenuButtons();
+    return;
+  }
   if (Button6.innerHTML.includes("Go Back")) {
     if (CurrentPage == "PickCanvas") {
       document.location.reload();
@@ -762,10 +930,7 @@ Button6.addEventListener("click", () => {
     }
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    setSelectColorButtons(
-      false,
-      "Eraser<br>Standard<br><br><br><br>Go Back".split("<br>")
-    );
+    setColorToolButtons();
     return;
   }
   if (CurrentPage == CanvasMode + "SelectColor") {
@@ -789,6 +954,7 @@ Button6.addEventListener("click", () => {
     }
     if (Button6.innerHTML.includes("Go Back")) {
       window[CanvasMode.toString() + "Mode"]();
+      refreshBrushUI();
       return;
     }
     return;
@@ -884,4 +1050,9 @@ addEventListener("keypress", function (event) {
     // Trigger the button element with a click
     Button6.click();
   }
+});
+
+refreshBrushUI();
+window.addEventListener("load", () => {
+  refreshBrushUI();
 });

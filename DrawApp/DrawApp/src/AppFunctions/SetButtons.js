@@ -15,6 +15,9 @@ WrittingModeOptions = WrittingModeOptions.concat([
 
 let Shift = false;
 
+var brushState = window.BrushState || require("./BrushState");
+window.BrushState = brushState;
+
 //format button Options
 let FormattedWrittingModeOptions = "";
 for (let i = 0; i < WrittingModeOptions.length; i++) {
@@ -176,14 +179,17 @@ function setChangeColorButtons() {
     Button6.innerHTML = "Go Back";
     CurrentPage = CanvasMode + "ChangeInitialColorFile";
   } else {
-    Button6.innerHTML = "Eraser<br>Standard<br><br>Go Back<br>";
+    const extraOptions = getColorToolOptions();
+    const infoOptions = extraOptions.filter(
+      (option) => option && option.trim().length > 0
+    );
+    Button6.innerHTML = infoOptions.join("<br>") + "<br>Go Back";
     CurrentPage = CanvasMode + "ChangeColor";
   }
 
   return;
 }
 function setSelectColorButtons(bool, buttonClickedOptions, isInitial = false) {
-  console.log(buttonClickedOptions);
   if (isInitial === true) {
     Button1.innerHTML = buttonClickedOptions[0];
     Button2.innerHTML = buttonClickedOptions[1];
@@ -217,6 +223,23 @@ function setSelectColorButtons(bool, buttonClickedOptions, isInitial = false) {
   }
   return;
 }
+function getColorToolOptions() {
+  if (FillMode === "Solid") {
+    return [
+      "Eraser",
+      "Change Brush",
+      "",
+      "",
+      "",
+    ];
+  }
+  return ["Eraser", "", "", "", ""];
+}
+
+function setColorToolButtons() {
+  setSelectColorButtons(false, getColorToolOptions());
+}
+
 function setChangeFillButtons() {
   Button1.innerHTML = "SOLID";
   Button2.innerHTML = "DOT";
@@ -225,6 +248,38 @@ function setChangeFillButtons() {
   Button5.innerHTML = "";
   Button6.innerHTML = "Go Back";
   CurrentPage = CanvasMode + "ChangeFill";
+  return;
+}
+function setBrushMenuButtons() {
+  Button1.innerHTML = "Adjust Size";
+  Button2.innerHTML = "Adjust Opacity";
+  Button3.innerHTML = "";
+  Button4.innerHTML = "";
+  Button5.innerHTML = "Standard";
+  Button6.innerHTML = "Go Back";
+  CurrentPage = CanvasMode + "BrushMenu";
+  return;
+}
+
+function setBrushSizeButtons() {
+  Button1.innerHTML = "Increase Size";
+  Button2.innerHTML = "Decrease Size";
+  Button3.innerHTML = "Reset Size";
+  Button4.innerHTML = "";
+  Button5.innerHTML = "";
+  Button6.innerHTML = "Go Back";
+  CurrentPage = CanvasMode + "BrushSize";
+  return;
+}
+
+function setBrushStrengthButtons() {
+  Button1.innerHTML = "Increase Opacity";
+  Button2.innerHTML = "Decrease Opacity";
+  Button3.innerHTML = "Reset Opacity";
+  Button4.innerHTML = "";
+  Button5.innerHTML = "";
+  Button6.innerHTML = "Go Back";
+  CurrentPage = CanvasMode + "BrushStrength";
   return;
 }
 function setLetterButtons() {
