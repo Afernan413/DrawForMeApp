@@ -141,7 +141,8 @@ let palette = [
   { hex: "#2F4F4F", name: "Charcoal" },     // Dark neutral with slight cool tint
   { hex: "#556B2F", name: "Olive Drab" },   // Muted olive for natural blends
   { hex: "#B22222", name: "Brick Red" },    // Muted strong red for contrast
-  { hex: "transparent", name: "Transparent" },  // transparent option (app checks for 'transparent')
+   //sillver
+   {hex: "#C0C0C0", name:"Silver"},
 ];
 var Button1 = document.querySelector("#PrimaryButtons_1");
 var Button2 = document.querySelector("#PrimaryButtons_2");

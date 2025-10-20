@@ -2,7 +2,7 @@ var brushState = window.BrushState || require("./BrushState");
 window.BrushState = brushState;
 var tinycolor = window.tinycolor || require("tinycolor2");
 
-function blendColors(baseColor, overlayColor, overlayOpacity) {
+function blendColors(baseColor, overlayColor, overlayOpacity) {  
   const base = tinycolor(baseColor).toRgb();
   const overlay = tinycolor(overlayColor).toRgb();
   const alpha = Math.max(0, Math.min(1, overlayOpacity));
@@ -59,7 +59,7 @@ function applySolidBrush(color, selectedColor) {
         continue;
       }
 
-      //targetBox.innerHTML = "";
+      targetBox.innerHTML = "";
       const existingColor = getComputedStyle(targetBox).backgroundColor;
       const blended = blendColors(existingColor, selectedColor, brushStrength);
       targetBox.style.backgroundColor = blended;
