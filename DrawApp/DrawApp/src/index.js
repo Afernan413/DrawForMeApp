@@ -112,11 +112,13 @@ const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "index.html"));
   mainWindow.maximize();
-  mainWindow.on('show', () => { mainWindow.focus() });
-  mainWindow.show();
+  mainWindow.isAlwaysOnTop(true);
 
   // Enable remote module for browser devtools access and open DevTools in dev.
   require("@electron/remote/main").enable(mainWindow.webContents);
+  if (process.env.NODE_ENV !== 'production') {
+    mainWindow.webContents.openDevTools({ mode: 'detach' });
+  }
   let displays = screen.getAllDisplays();
   let externalDisplay = displays.find((display) => {
     return display.bounds.x !== 0 || display.bounds.y !== 0;
@@ -140,6 +142,9 @@ const createWindow = () => {
   }
   contentWindow.loadFile(path.join(__dirname, "ContentScreen.html"));
   require("@electron/remote/main").enable(contentWindow.webContents);
+  if (process.env.NODE_ENV !== 'production') {
+    contentWindow.webContents.openDevTools({ mode: 'detach' });
+  }
 };
 
 // This method will be called when Electron has finished

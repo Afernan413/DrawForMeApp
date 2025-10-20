@@ -9,6 +9,6 @@ This document tracks feature additions and implementation details as they roll i
 - Introduced solid-brush square footprint logic across `FillPixel` and `GridNavigation`, ensuring even-sized brushes (2×2, 4×4, etc.) paint and preview accurately around the active pixel.
 - Updated UI elements (`index.html`, `styles/index.css`) to add a brush preview square, stats panel, and square outline styling that matches the active pixel border.
 - Cleaned up button flows (`SetButtons.js`) to expose a brush menu for size/opacity tweaks while keeping color tools focused on brush operations.
-- Generated `docs/brush-implementation.pdf` summarizing the architecture, customization points, and future enhancement ideas for the brush system.
-
-> _Next updates will be appended here as new features land; let me know when you want to record additional changes._
+- Cleaned up the active pixel outline
+- Text is now typed without effecting pixel color and different opacity fills will not effect letters/shapes
+  > _Next updates will be appended here as new features land; let me know when you want to record additional changes._

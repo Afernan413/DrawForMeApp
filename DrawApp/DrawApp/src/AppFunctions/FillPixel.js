@@ -13,12 +13,9 @@ function blendColors(baseColor, overlayColor, overlayOpacity) {
     return "rgba(0, 0, 0, 0)";
   }
 
-  const r =
-    (overlay.r * alpha + base.r * baseAlpha * (1 - alpha)) / outAlpha;
-  const g =
-    (overlay.g * alpha + base.g * baseAlpha * (1 - alpha)) / outAlpha;
-  const b =
-    (overlay.b * alpha + base.b * baseAlpha * (1 - alpha)) / outAlpha;
+  const r = (overlay.r * alpha + base.r * baseAlpha * (1 - alpha)) / outAlpha;
+  const g = (overlay.g * alpha + base.g * baseAlpha * (1 - alpha)) / outAlpha;
+  const b = (overlay.b * alpha + base.b * baseAlpha * (1 - alpha)) / outAlpha;
 
   return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${Number(
     outAlpha.toFixed(2)
@@ -26,9 +23,7 @@ function blendColors(baseColor, overlayColor, overlayOpacity) {
 }
 
 function applySolidBrush(color, selectedColor) {
-  const brushSize = brushState.getBrushSize
-    ? brushState.getBrushSize()
-    : 1;
+  const brushSize = brushState.getBrushSize ? brushState.getBrushSize() : 1;
   const brushStrength = brushState.getBrushStrength
     ? brushState.getBrushStrength()
     : 1;
@@ -64,7 +59,7 @@ function applySolidBrush(color, selectedColor) {
         continue;
       }
 
-      targetBox.innerHTML = "";
+      //targetBox.innerHTML = "";
       const existingColor = getComputedStyle(targetBox).backgroundColor;
       const blended = blendColors(existingColor, selectedColor, brushStrength);
       targetBox.style.backgroundColor = blended;
@@ -82,7 +77,7 @@ function FillPixel(color, Letter) {
   }
   const PreviewBox = document.getElementById("CurrentSelectionContainer");
   const activeBox = document.getElementById("pixel-" + currentPixel);
-  const selectedColor = getComputedStyle(PreviewBox).backgroundColor;
+  const selectedColor = PreviewBox.style.getPropertyValue("--backgroundColor");
 
   if (FillMode == "Circle") {
     activeBox.innerHTML = `<div class="Pixelcircle"></div>`;
