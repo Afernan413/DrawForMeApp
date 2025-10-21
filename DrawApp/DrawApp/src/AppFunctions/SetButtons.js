@@ -140,10 +140,10 @@ function setMoreButtons() {
   document.getElementById("PrimaryButtons_4").disabled = false;
   document.getElementById("PrimaryButtons_5").disabled = false;
   document.getElementById("PrimaryButtons_6").disabled = false;
-  if(FillMode == "Solid"){
-    Button1.innerHTML = "Change Color";
-  }
-  else{
+  if (FillMode == "Solid") {
+    // show brush-related entry instead of Change Color
+    Button1.innerHTML = "Change Brush";
+  } else {
     Button1.innerHTML = "";
   }
   Button1.removeAttribute("arrow");
@@ -184,12 +184,13 @@ function setChangeColorButtons() {
     Button6.innerHTML = "Go Back";
     CurrentPage = CanvasMode + "ChangeInitialColorFile";
   } else {
+    // For the normal Change Brush screen, show color swatches and additional tool options
     const extraOptions = getColorToolOptions();
     const infoOptions = extraOptions.filter(
       (option) => option && option.trim().length > 0
     );
     Button6.innerHTML = infoOptions.join("<br>") + "<br>Go Back";
-    CurrentPage = CanvasMode + "ChangeColor";
+    CurrentPage = CanvasMode + "ChangeColor"; // keep existing page id but label is now 'Change Brush'
   }
 
   return;
@@ -230,19 +231,16 @@ function setSelectColorButtons(bool, buttonClickedOptions, isInitial = false) {
 }
 function getColorToolOptions() {
   if (FillMode === "Solid") {
-    return [
-      "Eraser",
-      "Change Brush",
-      "",
-      "",
-      "",
-    ];
+    // Provide small tool list for the ChangeColor screen; the dedicated brush menu
+    // is a separate page (setBrushMenuButtons) and will handle detailed brush controls.
+    return ["Eraser", "Change Brush", "", "", ""];
   }
   return ["Eraser", "", "", "", ""];
 }
 
 function setColorToolButtons() {
-  setSelectColorButtons(false, getColorToolOptions());
+  // Open the dedicated brush menu instead of using the SelectColorMore page
+  setBrushMenuButtons();
 }
 
 function setChangeFillButtons() {

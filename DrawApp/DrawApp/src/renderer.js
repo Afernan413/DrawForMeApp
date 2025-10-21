@@ -310,12 +310,8 @@ Button1.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "SelectColorMore") {
-    color = "transparent";
-    var r = document.querySelector("#CurrentSelectionContainer");
-    r.style.setProperty("--backgroundColor", color);
-    document.querySelector("#Circle").hidden = true;
-    FillMode = "Solid";
-    window[CanvasMode.toString() + "Mode"]();
+    // Button1 on SelectColorMore -> Adjust Size
+    setBrushSizeButtons();
     refreshBrushUI();
     return;
   }
@@ -430,7 +426,8 @@ Button2.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "SelectColorMore") {
-    setBrushMenuButtons();
+    // Button2 on SelectColorMore -> Adjust Opacity
+    setBrushStrengthButtons();
     refreshBrushUI();
     return;
   }
@@ -663,6 +660,10 @@ Button3.addEventListener("click", () => {
 });
 //Button 4 listener
 Button4.addEventListener("click", () => {
+  // If we're on the SelectColorMore screen the 4th button is unused (keep it a no-op)
+  if (CurrentPage == CanvasMode + "SelectColorMore") {
+    return;
+  }
   if (Button4.innerHTML.includes("Import Image")) {
     return;
   }
@@ -710,6 +711,13 @@ Button4.addEventListener("click", () => {
     var r = document.querySelector("#CurrentSelectionContainer");
     r.style.setProperty("--backgroundColor", color);
     window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectColorMore") {
+    // Button3 on SelectColorMore -> Standard brush (reset to default)
+    BrushState.resetBrush();
+    setBrushMenuButtons();
     refreshBrushUI();
     return;
   }
@@ -772,6 +780,10 @@ Button4.addEventListener("click", () => {
 });
 //Button 5 listener
 Button5.addEventListener("click", () => {
+  // If we're on the SelectColorMore screen the 5th button is unused (no-op)
+  if (CurrentPage == CanvasMode + "SelectColorMore") {
+    return;
+  }
   if (Button5.innerHTML.includes("Fonts And Fills")) {
     return;
   }
@@ -902,7 +914,8 @@ Button6.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "BrushMenu") {
-    setColorToolButtons();
+    // Go back to the ChangeColor (swatches + extra options) screen
+    setChangeColorButtons();
     return;
   }
   if (
