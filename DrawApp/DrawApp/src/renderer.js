@@ -24,8 +24,8 @@ function getBrushPreviewColor(strengthOverride) {
     typeof strengthOverride === "number"
       ? strengthOverride
       : BrushState.getBrushStrength
-      ? BrushState.getBrushStrength()
-      : 1;
+        ? BrushState.getBrushStrength()
+        : 1;
   const selectionContainer = document.querySelector(
     "#CurrentSelectionContainer"
   );
@@ -61,15 +61,12 @@ function updateBrushPreviewElement() {
   }
 
   const maxBrushSize = BrushState.MAX_BRUSH_SIZE || 10;
-  const brushSize = BrushState.getBrushSize
-    ? BrushState.getBrushSize()
-    : 1;
+  const brushSize = BrushState.getBrushSize ? BrushState.getBrushSize() : 1;
   const brushStrength = BrushState.getBrushStrength
     ? BrushState.getBrushStrength()
     : 1;
 
-  const scale =
-    maxBrushSize <= 1 ? 1 : (brushSize - 1) / (maxBrushSize - 1);
+  const scale = maxBrushSize <= 1 ? 1 : (brushSize - 1) / (maxBrushSize - 1);
   const minPercent = 20;
   const percent = minPercent + scale * (100 - minPercent);
   previewEl.style.width = `${percent.toFixed(2)}%`;
@@ -82,26 +79,26 @@ function updateBrushStatsElement() {
   if (!statsEl) {
     return;
   }
-  const brushSize = BrushState.getBrushSize
-    ? BrushState.getBrushSize()
-    : 1;
+  const brushSize = BrushState.getBrushSize ? BrushState.getBrushSize() : 1;
   const brushStrength = BrushState.getBrushStrength
     ? BrushState.getBrushStrength()
     : 1;
-  const brushLabel = `${brushSize}x${brushSize}`;
+  const brushLabel = `${brushSize}`;
   const opacityLabel = `${Math.round(brushStrength * 100)}%`;
-  statsEl.innerHTML = `
+  if (FillMode === "Solid") {
+    statsEl.innerHTML = `
+    <div><span>Fill Mode: </span> <span>${FillMode}</span></div>
     <div><span>Brush Size: </span> <span>${brushLabel}</span></div>
     <div><span>Opacity: </span><span>${opacityLabel}</span></div>
   `;
+  } else {
+    statsEl.innerHTML = `
+    <div><span>Fill Mode: </span> <span>${FillMode}</span></div>
+  `;
+  }
 }
 
 function refreshBrushUI() {
-  updateBrushPreviewElement();
-  updateBrushStatsElement();
-  if (typeof window.updatePixel === "function") {
-    window.updatePixel();
-  }
   // if fillMode is letter but no letter is set, switch the mode to solid with white color
   if (FillMode === "Letter") {
     const letterEl = document.getElementById("Letter");
@@ -110,7 +107,11 @@ function refreshBrushUI() {
       color = "#FFFFFF";
     }
   }
-  
+  updateBrushPreviewElement();
+  updateBrushStatsElement();
+  if (typeof window.updatePixel === "function") {
+    window.updatePixel();
+  }
 }
 
 window.getBrushPreviewColor = getBrushPreviewColor;
@@ -126,31 +127,31 @@ let colorOptions;
 // Curated 25-color palette: chosen to cover hue wheel, neutrals, and useful midtones
 // Colors are objects with {hex, name} to match existing usage in SetButtons.js
 let palette = [
-  { hex: "#000000", name: "Black" },         // Anchor: black
-  { hex: "#FFFFFF", name: "White" },         // Anchor: white
-  { hex: "#7F7F7F", name: "Mid Gray" },     // Neutral midtone for desaturations
-  { hex: "#FF0000", name: "Primary Red" },  // Strong red
-  { hex: "#E25822", name: "Vermilion" },    // Warm orange-red
-  { hex: "#FFA500", name: "Orange" },       // Orange (warm)
-  { hex: "#FFD700", name: "Gold" },         // Yellow/gold (rich warm yellow)
-  { hex: "#FFFF66", name: "Lemon" },        // Light yellow (highlights)
-  { hex: "#00A86B", name: "Green" },        // Primary green (slightly muted)
-  { hex: "#007F5F", name: "Deep Green" },   // Deep/forest green
-  { hex: "#00FFCC", name: "Aqua Mint" },    // Cyan/green mix useful for blends
-  { hex: "#00BFFF", name: "Sky Blue" },     // Light bright blue
-  { hex: "#0000CD", name: "Royal Blue" },   // Medium-deep blue
-  { hex: "#4B0082", name: "Indigo" },       // Violet-blue bridge
-  { hex: "#8A2BE2", name: "Violet" },       // Vivid violet
-  { hex: "#FF00FF", name: "Magenta" },      // Magenta / fuchsia
-  { hex: "#FF69B4", name: "Hot Pink" },     // Pink for skin/highlights
-  { hex: "#A0522D", name: "Sienna" },       // Brown/red-leaning (earth)
+  { hex: "#000000", name: "Black" }, // Anchor: black
+  { hex: "#FFFFFF", name: "White" }, // Anchor: white
+  { hex: "#7F7F7F", name: "Mid Gray" }, // Neutral midtone for desaturations
+  { hex: "#FF0000", name: "Primary Red" }, // Strong red
+  { hex: "#E25822", name: "Vermilion" }, // Warm orange-red
+  { hex: "#FFA500", name: "Orange" }, // Orange (warm)
+  { hex: "#FFD700", name: "Gold" }, // Yellow/gold (rich warm yellow)
+  { hex: "#FFFF66", name: "Lemon" }, // Light yellow (highlights)
+  { hex: "#00A86B", name: "Green" }, // Primary green (slightly muted)
+  { hex: "#007F5F", name: "Deep Green" }, // Deep/forest green
+  { hex: "#00FFCC", name: "Aqua Mint" }, // Cyan/green mix useful for blends
+  { hex: "#00BFFF", name: "Sky Blue" }, // Light bright blue
+  { hex: "#0000CD", name: "Royal Blue" }, // Medium-deep blue
+  { hex: "#4B0082", name: "Indigo" }, // Violet-blue bridge
+  { hex: "#8A2BE2", name: "Violet" }, // Vivid violet
+  { hex: "#FF00FF", name: "Magenta" }, // Magenta / fuchsia
+  { hex: "#FF69B4", name: "Hot Pink" }, // Pink for skin/highlights
+  { hex: "#A0522D", name: "Sienna" }, // Brown/red-leaning (earth)
   { hex: "#8B4513", name: "Saddle Brown" }, // Dark brown (shadows)
-  { hex: "#F5DEB3", name: "Wheat" },        // Light warm beige
-  { hex: "#FFEFD5", name: "Papaya" },       // Very light warm tone
-  { hex: "#2F4F4F", name: "Charcoal" },     // Dark neutral with slight cool tint
-  { hex: "#556B2F", name: "Olive Drab" },   // Muted olive for natural blends
-  { hex: "#B22222", name: "Brick Red" },    // Muted strong red for contrast
-   {hex: "#C0C0C0", name:"Silver"},
+  { hex: "#F5DEB3", name: "Wheat" }, // Light warm beige
+  { hex: "#FFEFD5", name: "Papaya" }, // Very light warm tone
+  { hex: "#2F4F4F", name: "Charcoal" }, // Dark neutral with slight cool tint
+  { hex: "#556B2F", name: "Olive Drab" }, // Muted olive for natural blends
+  { hex: "#B22222", name: "Brick Red" }, // Muted strong red for contrast
+  { hex: "#C0C0C0", name: "Silver" },
 ];
 var Button1 = document.querySelector("#PrimaryButtons_1");
 var Button2 = document.querySelector("#PrimaryButtons_2");
