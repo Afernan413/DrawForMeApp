@@ -22,3 +22,11 @@ This document tracks feature additions and implementation details as they roll i
     - set two points of a line and it fills in the line with a specified color
   - Type bigger on the buttons
     - the on screen buttons are small, it's too small
+ 
+## UI flow update (Oct 21, 2025)
+
+- The "More" -> "Change Brush" flow was simplified into a single top-level Change Brush menu with these entries: Change Color, Change Size, Change Opacity, Standard, Eraser, Go Back.
+- "Change Opacity" now opens the dedicated opacity controls (Increase/Decrease/Reset) via the Brush Strength screen.
+- "Standard" resets brush size and opacity to defaults and returns the user to the main navigation (instead of opening the brush menu).
+
+This change removes the previous redundant ChangeColorFromChangeBrush path and unifies the palette/brush behavior.

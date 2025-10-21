@@ -275,7 +275,8 @@ Button1.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "More" && FillMode == "Solid") {
-    colorOptions = ChangeColor();
+    // Open the new ChangeBrush top-level menu
+    colorOptions = ChangeBrush();
     return;
   }
   if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
@@ -313,6 +314,11 @@ Button1.addEventListener("click", () => {
     // Button1 on SelectColorMore -> Adjust Size
     setBrushSizeButtons();
     refreshBrushUI();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeBrush") {
+    // Button1 on ChangeBrush -> Change Color (show palettes)
+    colorOptions = ChangeColor();
     return;
   }
   if (CurrentPage == CanvasMode + "BrushMenu") {
@@ -413,10 +419,12 @@ Button2.addEventListener("click", () => {
     NavigateGrid(Button2);
     return;
   }
+
   if (CurrentPage == CanvasMode + "ChangeColor") {
     setSelectColorButtons(true, colorOptions[1].innerHTML.split("</canvas>"));
     return;
   }
+
   if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
     setSelectColorButtons(
       true,
@@ -428,6 +436,12 @@ Button2.addEventListener("click", () => {
   if (CurrentPage == CanvasMode + "SelectColorMore") {
     // Button2 on SelectColorMore -> Adjust Opacity
     setBrushStrengthButtons();
+    refreshBrushUI();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeBrush") {
+    // Button2 on ChangeBrush -> Change Size
+    setBrushSizeButtons();
     refreshBrushUI();
     return;
   }
@@ -451,6 +465,7 @@ Button2.addEventListener("click", () => {
     setBrushStrengthButtons();
     return;
   }
+  
   if (CurrentPage == CanvasMode + "BrushSize") {
     BrushState.decreaseBrushSize();
     setBrushSizeButtons();
@@ -502,6 +517,10 @@ Button2.addEventListener("click", () => {
     }
     refreshBrushUI();
     return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeBrush") {
+    // NOTE: ChangeBrush Button4 mapping moved to Button4 handler to fix wrong placement
+    // Placeholder here removed so Button2 handler doesn't shadow later handlers
   }
   if (
     CurrentPage == CanvasMode + "SelectFillLetterMore" ||
@@ -571,6 +590,12 @@ Button3.addEventListener("click", () => {
       colorOptions[2].innerHTML.split("</canvas>"),
       true
     );
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeBrush") {
+    // Button3 on ChangeBrush -> Change Opacity
+    setBrushStrengthButtons();
+    refreshBrushUI();
     return;
   }
   if (CurrentPage == CanvasMode + "BrushSize") {
@@ -721,6 +746,16 @@ Button4.addEventListener("click", () => {
     refreshBrushUI();
     return;
   }
+  if (CurrentPage == CanvasMode + "ChangeBrush") {
+    // Button4 on ChangeBrush -> Standard: reset brush and set white
+    BrushState.resetBrush();
+    var r = document.querySelector("#CurrentSelectionContainer");
+    r.style.setProperty("--backgroundColor", color2Name.getColor("white").hex);
+    // Return to main navigation instead of opening the BrushMenu
+    SetNavigationButtons();
+    refreshBrushUI();
+    return;
+  }
   if (
     CurrentPage == CanvasMode + "ChangeFillLetter" ||
     CurrentPage == CanvasMode + "ChangeFillSymbols"
@@ -785,6 +820,15 @@ Button5.addEventListener("click", () => {
     return;
   }
   if (Button5.innerHTML.includes("Fonts And Fills")) {
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeBrush") {
+    // Button5 on ChangeBrush -> Eraser
+    var r = document.querySelector("#CurrentSelectionContainer");
+    r.style.setProperty("--backgroundColor", "white");
+    FillMode = "Solid";
+    window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
     return;
   }
   if (CurrentPage == "FileLookup") {
@@ -914,15 +958,21 @@ Button6.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "BrushMenu") {
-    // Go back to the ChangeColor (swatches + extra options) screen
-    setChangeColorButtons();
+    // Go back to the ChangeBrush top-level page (avoid loop back to ChangeColor)
+    setChangeBrushButtons();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeBrush") {
+    // Back from ChangeBrush should return to navigation
+    SetNavigationButtons();
     return;
   }
   if (
     CurrentPage == CanvasMode + "BrushSize" ||
     CurrentPage == CanvasMode + "BrushStrength"
   ) {
-    setBrushMenuButtons();
+    // Return to the ChangeBrush top-level page instead of the intermediate BrushMenu
+    setChangeBrushButtons();
     return;
   }
   if (Button6.innerHTML.includes("Go Back")) {
@@ -955,7 +1005,8 @@ Button6.addEventListener("click", () => {
     }
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    setColorToolButtons();
+    // Go back from ChangeColor should return to main navigation
+    SetNavigationButtons();
     return;
   }
   if (CurrentPage == CanvasMode + "SelectColor") {

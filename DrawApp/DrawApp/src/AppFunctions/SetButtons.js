@@ -172,11 +172,13 @@ Object.values(palette).forEach((value) => {
 });
 FormattedPallete = FormattedPallete.split("oops");
 function setChangeColorButtons() {
+  // show the 5 palette canvases
   Button1.innerHTML = FormattedPallete[0];
   Button2.innerHTML = FormattedPallete[1];
   Button3.innerHTML = FormattedPallete[2];
   Button4.innerHTML = FormattedPallete[3];
   Button5.innerHTML = FormattedPallete[4];
+  // If called from an initial color flow keep previous initial states
   if (CurrentPage == CanvasMode + "InitialColor") {
     Button6.innerHTML = "Go Back";
     CurrentPage = CanvasMode + "ChangeInitialColor";
@@ -184,13 +186,10 @@ function setChangeColorButtons() {
     Button6.innerHTML = "Go Back";
     CurrentPage = CanvasMode + "ChangeInitialColorFile";
   } else {
-    // For the normal Change Brush screen, show color swatches and additional tool options
-    const extraOptions = getColorToolOptions();
-    const infoOptions = extraOptions.filter(
-      (option) => option && option.trim().length > 0
-    );
-    Button6.innerHTML = infoOptions.join("<br>") + "<br>Go Back";
-    CurrentPage = CanvasMode + "ChangeColor"; // keep existing page id but label is now 'Change Brush'
+    // For the normal Change Color screen, show only the five palette swatches
+    // on Button1..Button5 and a single Go Back on Button6.
+    Button6.innerHTML = "Go Back";
+    CurrentPage = CanvasMode + "ChangeColor"; // keep existing page id
   }
 
   return;
@@ -241,6 +240,18 @@ function getColorToolOptions() {
 function setColorToolButtons() {
   // Open the dedicated brush menu instead of using the SelectColorMore page
   setBrushMenuButtons();
+}
+
+function setChangeBrushButtons() {
+  // Top-level change brush menu with specific entries as requested
+  Button1.innerHTML = "Change Color";
+  Button2.innerHTML = "Change Size";
+  Button3.innerHTML = "Change Opacity";
+  Button4.innerHTML = "Standard";
+  Button5.innerHTML = "Eraser";
+  Button6.innerHTML = "Go Back";
+  CurrentPage = CanvasMode + "ChangeBrush";
+  return;
 }
 
 function setChangeFillButtons() {
