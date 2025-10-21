@@ -140,7 +140,12 @@ function setMoreButtons() {
   document.getElementById("PrimaryButtons_4").disabled = false;
   document.getElementById("PrimaryButtons_5").disabled = false;
   document.getElementById("PrimaryButtons_6").disabled = false;
-  Button1.innerHTML = "Change Color";
+  if(FillMode == "Solid"){
+    Button1.innerHTML = "Change Color";
+  }
+  else{
+    Button1.innerHTML = "";
+  }
   Button1.removeAttribute("arrow");
   Button2.innerHTML = "Change Fill";
   Button2.removeAttribute("arrow");

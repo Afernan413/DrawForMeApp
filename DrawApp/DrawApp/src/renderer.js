@@ -102,6 +102,15 @@ function refreshBrushUI() {
   if (typeof window.updatePixel === "function") {
     window.updatePixel();
   }
+  // if fillMode is letter but no letter is set, switch the mode to solid with white color
+  if (FillMode === "Letter") {
+    const letterEl = document.getElementById("Letter");
+    if (!letterEl || letterEl.innerHTML.trim() === "") {
+      FillMode = "Solid";
+      color = "#FFFFFF";
+    }
+  }
+  
 }
 
 window.getBrushPreviewColor = getBrushPreviewColor;
@@ -141,7 +150,6 @@ let palette = [
   { hex: "#2F4F4F", name: "Charcoal" },     // Dark neutral with slight cool tint
   { hex: "#556B2F", name: "Olive Drab" },   // Muted olive for natural blends
   { hex: "#B22222", name: "Brick Red" },    // Muted strong red for contrast
-   //sillver
    {hex: "#C0C0C0", name:"Silver"},
 ];
 var Button1 = document.querySelector("#PrimaryButtons_1");
@@ -265,7 +273,7 @@ Button1.addEventListener("click", () => {
     NavigateGrid(Button1);
     return;
   }
-  if (CurrentPage == CanvasMode + "More") {
+  if (CurrentPage == CanvasMode + "More" && FillMode == "Solid") {
     colorOptions = ChangeColor();
     return;
   }
