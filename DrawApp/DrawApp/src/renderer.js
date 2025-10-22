@@ -114,6 +114,20 @@ function refreshBrushUI() {
   }
 }
 
+function setCurrentBrushColor(newColor, options = {}) {
+  if (!newColor) {
+    return;
+  }
+  color = newColor;
+  const selection = document.querySelector("#CurrentSelectionContainer");
+  if (selection) {
+    selection.style.setProperty("--backgroundColor", newColor);
+  }
+  if (options.remember !== false && BrushState && BrushState.setBrushColor) {
+    BrushState.setBrushColor(newColor);
+  }
+}
+
 window.getBrushPreviewColor = getBrushPreviewColor;
 window.refreshBrushUI = refreshBrushUI;
 
@@ -300,12 +314,10 @@ Button1.addEventListener("click", () => {
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
     }
-    color = colorOptions[0].innerHTML.split("background-color:")[1].slice(0, 7);
-    var r = document.querySelector("#CurrentSelectionContainer");
-    r.style.setProperty(
-      "--backgroundColor",
-      colorOptions[0].innerHTML.split("background-color:")[1].slice(0, 7)
-    );
+    const selectedColor = colorOptions[0].innerHTML
+      .split("background-color:")[1]
+      .slice(0, 7);
+    setCurrentBrushColor(selectedColor);
     window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
     return;
@@ -343,7 +355,18 @@ Button1.addEventListener("click", () => {
     document.querySelector("#Letter").innerHTML = "";
 
     FillMode = "Solid";
-    colorOptions = ChangeColor();
+    const rememberedColor =
+      BrushState && typeof BrushState.getBrushColor === "function"
+        ? BrushState.getBrushColor()
+        : null;
+    if (rememberedColor) {
+      setCurrentBrushColor(rememberedColor, { remember: true });
+      //goto main navigation
+      window[CanvasMode.toString() + "Mode"]();
+    }
+    else{
+      colorOptions = ChangeColor();
+    }
     refreshBrushUI();
     return;
   }
@@ -454,9 +477,10 @@ Button2.addEventListener("click", () => {
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
     }
-    color = colorOptions[1].innerHTML.split("background-color:")[1].slice(0, 7);
-    var r = document.querySelector("#CurrentSelectionContainer");
-    r.style.setProperty("--backgroundColor", color);
+    const selectedColor = colorOptions[1].innerHTML
+      .split("background-color:")[1]
+      .slice(0, 7);
+    setCurrentBrushColor(selectedColor);
     window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
     return;
@@ -486,9 +510,8 @@ Button2.addEventListener("click", () => {
     document.querySelector("#Circle").hidden = false;
     document.querySelector("#Letter").hidden = true;
     document.querySelector("#Letter").innerHTML = "";
-    color = color2Name.getColor("white").hex;
-    var r = document.querySelector("#CurrentSelectionContainer");
-    r.style.setProperty("--backgroundColor", color);
+    const letterPreviewColor = color2Name.getColor("white").hex;
+    setCurrentBrushColor(letterPreviewColor, { remember: false });
     FillMode = "Circle";
     window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
@@ -619,9 +642,10 @@ Button3.addEventListener("click", () => {
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
     }
-    color = colorOptions[2].innerHTML.split("background-color:")[1].slice(0, 7);
-    var r = document.querySelector("#CurrentSelectionContainer");
-    r.style.setProperty("--backgroundColor", color);
+    const selectedColor = colorOptions[2].innerHTML
+      .split("background-color:")[1]
+      .slice(0, 7);
+    setCurrentBrushColor(selectedColor);
     window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
     return;
@@ -629,9 +653,8 @@ Button3.addEventListener("click", () => {
   if (CurrentPage == CanvasMode + "ChangeFill") {
     document.querySelector("#Circle").hidden = true;
     document.querySelector("#Letter").hidden = false;
-    color = color2Name.getColor("white").hex;
-    var r = document.querySelector("#CurrentSelectionContainer");
-    r.style.setProperty("--backgroundColor", color);
+    const letterPreviewColor = color2Name.getColor("white").hex;
+    setCurrentBrushColor(letterPreviewColor, { remember: false });
     FillMode = "Letter";
     setLetterButtons();
     refreshBrushUI();
@@ -732,9 +755,10 @@ Button4.addEventListener("click", () => {
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
     }
-    color = colorOptions[3].innerHTML.split("background-color:")[1].slice(0, 7);
-    var r = document.querySelector("#CurrentSelectionContainer");
-    r.style.setProperty("--backgroundColor", color);
+    const selectedColor = colorOptions[3].innerHTML
+      .split("background-color:")[1]
+      .slice(0, 7);
+    setCurrentBrushColor(selectedColor);
     window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
     return;
@@ -749,9 +773,6 @@ Button4.addEventListener("click", () => {
   if (CurrentPage == CanvasMode + "ChangeBrush") {
     // Button4 on ChangeBrush -> Standard: reset brush and set white
     BrushState.resetBrush();
-    var r = document.querySelector("#CurrentSelectionContainer");
-    r.style.setProperty("--backgroundColor", color2Name.getColor("white").hex);
-    // Return to main navigation instead of opening the BrushMenu
     SetNavigationButtons();
     refreshBrushUI();
     return;
@@ -824,8 +845,7 @@ Button5.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "ChangeBrush") {
     // Button5 on ChangeBrush -> Eraser
-    var r = document.querySelector("#CurrentSelectionContainer");
-    r.style.setProperty("--backgroundColor", "white");
+    setCurrentBrushColor("white", { remember: false });
     FillMode = "Solid";
     window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
@@ -879,9 +899,10 @@ Button5.addEventListener("click", () => {
     if (CurrentPage.includes("More")) {
       return;
     }
-    color = colorOptions[4].innerHTML.split("background-color:")[1].slice(0, 7);
-    var r = document.querySelector("#CurrentSelectionContainer");
-    r.style.setProperty("--backgroundColor", color);
+    const selectedColor = colorOptions[4].innerHTML
+      .split("background-color:")[1]
+      .slice(0, 7);
+    setCurrentBrushColor(selectedColor);
     window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
     return;
@@ -1005,8 +1026,8 @@ Button6.addEventListener("click", () => {
     }
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    // Go back from ChangeColor should return to main navigation
-    SetNavigationButtons();
+    
+    setChangeBrushButtons();
     return;
   }
   if (CurrentPage == CanvasMode + "SelectColor") {

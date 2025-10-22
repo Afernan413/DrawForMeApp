@@ -6,6 +6,7 @@ const STRENGTH_STEP = 0.1;
 
 let brushSize = MIN_BRUSH_SIZE;
 let brushStrength = MAX_BRUSH_STRENGTH;
+let brushColor = "";
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -71,6 +72,22 @@ function getBrushStrengthLabel() {
   return `${Math.round(getBrushStrength() * 100)}%`;
 }
 
+function getBrushColor() {
+  return brushColor;
+}
+
+function setBrushColor(newColor) {
+  if (typeof newColor === "string" && newColor.trim().length > 0) {
+    brushColor = newColor;
+  }
+  return brushColor;
+}
+
+function resetBrushColor() {
+  brushColor = "";
+  return brushColor;
+}
+
 module.exports = {
   MAX_BRUSH_SIZE,
   MIN_BRUSH_SIZE,
@@ -88,4 +105,7 @@ module.exports = {
   resetBrush,
   getBrushSizeLabel,
   getBrushStrengthLabel,
+  getBrushColor,
+  setBrushColor,
+  resetBrushColor,
 };
