@@ -71,7 +71,13 @@ function updateBrushPreviewElement() {
   const percent = minPercent + scale * (100 - minPercent);
   previewEl.style.width = `${percent.toFixed(2)}%`;
   previewEl.style.height = `${percent.toFixed(2)}%`;
-  previewEl.style.backgroundColor = getBrushPreviewColor(brushStrength);
+  const isEraserActive = color === "transparent";
+  previewEl.classList.toggle("eraser-preview", isEraserActive);
+  if (isEraserActive) {
+    previewEl.style.backgroundColor = "";
+  } else {
+    previewEl.style.backgroundColor = getBrushPreviewColor(brushStrength);
+  }
 }
 
 function updateBrushStatsElement() {
@@ -85,12 +91,18 @@ function updateBrushStatsElement() {
     : 1;
   const brushLabel = `${brushSize}`;
   const opacityLabel = `${Math.round(brushStrength * 100)}%`;
+  const eraserActive = color === "transparent";
   if (FillMode === "Solid") {
-    statsEl.innerHTML = `
+    let html = `
     <div><span>Fill Mode: </span> <span>${FillMode}</span></div>
     <div><span>Brush Size: </span> <span>${brushLabel}</span></div>
+  `;
+    if (!eraserActive) {
+      html += `
     <div><span>Opacity: </span><span>${opacityLabel}</span></div>
   `;
+    }
+    statsEl.innerHTML = html;
   } else {
     statsEl.innerHTML = `
     <div><span>Fill Mode: </span> <span>${FillMode}</span></div>
@@ -118,7 +130,9 @@ function setCurrentBrushColor(newColor, options = {}) {
   if (!newColor) {
     return;
   }
-  color = newColor;
+  if (options.applyToPaint !== false) {
+    color = newColor;
+  }
   const selection = document.querySelector("#CurrentSelectionContainer");
   if (selection) {
     selection.style.setProperty("--backgroundColor", newColor);
@@ -126,6 +140,51 @@ function setCurrentBrushColor(newColor, options = {}) {
   if (options.remember !== false && BrushState && BrushState.setBrushColor) {
     BrushState.setBrushColor(newColor);
   }
+}
+
+function applyBackgroundColor(newColor) {
+  if (!newColor) {
+    return;
+  }
+  const canvasEl = document.getElementById("CanvasContainer");
+  if (!canvasEl) {
+    return;
+  }
+  const previousBackground =
+    BrushState && typeof BrushState.getBackgroundColor === "function"
+      ? BrushState.getBackgroundColor()
+      : null;
+  const appliedColor =
+    BrushState && typeof BrushState.setBackgroundColor === "function"
+      ? BrushState.setBackgroundColor(newColor)
+      : newColor;
+  canvasEl.style.backgroundColor = appliedColor;
+  const pixels = canvasEl.querySelectorAll(".pixelCanvas");
+  pixels.forEach((pixel) => {
+    if (!pixel) {
+      return;
+    }
+    const hasContent = pixel.innerHTML && pixel.innerHTML.trim().length > 0;
+    const inlineColor = pixel.style.backgroundColor;
+    if (!inlineColor || hasContent || !previousBackground) {
+      return;
+    }
+    try {
+      const inlineHex = tinycolor(inlineColor).toHexString();
+      const prevHex = tinycolor(previousBackground).toHexString();
+      if (inlineHex === prevHex) {
+        pixel.style.backgroundColor = appliedColor;
+      }
+    } catch (error) {
+      if (inlineColor === previousBackground) {
+        pixel.style.backgroundColor = appliedColor;
+      }
+    }
+  });
+  if (color === "transparent") {
+    setCurrentBrushColor(appliedColor, { remember: false, applyToPaint: false });
+  }
+  ContentWindow();
 }
 
 window.getBrushPreviewColor = getBrushPreviewColor;
@@ -305,6 +364,21 @@ Button1.addEventListener("click", () => {
     setSelectColorButtons(true, colorOptions[0].innerHTML.split("</canvas>"));
     return;
   }
+  if (CurrentPage == CanvasMode + "ChangeBackground") {
+    setSelectBackgroundButtons(
+      colorOptions[0].innerHTML.split("</canvas>")
+    );
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectBackground") {
+    const selectedColor = colorOptions[0].innerHTML
+      .split("background-color:")[1]
+      .slice(0, 7);
+    applyBackgroundColor(selectedColor);
+    window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
+    return;
+  }
   if (
     CurrentPage == CanvasMode + "SelectColor" ||
     CurrentPage.includes(CanvasMode + "SelectInitialColor")
@@ -344,6 +418,9 @@ Button1.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "BrushStrength") {
+    if (color === "transparent") {
+      return;
+    }
     BrushState.increaseBrushStrength();
     setBrushStrengthButtons();
     refreshBrushUI();
@@ -447,6 +524,21 @@ Button2.addEventListener("click", () => {
     setSelectColorButtons(true, colorOptions[1].innerHTML.split("</canvas>"));
     return;
   }
+  if (CurrentPage == CanvasMode + "ChangeBackground") {
+    setSelectBackgroundButtons(
+      colorOptions[1].innerHTML.split("</canvas>")
+    );
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectBackground") {
+    const selectedColor = colorOptions[1].innerHTML
+      .split("background-color:")[1]
+      .slice(0, 7);
+    applyBackgroundColor(selectedColor);
+    window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
+    return;
+  }
 
   if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
     setSelectColorButtons(
@@ -457,6 +549,9 @@ Button2.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "SelectColorMore") {
+    if (color === "transparent") {
+      return;
+    }
     // Button2 on SelectColorMore -> Adjust Opacity
     setBrushStrengthButtons();
     refreshBrushUI();
@@ -486,6 +581,9 @@ Button2.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "BrushMenu") {
+    if (color === "transparent") {
+      return;
+    }
     setBrushStrengthButtons();
     return;
   }
@@ -497,6 +595,9 @@ Button2.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "BrushStrength") {
+    if (color === "transparent") {
+      return;
+    }
     BrushState.decreaseBrushStrength();
     setBrushStrengthButtons();
     refreshBrushUI();
@@ -596,6 +697,10 @@ Button3.addEventListener("click", () => {
     navigateFileList(Button3);
     return;
   }
+  if (CurrentPage == CanvasMode + "More") {
+    colorOptions = ChangeBackgroundColor();
+    return;
+  }
   if (
     CurrentPage == CanvasMode ||
     CurrentPage == CanvasMode + "SelectFillLetterMove"
@@ -605,6 +710,21 @@ Button3.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
     setSelectColorButtons(true, colorOptions[2].innerHTML.split("</canvas>"));
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeBackground") {
+    setSelectBackgroundButtons(
+      colorOptions[2].innerHTML.split("</canvas>")
+    );
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectBackground") {
+    const selectedColor = colorOptions[2].innerHTML
+      .split("background-color:")[1]
+      .slice(0, 7);
+    applyBackgroundColor(selectedColor);
+    window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
     return;
   }
   if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
@@ -617,6 +737,9 @@ Button3.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "ChangeBrush") {
     // Button3 on ChangeBrush -> Change Opacity
+    if (color === "transparent") {
+      return;
+    }
     setBrushStrengthButtons();
     refreshBrushUI();
     return;
@@ -628,6 +751,9 @@ Button3.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "BrushStrength") {
+    if (color === "transparent") {
+      return;
+    }
     BrushState.resetBrushStrength();
     setBrushStrengthButtons();
     refreshBrushUI();
@@ -738,6 +864,21 @@ Button4.addEventListener("click", () => {
     setSelectColorButtons(true, colorOptions[3].innerHTML.split("</canvas>"));
     return;
   }
+  if (CurrentPage == CanvasMode + "ChangeBackground") {
+    setSelectBackgroundButtons(
+      colorOptions[3].innerHTML.split("</canvas>")
+    );
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectBackground") {
+    const selectedColor = colorOptions[3].innerHTML
+      .split("background-color:")[1]
+      .slice(0, 7);
+    applyBackgroundColor(selectedColor);
+    window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
+    return;
+  }
   if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
     setSelectColorButtons(
       true,
@@ -771,9 +912,19 @@ Button4.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeBrush") {
-    // Button4 on ChangeBrush -> Standard: reset brush and set white
+    // Button4 on ChangeBrush -> Standard: reset brush and restore remembered color
     BrushState.resetBrush();
-    SetNavigationButtons();
+    const restoredColor =
+      BrushState && typeof BrushState.getBrushColor === "function"
+        ? BrushState.getBrushColor()
+        : "#FFFFFF";
+    if (restoredColor) {
+      setCurrentBrushColor(restoredColor, { remember: true });
+    } else {
+      setCurrentBrushColor("#FFFFFF");
+    }
+    FillMode = "Solid";
+    window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
     return;
   }
@@ -845,7 +996,15 @@ Button5.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "ChangeBrush") {
     // Button5 on ChangeBrush -> Eraser
-    setCurrentBrushColor("white", { remember: false });
+    const backgroundColor =
+      BrushState && typeof BrushState.getBackgroundColor === "function"
+        ? BrushState.getBackgroundColor()
+        : "#FFFFFF";
+    setCurrentBrushColor(backgroundColor, {
+      remember: false,
+      applyToPaint: false,
+    });
+    color = "transparent";
     FillMode = "Solid";
     window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
@@ -877,6 +1036,21 @@ Button5.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
     setSelectColorButtons(true, colorOptions[4].innerHTML.split("</canvas>"));
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeBackground") {
+    setSelectBackgroundButtons(
+      colorOptions[4].innerHTML.split("</canvas>")
+    );
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectBackground") {
+    const selectedColor = colorOptions[4].innerHTML
+      .split("background-color:")[1]
+      .slice(0, 7);
+    applyBackgroundColor(selectedColor);
+    window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
     return;
   }
   if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
@@ -1028,6 +1202,14 @@ Button6.addEventListener("click", () => {
   if (CurrentPage == CanvasMode + "ChangeColor") {
     
     setChangeBrushButtons();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeBackground") {
+    setMoreButtons();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "SelectBackground") {
+    colorOptions = ChangeBackgroundColor();
     return;
   }
   if (CurrentPage == CanvasMode + "SelectColor") {

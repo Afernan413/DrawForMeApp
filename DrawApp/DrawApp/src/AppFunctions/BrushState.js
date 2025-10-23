@@ -3,10 +3,12 @@ const MAX_BRUSH_SIZE = 10;
 const MIN_BRUSH_STRENGTH = 0.1;
 const MAX_BRUSH_STRENGTH = 1;
 const STRENGTH_STEP = 0.1;
+const DEFAULT_BACKGROUND_COLOR = "#FFFFFF";
 
 let brushSize = MIN_BRUSH_SIZE;
 let brushStrength = MAX_BRUSH_STRENGTH;
 let brushColor = "";
+let backgroundColor = DEFAULT_BACKGROUND_COLOR;
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -88,6 +90,22 @@ function resetBrushColor() {
   return brushColor;
 }
 
+function getBackgroundColor() {
+  return backgroundColor;
+}
+
+function setBackgroundColor(newColor) {
+  if (typeof newColor === "string" && newColor.trim().length > 0) {
+    backgroundColor = newColor;
+  }
+  return backgroundColor;
+}
+
+function resetBackgroundColor() {
+  backgroundColor = DEFAULT_BACKGROUND_COLOR;
+  return backgroundColor;
+}
+
 module.exports = {
   MAX_BRUSH_SIZE,
   MIN_BRUSH_SIZE,
@@ -108,4 +126,8 @@ module.exports = {
   getBrushColor,
   setBrushColor,
   resetBrushColor,
+  getBackgroundColor,
+  setBackgroundColor,
+  resetBackgroundColor,
+  DEFAULT_BACKGROUND_COLOR,
 };

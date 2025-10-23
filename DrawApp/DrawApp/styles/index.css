@@ -160,6 +160,16 @@ button.MainButtons img {
   z-index: 0;
 }
 
+#BrushPreview.eraser-preview {
+  background-color: transparent;
+  border-radius: 6px;
+  position: absolute;
+  background-image: url("../assets/Icons/eraser-icon-13.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 #BrushFootprintOverlay {
   position: absolute;
   border: 3px solid rgba(0, 0, 0, 0.65);

@@ -17,3 +17,11 @@ function ChangeFill() {
   console.log("Change Fill Clicked");
   return;
 }
+
+function ChangeBackgroundColor() {
+  setChangeBackgroundButtons();
+  let btns = document.querySelectorAll(".MainButtons");
+  return btns;
+}
+
+window.ChangeBackgroundColor = ChangeBackgroundColor;

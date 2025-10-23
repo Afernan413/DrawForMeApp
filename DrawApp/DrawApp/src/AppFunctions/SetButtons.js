@@ -149,7 +149,7 @@ function setMoreButtons() {
   Button1.removeAttribute("arrow");
   Button2.innerHTML = "Change Fill";
   Button2.removeAttribute("arrow");
-  Button3.innerHTML = "";
+  Button3.innerHTML = "Change Background";
   Button3.removeAttribute("arrow");
   Button4.innerHTML = "Save <br> Quit";
   Button4.removeAttribute("arrow");
@@ -192,6 +192,26 @@ function setChangeColorButtons() {
     CurrentPage = CanvasMode + "ChangeColor"; // keep existing page id
   }
 
+  return;
+}
+function setChangeBackgroundButtons() {
+  Button1.innerHTML = FormattedPallete[0];
+  Button2.innerHTML = FormattedPallete[1];
+  Button3.innerHTML = FormattedPallete[2];
+  Button4.innerHTML = FormattedPallete[3];
+  Button5.innerHTML = FormattedPallete[4];
+  Button6.innerHTML = "Go Back";
+  CurrentPage = CanvasMode + "ChangeBackground";
+  return;
+}
+function setSelectBackgroundButtons(buttonClickedOptions) {
+  Button1.innerHTML = buttonClickedOptions[0];
+  Button2.innerHTML = buttonClickedOptions[1];
+  Button3.innerHTML = buttonClickedOptions[2];
+  Button4.innerHTML = buttonClickedOptions[3];
+  Button5.innerHTML = buttonClickedOptions[4];
+  Button6.innerHTML = "oops";
+  CurrentPage = CanvasMode + "SelectBackground";
   return;
 }
 function setSelectColorButtons(bool, buttonClickedOptions, isInitial = false) {
@@ -246,7 +266,11 @@ function setChangeBrushButtons() {
   // Top-level change brush menu with specific entries as requested
   Button1.innerHTML = "Change Color";
   Button2.innerHTML = "Change Size";
-  Button3.innerHTML = "Change Opacity";
+  if (typeof color !== "undefined" && color === "transparent") {
+    Button3.innerHTML = "";
+  } else {
+    Button3.innerHTML = "Change Opacity";
+  }
   Button4.innerHTML = "Standard";
   Button5.innerHTML = "Eraser";
   Button6.innerHTML = "Go Back";
@@ -266,7 +290,11 @@ function setChangeFillButtons() {
 }
 function setBrushMenuButtons() {
   Button1.innerHTML = "Adjust Size";
-  Button2.innerHTML = "Adjust Opacity";
+  if (typeof color !== "undefined" && color === "transparent") {
+    Button2.innerHTML = "";
+  } else {
+    Button2.innerHTML = "Adjust Opacity";
+  }
   Button3.innerHTML = "";
   Button4.innerHTML = "";
   Button5.innerHTML = "Standard";
