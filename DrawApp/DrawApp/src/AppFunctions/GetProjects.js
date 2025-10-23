@@ -5,6 +5,8 @@ var projectNames = [];
 let currentFile = 1;
 let FileName;
 var doneTyping = false;
+var brushState = window.BrushState || require("./BrushState");
+window.BrushState = brushState;
 try {
   fs.mkdirSync(DocumentsPath + "/ArtByAbey/Projects", { recursive: true });
   ProjectsPath = DocumentsPath + "/ArtByAbey/Projects";
@@ -116,7 +118,44 @@ function selectFile() {
   document.getElementById("FileStatusContainer").innerHTML =
     "'" + activeFile.innerHTML + "'";
   GridContainer.outerHTML = selectedFile;
+  GridContainer = document.querySelector("#CanvasContainer");
+  if (GridContainer) {
+    const restoredAttribute = GridContainer.getAttribute(
+      "data-background-color"
+    );
+    const restoredBackground =
+      restoredAttribute && restoredAttribute.trim().length > 0
+        ? restoredAttribute
+        : GridContainer.style.backgroundColor;
+    if (restoredBackground) {
+      let normalizedBackground = restoredBackground;
+      if (window.tinycolor) {
+        try {
+          const parsed = window.tinycolor(restoredBackground);
+          if (parsed.isValid()) {
+            normalizedBackground = parsed.toHexString();
+          }
+        } catch (error) {
+          normalizedBackground = restoredBackground;
+        }
+      }
+      GridContainer.style.backgroundColor = normalizedBackground;
+      GridContainer.setAttribute("data-background-color", normalizedBackground);
+      if (
+        brushState &&
+        typeof brushState.setBackgroundColor === "function"
+      ) {
+        brushState.setBackgroundColor(normalizedBackground);
+      }
+    }
+  }
   updatePixel();
+  if (typeof window.refreshBrushUI === "function") {
+    window.refreshBrushUI();
+  }
+  if (typeof ContentWindow === "function") {
+    ContentWindow();
+  }
   document.getElementById("PrimaryButtons_1").disabled = false;
 
   return;

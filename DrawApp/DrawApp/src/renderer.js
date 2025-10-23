@@ -146,6 +146,17 @@ function applyBackgroundColor(newColor) {
   if (!newColor) {
     return;
   }
+  let normalizedColor = newColor;
+  if (window.tinycolor) {
+    try {
+      const parsedBackground = window.tinycolor(newColor);
+      if (parsedBackground.isValid()) {
+        normalizedColor = parsedBackground.toHexString();
+      }
+    } catch (error) {
+      normalizedColor = newColor;
+    }
+  }
   const canvasEl = document.getElementById("CanvasContainer");
   if (!canvasEl) {
     return;
@@ -156,9 +167,10 @@ function applyBackgroundColor(newColor) {
       : null;
   const appliedColor =
     BrushState && typeof BrushState.setBackgroundColor === "function"
-      ? BrushState.setBackgroundColor(newColor)
-      : newColor;
+      ? BrushState.setBackgroundColor(normalizedColor)
+      : normalizedColor;
   canvasEl.style.backgroundColor = appliedColor;
+  canvasEl.setAttribute("data-background-color", appliedColor);
   const pixels = canvasEl.querySelectorAll(".pixelCanvas");
   pixels.forEach((pixel) => {
     if (!pixel) {
@@ -192,6 +204,20 @@ window.refreshBrushUI = refreshBrushUI;
 
 ///////////////////////////////GET ITEMS///////////////////////////////////////////////////////
 var GridContainer = document.querySelector("#CanvasContainer");
+if (GridContainer) {
+  const initialBackground =
+    BrushState && typeof BrushState.getBackgroundColor === "function"
+      ? BrushState.getBackgroundColor()
+      : BrushState && BrushState.DEFAULT_BACKGROUND_COLOR
+        ? BrushState.DEFAULT_BACKGROUND_COLOR
+        : "#FFFFFF";
+  if (!GridContainer.getAttribute("data-background-color")) {
+    GridContainer.setAttribute("data-background-color", initialBackground);
+  }
+  if (!GridContainer.style.backgroundColor) {
+    GridContainer.style.backgroundColor = initialBackground;
+  }
+}
 //const GridSizeTitle = document.querySelector("#CanvasSizeTitle");
 const OriginalButtons = document.querySelector("#ButtonsContainer").innerHTML;
 const ButtonsContainer = document.querySelector("#ButtonsContainer");

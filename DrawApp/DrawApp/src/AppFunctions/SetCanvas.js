@@ -15,6 +15,8 @@ function clearGrid() {
     const defaultBackground = brushState.resetBackgroundColor();
     canvasEl.style.backgroundColor = defaultBackground;
     GridContainer.style.backgroundColor = defaultBackground;
+    canvasEl.setAttribute("data-background-color", defaultBackground);
+    GridContainer.setAttribute("data-background-color", defaultBackground);
   }
   childWdindow.reload();
   return;
@@ -30,6 +32,7 @@ function createGrid(length, height) {
         ? brushState.DEFAULT_BACKGROUND_COLOR
         : "#FFFFFF";
   GridContainer.style.backgroundColor = backgroundColor;
+  GridContainer.setAttribute("data-background-color", backgroundColor);
   if (length == 30 && height == 50) {
     GridContainer.setAttribute("CanvasType", "Portrait");
     GridContainer.style.setProperty("--canvasWidth", "40vh");

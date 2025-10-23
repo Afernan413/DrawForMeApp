@@ -30,3 +30,11 @@ This document tracks feature additions and implementation details as they roll i
 - "Standard" resets brush size and opacity to defaults and returns the user to the main navigation (instead of opening the brush menu).
 
 This change removes the previous redundant ChangeColorFromChangeBrush path and unifies the palette/brush behavior.
+
+## Background Color & Eraser Enhancements (Oct 23, 2025)
+
+- Added background color memory to `BrushState` and applied it during canvas resets/initialization so sessions remember the selected background.
+- Implemented a "Change Background" flow under the More menu: palette picks now drill into dedicated background selections before applying across untouched pixels.
+- Updated the eraser to sync with the background color, display a custom icon in the brush preview, and hide the opacity readout in the stats panel when active.
+- While erasing, opacity controls are disabled and hidden across button flows (Change Brush, Brush Menu, Select Color More, Brush Strength) to avoid confusing state changes.
+- Persisted the chosen background in the canvas HTML (`data-background-color` attribute) so saved projects reopen with the exact background instead of resetting to white.
