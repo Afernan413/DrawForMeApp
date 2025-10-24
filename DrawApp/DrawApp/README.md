@@ -45,3 +45,16 @@ This change removes the previous redundant ChangeColorFromChangeBrush path and u
 - Square and circle tools wrap the current pixel in a scalable outline that respects brush size, blends using brush opacity, and automatically restores the interior to the canvas background color.
 - Line tool collects two Fill presses to draw a Bresenham line between the chosen pixels, highlights the starting point, and reports its status in the brush stats panel.
 - Change Brush now adapts per tool: square/circle expose color, size, and opacity adjustments without eraser; line offers color and opacity only.
+
+## Bucket-fill / Flood Fill Fix (Oct 24, 2025)
+
+- Fixed a potential infinite-loop / excessive-queue issue in the bucket-fill implementation (`src/AppFunctions/FillPixel.js` → `applyBucketTool`). The old implementation re-enqueued neighbor pixels based on raw string comparisons and did not track visited pixels which could lead to repeated processing (and apparent infinite loops) in some brush/opacity combinations.
+- What changed:
+  - Color normalization: comparisons now use a canonical RGBA numeric string (via `tinycolor`) so `rgb(...)` vs `rgba(..., 1)` format differences don't break equality checks.
+  - Visited tracking: the algorithm now uses a queue of pixel indices plus a `visited` Set so each pixel is enqueued at most once (prevents redundant duplicates and cycles).
+  - Strength respected: the bucket-fill now passes brush strength into the pixel write operation so blended writes are applied consistently during the fill.
+  - Safety cap: a conservative iteration cap is in place during debugging to avoid locking the renderer; this can be tuned or removed once validated.
+- Why this helps: marking visited avoids exponential duplicate enqueueing; normalizing colors avoids brittle string-equals; and passing strength prevents no-op writes that would otherwise leave pixels equal to the start color and allow re-enqueueing.
+- Files touched: `src/AppFunctions/FillPixel.js` (implemented robust flood-fill), small logging and safety checks added for diagnostics.
+
+If you hit the bucket-fill in the wild and still see unexpected behavior, enable the DevTools console and look for `applyBucketTool` debug messages which will indicate repeated indices, blended color results, or if the iteration cap was reached. We can follow up with a tolerance-based color match (color-distance) if you prefer fills to treat visually similar colors as equivalent.

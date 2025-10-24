@@ -141,13 +141,13 @@ function setMoreButtons() {
   document.getElementById("PrimaryButtons_5").disabled = false;
   document.getElementById("PrimaryButtons_6").disabled = false;
   if (
-    FillMode == "Solid" ||
+    FillMode == "Brush" ||
     FillMode == "Square Tool" ||
     FillMode == "Circle Tool" ||
     FillMode == "Line Tool"
   ) {
     // show brush-related entry instead of Change Color
-    Button1.innerHTML = "Change Brush";
+    Button1.innerHTML = "Edit " + FillMode;
   } else {
     Button1.innerHTML = "";
   }
@@ -254,7 +254,7 @@ function setSelectColorButtons(bool, buttonClickedOptions, isInitial = false) {
   return;
 }
 function getColorToolOptions() {
-  if (FillMode === "Solid") {
+  if (FillMode === "Brush") {
     // Provide small tool list for the ChangeColor screen; the dedicated brush menu
     // is a separate page (setBrushMenuButtons) and will handle detailed brush controls.
     return ["Eraser", "Change Brush", "", "", ""];
@@ -269,8 +269,7 @@ function setColorToolButtons() {
 
 function setChangeBrushButtons() {
   // Top-level change brush menu with specific entries as requested
-  const isShapeTool =
-    FillMode === "Square Tool" || FillMode === "Circle Tool";
+  const isShapeTool = FillMode === "Square Tool" || FillMode === "Circle Tool";
   const isLineTool = FillMode === "Line Tool";
   Button1.innerHTML = "Change Color";
   Button2.innerHTML = isLineTool ? "" : "Change Size";
@@ -301,7 +300,7 @@ function setChangeFillButtons() {
   CurrentPage = CanvasMode + "ChangeFill";
   return;
 }
-function setShapeButtons(){
+function setShapeButtons() {
   Button1.innerHTML = "Square";
   Button2.innerHTML = "Circle";
   Button3.innerHTML = "Line";
@@ -310,16 +309,11 @@ function setShapeButtons(){
   Button6.innerHTML = "Go Back";
   CurrentPage = CanvasMode + "ChangeShape";
   return;
-
 }
 function setBrushMenuButtons() {
   const isLineTool = FillMode === "Line Tool";
   Button1.innerHTML = isLineTool ? "" : "Adjust Size";
-  if (
-    typeof color !== "undefined" &&
-    color === "transparent" &&
-    !isLineTool
-  ) {
+  if (typeof color !== "undefined" && color === "transparent" && !isLineTool) {
     Button2.innerHTML = "";
   } else {
     Button2.innerHTML = "Adjust Opacity";

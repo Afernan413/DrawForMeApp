@@ -71,9 +71,7 @@ function updateBrushPreviewElement() {
   }
 
   const maxBrushSize = BrushState.MAX_BRUSH_SIZE || 10;
-  const rawBrushSize = BrushState.getBrushSize
-    ? BrushState.getBrushSize()
-    : 1;
+  const rawBrushSize = BrushState.getBrushSize ? BrushState.getBrushSize() : 1;
   const effectiveBrushSize = getEffectiveBrushSize(FillMode, rawBrushSize);
   const brushStrength = BrushState.getBrushStrength
     ? BrushState.getBrushStrength()
@@ -107,15 +105,16 @@ function updateBrushPreviewElement() {
         ? BrushState.DEFAULT_BACKGROUND_COLOR
         : "#FFFFFF";
 
-  const isSolidFill = FillMode === "Solid";
+  const isBrushFill = FillMode === "Brush";
   const isSquareTool = FillMode === ShapeToolModes.SQUARE;
   const isCircleTool = FillMode === ShapeToolModes.CIRCLE;
   const isLineTool = FillMode === ShapeToolModes.LINE;
+  const isBucketTool = FillMode === "Bucket";
 
   previewEl.classList.remove("eraser-preview", "line-preview");
   shapePreview.classList.remove("preview-square", "preview-circle");
 
-  if (isSolidFill) {
+  if (isBrushFill) {
     const scale =
       maxBrushSize <= 1 ? 1 : (rawBrushSize - 1) / (maxBrushSize - 1);
     const minPercent = 20;
@@ -133,6 +132,15 @@ function updateBrushPreviewElement() {
     } else {
       previewEl.style.backgroundColor = getBrushPreviewColor(brushStrength);
     }
+    return;
+  }
+
+  if (isBucketTool) {
+    previewEl.hidden = false;
+    shapePreview.hidden = true;
+    previewEl.style.borderWidth = "1px";
+    previewEl.style.borderRadius = "0";
+    previewEl.style.backgroundColor = getBrushPreviewColor(brushStrength);
     return;
   }
 
@@ -175,7 +183,7 @@ function updateBrushPreviewElement() {
       2,
       Math.round(brushStrength * 6)
     )}px`;
-    shapePreview.style.backgroundColor = 'transparent';
+    shapePreview.style.backgroundColor = "transparent";
     return;
   }
 
@@ -210,7 +218,7 @@ function updateBrushStatsElement() {
   const isSquareTool = FillMode === ShapeToolModes.SQUARE;
   const isCircleTool = FillMode === ShapeToolModes.CIRCLE;
   const isLineTool = FillMode === ShapeToolModes.LINE;
-  if (FillMode === "Solid") {
+  if (FillMode === "Brush") {
     let html = `
     <div><span>Fill Mode: </span> <span>${FillMode}</span></div>
     <div><span>Brush Size: </span> <span>${brushLabel}</span></div>
@@ -264,7 +272,7 @@ function refreshBrushUI() {
   if (FillMode === "Letter") {
     const letterEl = document.getElementById("Letter");
     if (!letterEl || letterEl.innerHTML.trim() === "") {
-      setFillMode("Solid");
+      setFillMode("Brush");
       color = "#FFFFFF";
     } else if (letterEl) {
       letterEl.hidden = false;
@@ -474,7 +482,10 @@ function applyBackgroundColor(newColor) {
     }
   });
   if (color === "transparent") {
-    setCurrentBrushColor(appliedColor, { remember: false, applyToPaint: false });
+    setCurrentBrushColor(appliedColor, {
+      remember: false,
+      applyToPaint: false,
+    });
   }
   ContentWindow();
 }
@@ -547,7 +558,7 @@ var color = document
   .querySelector("#CurrentSelectionContainer")
   .computedStyleMap()
   .get("--backgroundColor");
-var FillMode = "Solid";
+var FillMode = "Brush";
 var currWindow = BrowserWindow.getAllWindows()[1];
 var childWdindow = BrowserWindow.getAllWindows()[0];
 
@@ -656,7 +667,7 @@ Button1.addEventListener("click", () => {
   }
   if (
     CurrentPage == CanvasMode + "More" &&
-    (FillMode == "Solid" ||
+    (FillMode == "Brush" ||
       FillMode === ShapeToolModes.SQUARE ||
       FillMode === ShapeToolModes.CIRCLE ||
       FillMode === ShapeToolModes.LINE)
@@ -678,9 +689,7 @@ Button1.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeBackground") {
-    setSelectBackgroundButtons(
-      colorOptions[0].innerHTML.split("</canvas>")
-    );
+    setSelectBackgroundButtons(colorOptions[0].innerHTML.split("</canvas>"));
     return;
   }
   if (CurrentPage == CanvasMode + "SelectBackground") {
@@ -720,10 +729,7 @@ Button1.addEventListener("click", () => {
       FillMode === ShapeToolModes.CIRCLE ||
       FillMode === ShapeToolModes.LINE
     ) {
-      beginShapeToolColorSelection(
-        FillMode,
-        ShapeSelectionSource.CHANGE_BRUSH
-      );
+      beginShapeToolColorSelection(FillMode, ShapeSelectionSource.CHANGE_BRUSH);
       return;
     }
     pendingShapeToolSelection = null;
@@ -755,7 +761,7 @@ Button1.addEventListener("click", () => {
     document.querySelector("#Letter").hidden = true;
     document.querySelector("#Letter").innerHTML = "";
 
-    setFillMode("Solid");
+    setFillMode("Brush");
     if (typeof window.clearLineToolProgress === "function") {
       window.clearLineToolProgress({ refresh: false });
     }
@@ -767,8 +773,7 @@ Button1.addEventListener("click", () => {
       setCurrentBrushColor(rememberedColor, { remember: true });
       //goto main navigation
       window[CanvasMode.toString() + "Mode"]();
-    }
-    else{
+    } else {
       colorOptions = ChangeColor();
     }
     refreshBrushUI();
@@ -793,7 +798,7 @@ Button1.addEventListener("click", () => {
     (CurrentPage.includes(CanvasMode + "SelectFillSymbols") &&
       CurrentPage.includes("Move") == false)
   ) {
-  setFillMode("Letter");
+    setFillMode("Letter");
     document.querySelector("#Letter").hidden = false;
     document.querySelector("#Shape").hidden = true;
     document.querySelector("#Letter").innerHTML = Button1.innerHTML;
@@ -859,9 +864,7 @@ Button2.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeBackground") {
-    setSelectBackgroundButtons(
-      colorOptions[1].innerHTML.split("</canvas>")
-    );
+    setSelectBackgroundButtons(colorOptions[1].innerHTML.split("</canvas>"));
     return;
   }
   if (CurrentPage == CanvasMode + "SelectBackground") {
@@ -922,7 +925,7 @@ Button2.addEventListener("click", () => {
     setBrushStrengthButtons();
     return;
   }
-  
+
   if (CurrentPage == CanvasMode + "BrushSize") {
     BrushState.decreaseBrushSize();
     setBrushSizeButtons();
@@ -1059,9 +1062,7 @@ Button3.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeBackground") {
-    setSelectBackgroundButtons(
-      colorOptions[2].innerHTML.split("</canvas>")
-    );
+    setSelectBackgroundButtons(colorOptions[2].innerHTML.split("</canvas>"));
     return;
   }
   if (CurrentPage == CanvasMode + "SelectBackground") {
@@ -1216,9 +1217,7 @@ Button4.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeBackground") {
-    setSelectBackgroundButtons(
-      colorOptions[3].innerHTML.split("</canvas>")
-    );
+    setSelectBackgroundButtons(colorOptions[3].innerHTML.split("</canvas>"));
     return;
   }
   if (CurrentPage == CanvasMode + "SelectBackground") {
@@ -1272,11 +1271,23 @@ Button4.addEventListener("click", () => {
     } else {
       setCurrentBrushColor("#FFFFFF");
     }
-    setFillMode("Solid");
     if (typeof window.clearLineToolProgress === "function") {
       window.clearLineToolProgress({ refresh: false });
     }
     window[CanvasMode.toString() + "Mode"]();
+    refreshBrushUI();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeFill") {
+    document.querySelector("#Shape").hidden = true;
+    document.querySelector("#Letter").hidden = true;
+    document.querySelector("#Letter").innerHTML = "";
+
+    setFillMode("Bucket");
+    if (typeof window.clearLineToolProgress === "function") {
+      window.clearLineToolProgress({ refresh: false });
+    }
+    colorOptions = ChangeColor();
     refreshBrushUI();
     return;
   }
@@ -1360,7 +1371,7 @@ Button5.addEventListener("click", () => {
       applyToPaint: false,
     });
     color = "transparent";
-    setFillMode("Solid");
+    setFillMode("Brush");
     window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
     return;
@@ -1394,9 +1405,7 @@ Button5.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeBackground") {
-    setSelectBackgroundButtons(
-      colorOptions[4].innerHTML.split("</canvas>")
-    );
+    setSelectBackgroundButtons(colorOptions[4].innerHTML.split("</canvas>"));
     return;
   }
   if (CurrentPage == CanvasMode + "SelectBackground") {
@@ -1560,7 +1569,11 @@ Button6.addEventListener("click", () => {
     } else {
       pendingShapeToolSelection = null;
       pendingShapeSelectionSource = null;
-      setChangeBrushButtons();
+      if (FillMode === "Bucket") {
+        setChangeFillButtons();
+      } else {
+        setChangeBrushButtons();
+      }
     }
     return;
   }

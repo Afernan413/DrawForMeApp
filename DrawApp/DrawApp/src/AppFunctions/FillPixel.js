@@ -5,6 +5,7 @@ var tinycolor = window.tinycolor || require("tinycolor2");
 const SQUARE_TOOL_MODE = "Square Tool";
 const CIRCLE_TOOL_MODE = "Circle Tool";
 const LINE_TOOL_MODE = "Line Tool";
+const BUCKET_TOOL_MODE = "Bucket";
 
 let lineToolStartPixel = null;
 
@@ -25,10 +26,7 @@ function getBackgroundColorValue() {
     brushState && brushState.DEFAULT_BACKGROUND_COLOR
       ? brushState.DEFAULT_BACKGROUND_COLOR
       : "#FFFFFF";
-  if (
-    brushState &&
-    typeof brushState.getBackgroundColor === "function"
-  ) {
+  if (brushState && typeof brushState.getBackgroundColor === "function") {
     return brushState.getBackgroundColor() || fallback;
   }
   return fallback;
@@ -75,10 +73,7 @@ function fillPixelWithBackground(pixelIndex, backgroundColor) {
 }
 
 function clampCanvasBounds(row, col) {
-  if (
-    typeof pixelLength !== "number" ||
-    typeof pixelHeight !== "number"
-  ) {
+  if (typeof pixelLength !== "number" || typeof pixelHeight !== "number") {
     return false;
   }
   return row >= 0 && row < pixelHeight && col >= 0 && col < pixelLength;
@@ -205,6 +200,76 @@ function applyCircleTool(paintColor) {
   }
 }
 
+function applyBucketTool(paintColor) {
+  const strength = getBrushStrengthValue();
+  const backgroundColor = getBackgroundColorValue();
+  const startColor = getComputedStyle(
+    document.getElementById("pixel-" + currentPixel)
+  ).backgroundColor;
+  // Normalize colors to a canonical RGBA string for reliable comparisons
+  function normalizeColor(c) {
+    try {
+      const rgb = tinycolor(c).toRgb();
+      return `${rgb.r},${rgb.g},${rgb.b},${Number(rgb.a).toFixed(3)}`;
+    } catch (e) {
+      return String(c || "");
+    }
+  }
+
+  const startIndex = currentPixel;
+  const startNorm = normalizeColor(startColor);
+
+  // Use a queue of pixel indices and a visited set to avoid duplicates
+  const queue = [startIndex];
+  const visited = new Set([startIndex]);
+
+  const directions = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ];
+
+  
+
+  while (queue.length > 0) {
+
+    const targetIndex = queue.shift();
+
+    // Apply the paint to the pixel using the brush strength
+    applyColorToPixel(targetIndex, paintColor, strength);
+
+    // Explore neighbors (row, col) around this index
+    const row = Math.floor(targetIndex / pixelLength);
+    const col = targetIndex % pixelLength;
+
+    for (const [dr, dc] of directions) {
+      const newRow = row + dr;
+      const newCol = col + dc;
+      if (!clampCanvasBounds(newRow, newCol)) {
+        continue;
+      }
+      const neighborIndex = getPixelIndex(newRow, newCol);
+      if (visited.has(neighborIndex)) {
+        continue;
+      }
+      const neighborEl = document.getElementById("pixel-" + neighborIndex);
+      const neighborColor = neighborEl
+        ? getComputedStyle(neighborEl).backgroundColor
+        : null;
+      const neighborNorm = normalizeColor(neighborColor);
+      if (neighborNorm === startNorm) {
+        visited.add(neighborIndex);
+        queue.push(neighborIndex);
+      }
+    }
+  }
+
+  // After fill, update the content window
+  ContentWindow();
+  return;
+}
+
 function plotLinePoint(row, col, paintColor, strength) {
   if (!clampCanvasBounds(row, col)) {
     return;
@@ -269,7 +334,7 @@ window.clearLineToolProgress = function (options = {}) {
   resetLineToolProgress(shouldRefresh);
 };
 
-function blendColors(baseColor, overlayColor, overlayOpacity) {  
+function blendColors(baseColor, overlayColor, overlayOpacity) {
   const base = tinycolor(baseColor).toRgb();
   const overlay = tinycolor(overlayColor).toRgb();
   const alpha = Math.max(0, Math.min(1, overlayOpacity));
@@ -364,6 +429,12 @@ function FillPixel(color, Letter) {
     return;
   }
 
+  if (FillMode === BUCKET_TOOL_MODE) {
+    applyBucketTool(paintColor);
+    ContentWindow();
+    return;
+  }
+
   if (FillMode == "Letter") {
     if (Shift == true) {
       Shift = false;
@@ -375,7 +446,7 @@ function FillPixel(color, Letter) {
       updatePixel();
     }
   }
-  if (FillMode == "Solid") {
+  if (FillMode == "Brush") {
     applySolidBrush(color, selectedColor);
   } else {
     if (color == "transparent") {

@@ -23,8 +23,9 @@ function updatePixel() {
 
   const activeBox = document.getElementById("pixel-" + currentPixel);
   if (activeBox) {
-    if(typeof FillMode !== "undefined" &&
-    FillMode != "Solid"){activeBox.classList.add("active");}
+    if (typeof FillMode !== "undefined" && FillMode != "Brush") {
+      activeBox.classList.add("active");
+    }
   }
 
   const overlay = ensureBrushOverlay();
@@ -35,7 +36,7 @@ function updatePixel() {
 
   if (
     typeof FillMode !== "undefined" &&
-    FillMode === "Solid" &&
+    FillMode === "Brush" &&
     window.BrushState &&
     typeof window.BrushState.getBrushSize === "function" &&
     typeof pixelLength === "number" &&
