@@ -28,9 +28,16 @@ function decreaseBrushSize() {
   return brushSize;
 }
 
-function resetBrushSize() {
-  brushSize = MIN_BRUSH_SIZE;
+function setBrushSize(value) {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return brushSize;
+  }
+  brushSize = clamp(Math.round(value), MIN_BRUSH_SIZE, MAX_BRUSH_SIZE);
   return brushSize;
+}
+
+function resetBrushSize() {
+  return setBrushSize(MIN_BRUSH_SIZE);
 }
 
 function getBrushStrength() {
@@ -115,6 +122,7 @@ module.exports = {
   getBrushSize,
   increaseBrushSize,
   decreaseBrushSize,
+  setBrushSize,
   resetBrushSize,
   getBrushStrength,
   increaseBrushStrength,

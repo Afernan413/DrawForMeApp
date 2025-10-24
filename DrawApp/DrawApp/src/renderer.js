@@ -19,6 +19,20 @@ const BrushState = require("./AppFunctions/BrushState");
 // expose brush helpers for other scripts loaded via script tags
 window.BrushState = BrushState;
 
+const ShapeToolModes = {
+  SQUARE: "Square Tool",
+  CIRCLE: "Circle Tool",
+  LINE: "Line Tool",
+};
+
+const ShapeSelectionSource = {
+  MENU: "shape-menu",
+  CHANGE_BRUSH: "shape-change-brush",
+};
+
+let pendingShapeToolSelection = null;
+let pendingShapeSelectionSource = null;
+
 function getBrushPreviewColor(strengthOverride) {
   const brushStrength =
     typeof strengthOverride === "number"
@@ -51,33 +65,134 @@ function getBrushPreviewColor(strengthOverride) {
 
 function updateBrushPreviewElement() {
   const previewEl = document.getElementById("BrushPreview");
-  if (!previewEl) {
-    return;
-  }
-  const isSolidFill = FillMode === "Solid";
-  previewEl.hidden = !isSolidFill;
-  if (!isSolidFill) {
+  const shapePreview = document.getElementById("Shape");
+  if (!previewEl || !shapePreview) {
     return;
   }
 
   const maxBrushSize = BrushState.MAX_BRUSH_SIZE || 10;
-  const brushSize = BrushState.getBrushSize ? BrushState.getBrushSize() : 1;
+  const rawBrushSize = BrushState.getBrushSize
+    ? BrushState.getBrushSize()
+    : 1;
+  const effectiveBrushSize = getEffectiveBrushSize(FillMode, rawBrushSize);
   const brushStrength = BrushState.getBrushStrength
     ? BrushState.getBrushStrength()
     : 1;
 
-  const scale = maxBrushSize <= 1 ? 1 : (brushSize - 1) / (maxBrushSize - 1);
-  const minPercent = 20;
-  const percent = minPercent + scale * (100 - minPercent);
-  previewEl.style.width = `${percent.toFixed(2)}%`;
-  previewEl.style.height = `${percent.toFixed(2)}%`;
-  const isEraserActive = color === "transparent";
-  previewEl.classList.toggle("eraser-preview", isEraserActive);
-  if (isEraserActive) {
-    previewEl.style.backgroundColor = "";
-  } else {
-    previewEl.style.backgroundColor = getBrushPreviewColor(brushStrength);
+  const selectionContainer = document.querySelector(
+    "#CurrentSelectionContainer"
+  );
+  const selectionColor = selectionContainer
+    ? selectionContainer.style.getPropertyValue("--backgroundColor") ||
+      selectionContainer.style.backgroundColor ||
+      color
+    : color;
+
+  let previewColor = selectionColor || "#000000";
+  if (window.tinycolor) {
+    try {
+      const parsed = window.tinycolor(previewColor);
+      if (parsed.isValid()) {
+        previewColor = parsed.toHexString();
+      }
+    } catch (error) {
+      previewColor = selectionColor || "#000000";
+    }
   }
+
+  const backgroundColor =
+    BrushState && typeof BrushState.getBackgroundColor === "function"
+      ? BrushState.getBackgroundColor()
+      : BrushState && BrushState.DEFAULT_BACKGROUND_COLOR
+        ? BrushState.DEFAULT_BACKGROUND_COLOR
+        : "#FFFFFF";
+
+  const isSolidFill = FillMode === "Solid";
+  const isSquareTool = FillMode === ShapeToolModes.SQUARE;
+  const isCircleTool = FillMode === ShapeToolModes.CIRCLE;
+  const isLineTool = FillMode === ShapeToolModes.LINE;
+
+  previewEl.classList.remove("eraser-preview", "line-preview");
+  shapePreview.classList.remove("preview-square", "preview-circle");
+
+  if (isSolidFill) {
+    const scale =
+      maxBrushSize <= 1 ? 1 : (rawBrushSize - 1) / (maxBrushSize - 1);
+    const minPercent = 20;
+    const percent = minPercent + scale * (100 - minPercent);
+    previewEl.hidden = false;
+    shapePreview.hidden = true;
+    previewEl.style.width = `${percent.toFixed(2)}%`;
+    previewEl.style.height = `${percent.toFixed(2)}%`;
+    previewEl.style.borderWidth = "1px";
+    previewEl.style.borderRadius = "0";
+    const isEraserActive = color === "transparent";
+    previewEl.classList.toggle("eraser-preview", isEraserActive);
+    if (isEraserActive) {
+      previewEl.style.backgroundColor = "";
+    } else {
+      previewEl.style.backgroundColor = getBrushPreviewColor(brushStrength);
+    }
+    return;
+  }
+
+  if (isSquareTool || isCircleTool) {
+    const scale =
+      maxBrushSize <= 1 ? 1 : (effectiveBrushSize - 1) / (maxBrushSize - 1);
+    const minPercent = 30;
+    const percent = minPercent + scale * (100 - minPercent);
+    previewEl.hidden = true;
+    shapePreview.hidden = false;
+    shapePreview.classList.toggle("preview-square", isSquareTool);
+    shapePreview.classList.toggle("preview-circle", isCircleTool);
+    shapePreview.style.width = `${percent.toFixed(2)}%`;
+    shapePreview.style.height = `${percent.toFixed(2)}%`;
+    let previewBorderColor = previewColor;
+    if (window.tinycolor) {
+      try {
+        const parsedBorder = window.tinycolor(previewColor);
+        if (parsedBorder.isValid()) {
+          parsedBorder.setAlpha(brushStrength);
+          previewBorderColor = parsedBorder.toRgbString();
+        }
+      } catch (error) {
+        previewBorderColor = previewColor;
+      }
+    }
+    let previewBackgroundColor = backgroundColor;
+    if (window.tinycolor) {
+      try {
+        const parsedBackground = window.tinycolor(backgroundColor);
+        if (parsedBackground.isValid()) {
+          previewBackgroundColor = parsedBackground.toRgbString();
+        }
+      } catch (error) {
+        previewBackgroundColor = backgroundColor;
+      }
+    }
+    shapePreview.style.borderColor = previewBorderColor;
+    shapePreview.style.borderWidth = `${Math.max(
+      2,
+      Math.round(brushStrength * 6)
+    )}px`;
+    shapePreview.style.backgroundColor = 'transparent';
+    return;
+  }
+
+  if (isLineTool) {
+    previewEl.hidden = false;
+    shapePreview.hidden = true;
+    previewEl.classList.add("line-preview");
+    previewEl.style.width = "80%";
+    previewEl.style.height = "10%";
+    previewEl.style.borderWidth = "0";
+    previewEl.style.borderRadius = "999px";
+    previewEl.style.backgroundColor = getBrushPreviewColor(brushStrength);
+    return;
+  }
+
+  previewEl.hidden = true;
+  shapePreview.hidden = true;
 }
 
 function updateBrushStatsElement() {
@@ -92,6 +207,9 @@ function updateBrushStatsElement() {
   const brushLabel = `${brushSize}`;
   const opacityLabel = `${Math.round(brushStrength * 100)}%`;
   const eraserActive = color === "transparent";
+  const isSquareTool = FillMode === ShapeToolModes.SQUARE;
+  const isCircleTool = FillMode === ShapeToolModes.CIRCLE;
+  const isLineTool = FillMode === ShapeToolModes.LINE;
   if (FillMode === "Solid") {
     let html = `
     <div><span>Fill Mode: </span> <span>${FillMode}</span></div>
@@ -103,6 +221,37 @@ function updateBrushStatsElement() {
   `;
     }
     statsEl.innerHTML = html;
+  } else if (isSquareTool || isCircleTool) {
+    statsEl.innerHTML = `
+    <div><span>Fill Mode: </span> <span>${FillMode}</span></div>
+    <div><span>Shape Size: </span> <span>${brushLabel}</span></div>
+    <div><span>Opacity: </span><span>${opacityLabel}</span></div>
+  `;
+  } else if (isLineTool) {
+    const getLineStart =
+      typeof window.getLineToolStartPixel === "function"
+        ? window.getLineToolStartPixel
+        : () => null;
+    const lineStartIndex = getLineStart();
+    let lineStatus = "Press Fill to set start point";
+    if (lineStartIndex !== null) {
+      if (
+        typeof pixelLength === "number" &&
+        !Number.isNaN(pixelLength) &&
+        pixelLength > 0
+      ) {
+        const row = Math.floor(lineStartIndex / pixelLength) + 1;
+        const col = (lineStartIndex % pixelLength) + 1;
+        lineStatus = `Start set at r${row}, c${col}`;
+      } else {
+        lineStatus = "Start point set";
+      }
+    }
+    statsEl.innerHTML = `
+    <div><span>Fill Mode: </span> <span>${FillMode}</span></div>
+    <div><span>Opacity: </span><span>${opacityLabel}</span></div>
+    <div><span>Line Tool: </span><span>${lineStatus}</span></div>
+  `;
   } else {
     statsEl.innerHTML = `
     <div><span>Fill Mode: </span> <span>${FillMode}</span></div>
@@ -115,8 +264,32 @@ function refreshBrushUI() {
   if (FillMode === "Letter") {
     const letterEl = document.getElementById("Letter");
     if (!letterEl || letterEl.innerHTML.trim() === "") {
-      FillMode = "Solid";
+      setFillMode("Solid");
       color = "#FFFFFF";
+    } else if (letterEl) {
+      letterEl.hidden = false;
+    }
+  }
+  if (FillMode !== "Letter") {
+    const letterEl = document.getElementById("Letter");
+    if (letterEl) {
+      letterEl.hidden = true;
+    }
+  }
+  const shapeEl = document.getElementById("Shape");
+  if (shapeEl) {
+    const shapeVisible =
+      FillMode === ShapeToolModes.SQUARE || FillMode === ShapeToolModes.CIRCLE;
+    shapeEl.hidden = !shapeVisible;
+  }
+  if (
+    FillMode !== ShapeToolModes.LINE &&
+    typeof window.getLineToolStartPixel === "function" &&
+    typeof window.clearLineToolProgress === "function"
+  ) {
+    const existingLineStart = window.getLineToolStartPixel();
+    if (existingLineStart !== null) {
+      window.clearLineToolProgress({ refresh: false });
     }
   }
   updateBrushPreviewElement();
@@ -140,6 +313,113 @@ function setCurrentBrushColor(newColor, options = {}) {
   if (options.remember !== false && BrushState && BrushState.setBrushColor) {
     BrushState.setBrushColor(newColor);
   }
+}
+
+function getMinimumBrushSizeForMode(mode) {
+  if (mode === ShapeToolModes.SQUARE || mode === ShapeToolModes.CIRCLE) {
+    return 3;
+  }
+  if (BrushState && typeof BrushState.MIN_BRUSH_SIZE === "number") {
+    return BrushState.MIN_BRUSH_SIZE;
+  }
+  return 1;
+}
+
+function getEffectiveBrushSize(mode, overrideSize) {
+  const hasBrushStateGetter =
+    BrushState && typeof BrushState.getBrushSize === "function";
+  const baseSize =
+    typeof overrideSize === "number" && !Number.isNaN(overrideSize)
+      ? overrideSize
+      : hasBrushStateGetter
+        ? BrushState.getBrushSize()
+        : 1;
+  const maxSize =
+    BrushState && typeof BrushState.MAX_BRUSH_SIZE === "number"
+      ? BrushState.MAX_BRUSH_SIZE
+      : 10;
+  const minSize = getMinimumBrushSizeForMode(mode);
+
+  if (mode === ShapeToolModes.SQUARE || mode === ShapeToolModes.CIRCLE) {
+    let adjusted = Math.max(baseSize, minSize);
+    if (adjusted % 2 === 0) {
+      if (adjusted + 1 <= maxSize) {
+        adjusted += 1;
+      } else if (adjusted - 1 >= minSize) {
+        adjusted -= 1;
+      }
+    }
+    return Math.max(minSize, Math.min(adjusted, maxSize));
+  }
+
+  return Math.max(minSize, Math.min(baseSize, maxSize));
+}
+
+function resetBrushForFillModeChange() {
+  if (!BrushState) {
+    return;
+  }
+  if (typeof BrushState.resetBrush === "function") {
+    BrushState.resetBrush();
+    return;
+  }
+  if (typeof BrushState.resetBrushSize === "function") {
+    BrushState.resetBrushSize();
+  }
+  if (typeof BrushState.resetBrushStrength === "function") {
+    BrushState.resetBrushStrength();
+  }
+}
+
+function setFillMode(newMode, options = {}) {
+  if (!newMode) {
+    return false;
+  }
+  const shouldReset =
+    (options.resetBrush !== false && FillMode !== newMode) ||
+    options.forceReset === true;
+  if (shouldReset) {
+    resetBrushForFillModeChange();
+  }
+  FillMode = newMode;
+  return shouldReset;
+}
+
+function activateShapeTool(mode) {
+  if (!mode) {
+    return;
+  }
+  setFillMode(mode);
+  if (typeof window.clearLineToolProgress === "function") {
+    window.clearLineToolProgress({ refresh: false });
+  }
+  pendingShapeToolSelection = null;
+  pendingShapeSelectionSource = null;
+  window[CanvasMode.toString() + "Mode"]();
+  refreshBrushUI();
+}
+
+function beginShapeToolColorSelection(mode, source) {
+  pendingShapeToolSelection = mode;
+  pendingShapeSelectionSource = source;
+  colorOptions = ChangeColor();
+}
+
+function finalizeColorSelection(selectedColor) {
+  if (!selectedColor) {
+    return;
+  }
+  setCurrentBrushColor(selectedColor);
+  if (pendingShapeToolSelection) {
+    const mode = pendingShapeToolSelection;
+    pendingShapeToolSelection = null;
+    activateShapeTool(mode);
+    return;
+  }
+  pendingShapeToolSelection = null;
+  pendingShapeSelectionSource = null;
+  window[CanvasMode.toString() + "Mode"]();
+  refreshBrushUI();
 }
 
 function applyBackgroundColor(newColor) {
@@ -200,6 +480,7 @@ function applyBackgroundColor(newColor) {
 }
 
 window.getBrushPreviewColor = getBrushPreviewColor;
+window.getEffectiveBrushSizeForMode = getEffectiveBrushSize;
 window.refreshBrushUI = refreshBrushUI;
 
 ///////////////////////////////GET ITEMS///////////////////////////////////////////////////////
@@ -373,7 +654,13 @@ Button1.addEventListener("click", () => {
     NavigateGrid(Button1);
     return;
   }
-  if (CurrentPage == CanvasMode + "More" && FillMode == "Solid") {
+  if (
+    CurrentPage == CanvasMode + "More" &&
+    (FillMode == "Solid" ||
+      FillMode === ShapeToolModes.SQUARE ||
+      FillMode === ShapeToolModes.CIRCLE ||
+      FillMode === ShapeToolModes.LINE)
+  ) {
     // Open the new ChangeBrush top-level menu
     colorOptions = ChangeBrush();
     return;
@@ -417,9 +704,7 @@ Button1.addEventListener("click", () => {
     const selectedColor = colorOptions[0].innerHTML
       .split("background-color:")[1]
       .slice(0, 7);
-    setCurrentBrushColor(selectedColor);
-    window[CanvasMode.toString() + "Mode"]();
-    refreshBrushUI();
+    finalizeColorSelection(selectedColor);
     return;
   }
   if (CurrentPage == CanvasMode + "SelectColorMore") {
@@ -430,6 +715,19 @@ Button1.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "ChangeBrush") {
     // Button1 on ChangeBrush -> Change Color (show palettes)
+    if (
+      FillMode === ShapeToolModes.SQUARE ||
+      FillMode === ShapeToolModes.CIRCLE ||
+      FillMode === ShapeToolModes.LINE
+    ) {
+      beginShapeToolColorSelection(
+        FillMode,
+        ShapeSelectionSource.CHANGE_BRUSH
+      );
+      return;
+    }
+    pendingShapeToolSelection = null;
+    pendingShapeSelectionSource = null;
     colorOptions = ChangeColor();
     return;
   }
@@ -453,11 +751,14 @@ Button1.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeFill") {
-    document.querySelector("#Circle").hidden = true;
+    document.querySelector("#Shape").hidden = true;
     document.querySelector("#Letter").hidden = true;
     document.querySelector("#Letter").innerHTML = "";
 
-    FillMode = "Solid";
+    setFillMode("Solid");
+    if (typeof window.clearLineToolProgress === "function") {
+      window.clearLineToolProgress({ refresh: false });
+    }
     const rememberedColor =
       BrushState && typeof BrushState.getBrushColor === "function"
         ? BrushState.getBrushColor()
@@ -473,6 +774,13 @@ Button1.addEventListener("click", () => {
     refreshBrushUI();
     return;
   }
+  if (CurrentPage == CanvasMode + "ChangeShape") {
+    beginShapeToolColorSelection(
+      ShapeToolModes.SQUARE,
+      ShapeSelectionSource.MENU
+    );
+    return;
+  }
   if (
     CurrentPage == CanvasMode + "ChangeFillLetter" ||
     CurrentPage == CanvasMode + "ChangeFillSymbols"
@@ -485,9 +793,9 @@ Button1.addEventListener("click", () => {
     (CurrentPage.includes(CanvasMode + "SelectFillSymbols") &&
       CurrentPage.includes("Move") == false)
   ) {
-    FillMode = "Letter";
+  setFillMode("Letter");
     document.querySelector("#Letter").hidden = false;
-    document.querySelector("#Circle").hidden = true;
+    document.querySelector("#Shape").hidden = true;
     document.querySelector("#Letter").innerHTML = Button1.innerHTML;
     FillPixel(color, document.querySelector("#Letter").innerHTML);
     if (
@@ -585,6 +893,9 @@ Button2.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "ChangeBrush") {
     // Button2 on ChangeBrush -> Change Size
+    if (!Button2.innerHTML || Button2.innerHTML.trim() === "") {
+      return;
+    }
     setBrushSizeButtons();
     refreshBrushUI();
     return;
@@ -601,9 +912,7 @@ Button2.addEventListener("click", () => {
     const selectedColor = colorOptions[1].innerHTML
       .split("background-color:")[1]
       .slice(0, 7);
-    setCurrentBrushColor(selectedColor);
-    window[CanvasMode.toString() + "Mode"]();
-    refreshBrushUI();
+    finalizeColorSelection(selectedColor);
     return;
   }
   if (CurrentPage == CanvasMode + "BrushMenu") {
@@ -634,14 +943,18 @@ Button2.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeFill") {
-    document.querySelector("#Circle").hidden = false;
-    document.querySelector("#Letter").hidden = true;
-    document.querySelector("#Letter").innerHTML = "";
-    const letterPreviewColor = color2Name.getColor("white").hex;
-    setCurrentBrushColor(letterPreviewColor, { remember: false });
-    FillMode = "Circle";
-    window[CanvasMode.toString() + "Mode"]();
-    refreshBrushUI();
+    const letterEl = document.querySelector("#Letter");
+    if (letterEl) {
+      letterEl.hidden = true;
+      letterEl.innerHTML = "";
+    }
+    const shapePreview = document.querySelector("#Shape");
+    if (shapePreview) {
+      shapePreview.hidden = true;
+    }
+    pendingShapeToolSelection = null;
+    pendingShapeSelectionSource = null;
+    setShapeButtons();
     return;
   }
   if (
@@ -655,9 +968,9 @@ Button2.addEventListener("click", () => {
     CurrentPage == CanvasMode + "SelectFillLetter" ||
     CurrentPage == CanvasMode + "SelectFillSymbols"
   ) {
-    FillMode = "Letter";
+    setFillMode("Letter");
     document.querySelector("#Letter").hidden = false;
-    document.querySelector("#Circle").hidden = true;
+    document.querySelector("#Shape").hidden = true;
     document.querySelector("#Letter").innerHTML = Button2.innerHTML;
     FillPixel(color, document.querySelector("#Letter").innerHTML);
     if (CurrentPage == CanvasMode + "SelectFillSymbols") {
@@ -671,6 +984,13 @@ Button2.addEventListener("click", () => {
   if (CurrentPage == CanvasMode + "ChangeBrush") {
     // NOTE: ChangeBrush Button4 mapping moved to Button4 handler to fix wrong placement
     // Placeholder here removed so Button2 handler doesn't shadow later handlers
+  }
+  if (CurrentPage == CanvasMode + "ChangeShape") {
+    beginShapeToolColorSelection(
+      ShapeToolModes.CIRCLE,
+      ShapeSelectionSource.MENU
+    );
+    return;
   }
   if (
     CurrentPage == CanvasMode + "SelectFillLetterMore" ||
@@ -797,19 +1117,24 @@ Button3.addEventListener("click", () => {
     const selectedColor = colorOptions[2].innerHTML
       .split("background-color:")[1]
       .slice(0, 7);
-    setCurrentBrushColor(selectedColor);
-    window[CanvasMode.toString() + "Mode"]();
-    refreshBrushUI();
+    finalizeColorSelection(selectedColor);
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeFill") {
-    document.querySelector("#Circle").hidden = true;
+    document.querySelector("#Shape").hidden = true;
     document.querySelector("#Letter").hidden = false;
     const letterPreviewColor = color2Name.getColor("white").hex;
     setCurrentBrushColor(letterPreviewColor, { remember: false });
-    FillMode = "Letter";
+    setFillMode("Letter");
     setLetterButtons();
     refreshBrushUI();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "ChangeShape") {
+    beginShapeToolColorSelection(
+      ShapeToolModes.LINE,
+      ShapeSelectionSource.MENU
+    );
     return;
   }
   if (
@@ -823,9 +1148,9 @@ Button3.addEventListener("click", () => {
     CurrentPage == CanvasMode + "SelectFillLetter" ||
     CurrentPage == CanvasMode + "SelectFillSymbols"
   ) {
-    FillMode = "Letter";
+    setFillMode("Letter");
     document.querySelector("#Letter").hidden = false;
-    document.querySelector("#Circle").hidden = true;
+    document.querySelector("#Shape").hidden = true;
     document.querySelector("#Letter").innerHTML = Button3.innerHTML;
     FillPixel(color, document.querySelector("#Letter").innerHTML);
     if (CurrentPage == CanvasMode + "SelectFillSymbols") {
@@ -925,9 +1250,7 @@ Button4.addEventListener("click", () => {
     const selectedColor = colorOptions[3].innerHTML
       .split("background-color:")[1]
       .slice(0, 7);
-    setCurrentBrushColor(selectedColor);
-    window[CanvasMode.toString() + "Mode"]();
-    refreshBrushUI();
+    finalizeColorSelection(selectedColor);
     return;
   }
   if (CurrentPage == CanvasMode + "SelectColorMore") {
@@ -949,7 +1272,10 @@ Button4.addEventListener("click", () => {
     } else {
       setCurrentBrushColor("#FFFFFF");
     }
-    FillMode = "Solid";
+    setFillMode("Solid");
+    if (typeof window.clearLineToolProgress === "function") {
+      window.clearLineToolProgress({ refresh: false });
+    }
     window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
     return;
@@ -965,9 +1291,9 @@ Button4.addEventListener("click", () => {
     CurrentPage == CanvasMode + "SelectFillLetter" ||
     CurrentPage == CanvasMode + "SelectFillSymbols"
   ) {
-    FillMode = "Letter";
+    setFillMode("Letter");
     document.querySelector("#Letter").hidden = false;
-    document.querySelector("#Circle").hidden = true;
+    document.querySelector("#Shape").hidden = true;
     document.querySelector("#Letter").innerHTML = Button4.innerHTML;
     FillPixel(color, document.querySelector("#Letter").innerHTML);
     if (CurrentPage == CanvasMode + "SelectFillSymbols") {
@@ -1022,6 +1348,9 @@ Button5.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "ChangeBrush") {
     // Button5 on ChangeBrush -> Eraser
+    if (!Button5.innerHTML || Button5.innerHTML.trim() === "") {
+      return;
+    }
     const backgroundColor =
       BrushState && typeof BrushState.getBackgroundColor === "function"
         ? BrushState.getBackgroundColor()
@@ -1031,7 +1360,7 @@ Button5.addEventListener("click", () => {
       applyToPaint: false,
     });
     color = "transparent";
-    FillMode = "Solid";
+    setFillMode("Solid");
     window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
     return;
@@ -1102,9 +1431,7 @@ Button5.addEventListener("click", () => {
     const selectedColor = colorOptions[4].innerHTML
       .split("background-color:")[1]
       .slice(0, 7);
-    setCurrentBrushColor(selectedColor);
-    window[CanvasMode.toString() + "Mode"]();
-    refreshBrushUI();
+    finalizeColorSelection(selectedColor);
     return;
   }
   if (
@@ -1118,9 +1445,9 @@ Button5.addEventListener("click", () => {
     CurrentPage == CanvasMode + "SelectFillLetter" ||
     CurrentPage == CanvasMode + "SelectFillSymbols"
   ) {
-    FillMode = "Letter";
+    setFillMode("Letter");
     document.querySelector("#Letter").hidden = false;
-    document.querySelector("#Circle").hidden = true;
+    document.querySelector("#Shape").hidden = true;
     document.querySelector("#Letter").innerHTML = Button5.innerHTML;
     FillPixel(color, document.querySelector("#Letter").innerHTML);
     if (CurrentPage == CanvasMode + "SelectFillSymbols") {
@@ -1226,8 +1553,15 @@ Button6.addEventListener("click", () => {
     }
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
-    
-    setChangeBrushButtons();
+    if (pendingShapeSelectionSource === ShapeSelectionSource.MENU) {
+      pendingShapeToolSelection = null;
+      pendingShapeSelectionSource = null;
+      setShapeButtons();
+    } else {
+      pendingShapeToolSelection = null;
+      pendingShapeSelectionSource = null;
+      setChangeBrushButtons();
+    }
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeBackground") {
@@ -1279,7 +1613,8 @@ Button6.addEventListener("click", () => {
   }
   if (
     CurrentPage == CanvasMode + "SelectFillLetterMore" ||
-    CurrentPage == CanvasMode + "SelectFillSymbolsMore"
+    CurrentPage == CanvasMode + "SelectFillSymbolsMore" ||
+    CurrentPage == CanvasMode + "ChangeShape"
   ) {
     setChangeFillButtons();
     return;

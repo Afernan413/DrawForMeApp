@@ -140,7 +140,12 @@ function setMoreButtons() {
   document.getElementById("PrimaryButtons_4").disabled = false;
   document.getElementById("PrimaryButtons_5").disabled = false;
   document.getElementById("PrimaryButtons_6").disabled = false;
-  if (FillMode == "Solid") {
+  if (
+    FillMode == "Solid" ||
+    FillMode == "Square Tool" ||
+    FillMode == "Circle Tool" ||
+    FillMode == "Line Tool"
+  ) {
     // show brush-related entry instead of Change Color
     Button1.innerHTML = "Change Brush";
   } else {
@@ -264,33 +269,57 @@ function setColorToolButtons() {
 
 function setChangeBrushButtons() {
   // Top-level change brush menu with specific entries as requested
+  const isShapeTool =
+    FillMode === "Square Tool" || FillMode === "Circle Tool";
+  const isLineTool = FillMode === "Line Tool";
   Button1.innerHTML = "Change Color";
-  Button2.innerHTML = "Change Size";
-  if (typeof color !== "undefined" && color === "transparent") {
+  Button2.innerHTML = isLineTool ? "" : "Change Size";
+  if (
+    typeof color !== "undefined" &&
+    color === "transparent" &&
+    !isShapeTool &&
+    !isLineTool
+  ) {
     Button3.innerHTML = "";
   } else {
     Button3.innerHTML = "Change Opacity";
   }
   Button4.innerHTML = "Standard";
-  Button5.innerHTML = "Eraser";
+  Button5.innerHTML = isShapeTool || isLineTool ? "" : "Eraser";
   Button6.innerHTML = "Go Back";
   CurrentPage = CanvasMode + "ChangeBrush";
   return;
 }
 
 function setChangeFillButtons() {
-  Button1.innerHTML = "SOLID";
-  Button2.innerHTML = "DOT";
-  Button3.innerHTML = "LETTER";
-  Button4.innerHTML = "";
+  Button1.innerHTML = "Brush";
+  Button2.innerHTML = "Shapes";
+  Button3.innerHTML = "Letters";
+  Button4.innerHTML = "Paint Bucket";
   Button5.innerHTML = "";
   Button6.innerHTML = "Go Back";
   CurrentPage = CanvasMode + "ChangeFill";
   return;
 }
+function setShapeButtons(){
+  Button1.innerHTML = "Square";
+  Button2.innerHTML = "Circle";
+  Button3.innerHTML = "Line";
+  Button4.innerHTML = "";
+  Button5.innerHTML = "";
+  Button6.innerHTML = "Go Back";
+  CurrentPage = CanvasMode + "ChangeShape";
+  return;
+
+}
 function setBrushMenuButtons() {
-  Button1.innerHTML = "Adjust Size";
-  if (typeof color !== "undefined" && color === "transparent") {
+  const isLineTool = FillMode === "Line Tool";
+  Button1.innerHTML = isLineTool ? "" : "Adjust Size";
+  if (
+    typeof color !== "undefined" &&
+    color === "transparent" &&
+    !isLineTool
+  ) {
     Button2.innerHTML = "";
   } else {
     Button2.innerHTML = "Adjust Opacity";

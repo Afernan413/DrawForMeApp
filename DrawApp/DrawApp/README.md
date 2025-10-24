@@ -38,3 +38,10 @@ This change removes the previous redundant ChangeColorFromChangeBrush path and u
 - Updated the eraser to sync with the background color, display a custom icon in the brush preview, and hide the opacity readout in the stats panel when active.
 - While erasing, opacity controls are disabled and hidden across button flows (Change Brush, Brush Menu, Select Color More, Brush Strength) to avoid confusing state changes.
 - Persisted the chosen background in the canvas HTML (`data-background-color` attribute) so saved projects reopen with the exact background instead of resetting to white.
+
+## Shape & Line Tools (Oct 23, 2025)
+
+- Added a dedicated Shape Tools menu (square, circle, line) under Change Fill; each tool now asks for a color before activation and sets the global fill mode (`Square Tool`, `Circle Tool`, `Line Tool`).
+- Square and circle tools wrap the current pixel in a scalable outline that respects brush size, blends using brush opacity, and automatically restores the interior to the canvas background color.
+- Line tool collects two Fill presses to draw a Bresenham line between the chosen pixels, highlights the starting point, and reports its status in the brush stats panel.
+- Change Brush now adapts per tool: square/circle expose color, size, and opacity adjustments without eraser; line offers color and opacity only.
