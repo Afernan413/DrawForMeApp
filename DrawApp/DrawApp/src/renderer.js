@@ -19,6 +19,35 @@ const BrushState = require("./AppFunctions/BrushState");
 // expose brush helpers for other scripts loaded via script tags
 window.BrushState = BrushState;
 
+// Small helper to keep a live "Current Page" label above the button deck.
+// This runs periodically and updates the small <p id="CurrentPageLabel"> element.
+let __lastPageLabel = null;
+function renderCurrentPageLabel() {
+  try {
+    const el = document.getElementById("CurrentPageLabel");
+    if (!el) return;
+    const page = typeof CurrentPage === "string" ? CurrentPage : "";
+    // strip CanvasMode prefix if present to keep the label short
+    let label = page;
+    if (typeof CanvasMode === "string" && page.startsWith(CanvasMode)) {
+      label = page.slice(CanvasMode.length);
+    }
+    // make a human-friendly string
+    label = label
+      .replace(/([A-Z])/g, " $1")
+      .replace(/_/g, " ")
+      .trim();
+    if (label === "") label = "Navigation";
+    if (label !== __lastPageLabel) {
+      el.innerText = label;
+      __lastPageLabel = label;
+    }
+  } catch (e) {
+    // silent
+  }
+}
+setInterval(renderCurrentPageLabel, 250);
+
 const ShapeToolModes = {
   SQUARE: "Square Tool",
   CIRCLE: "Circle Tool",
