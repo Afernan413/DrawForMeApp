@@ -39,7 +39,7 @@ function renderCurrentPageLabel() {
       .trim();
     if (label === "") label = "Navigation";
     if (label !== __lastPageLabel) {
-      el.innerText = label;
+      el.innerText = "Current Page: " + label;
       __lastPageLabel = label;
     }
   } catch (e) {
@@ -703,6 +703,10 @@ Button1.addEventListener("click", () => {
   ) {
     // Open the new ChangeBrush top-level menu
     colorOptions = ChangeBrush();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "More" && FillMode == "Bucket") {
+    colorOptions = ChangeColor();
     return;
   }
   if (CurrentPage.includes(CanvasMode + "ChangeInitialColor")) {
@@ -1599,7 +1603,7 @@ Button6.addEventListener("click", () => {
       pendingShapeToolSelection = null;
       pendingShapeSelectionSource = null;
       if (FillMode === "Bucket") {
-        setChangeFillButtons();
+        setMoreButtons();
       } else {
         setChangeBrushButtons();
       }

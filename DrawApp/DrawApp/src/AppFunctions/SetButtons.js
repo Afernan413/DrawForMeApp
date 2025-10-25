@@ -148,7 +148,11 @@ function setMoreButtons() {
   ) {
     // show brush-related entry instead of Change Color
     Button1.innerHTML = "Edit " + FillMode;
-  } else {
+  }
+  else if (FillMode == "Bucket") {
+    Button1.innerHTML = "Change Color";
+  } 
+  else {
     Button1.innerHTML = "";
   }
   Button1.removeAttribute("arrow");

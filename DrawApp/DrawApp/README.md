@@ -58,3 +58,11 @@ This change removes the previous redundant ChangeColorFromChangeBrush path and u
 - Files touched: `src/AppFunctions/FillPixel.js` (implemented robust flood-fill), small logging and safety checks added for diagnostics.
 
 If you hit the bucket-fill in the wild and still see unexpected behavior, enable the DevTools console and look for `applyBucketTool` debug messages which will indicate repeated indices, blended color results, or if the iteration cap was reached. We can follow up with a tolerance-based color match (color-distance) if you prefer fills to treat visually similar colors as equivalent.
+
+## Small UI polish & usability tweaks (Oct 25, 2025)
+
+- Current Page label: a compact `CurrentPageLabel` paragraph was added above the primary button deck (`index.html`) and is updated by the renderer. It displays a short, human-friendly page name (Canvas-mode prefix removed) so users can quickly confirm where they are in the navigation flow.
+- Filename truncation: the FileStatus display now truncates overly long project names to the first 20 characters followed by `...` (implemented in `src/AppFunctions/GetProjects.js` via `setFileStatusDisplay`). The internal `FileName` variable is preserved for I/O; only the displayed label is shortened to avoid visual overflow.
+- Context-aware buttons: `SetButtons.js` was made slightly smarter about tool contexts — the More menu may show `Edit <ToolName>` when a shape/brush tool is active, Change Brush hides or shows the opacity/eraser controls depending on the current tool or transparent-selection state, and Brush Menu similarly adapts for line/shape tools. This reduces confusing or invalid button choices.
+
+These tweaks are intentionally lightweight and non-invasive; they aim to reduce UI clutter and make navigation clearer without changing core behavior. If you prefer the page label to be event-driven (updated only when pages change) rather than polled, we can wire `setCurrentPageLabel()` calls into `SetButtons.js` setters instead.

@@ -70,7 +70,7 @@ button.MainButtons img {
 .CurrentPageLabel,
 #CurrentPageLabel {
   font-size: 0.9rem;
-  color: rgba(0, 0, 0, 0.65);
+  color: rgba(255, 0, 0, 0.65);
   text-align: center;
   margin: 0 0 6px 0;
   padding: 2px 6px;
@@ -126,6 +126,15 @@ button.MainButtons img {
   margin: 0;
   padding: 0;
 }
+#TopSection h1.ApplicationTitle {
+  font-size: 3vh;
+}
+#CurrentFileTitle {
+  font-weight: bold;
+  font-size: clamp(0.9rem, 1.1vw, 1.2rem);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
 #BrushInfoWrapper {
   position: fixed;
   right: 80%;
@@ -135,7 +144,15 @@ button.MainButtons img {
   align-items: center;
   gap: 0.4rem;
 }
-
+#FileInfoWrapper {
+  position: fixed;
+  right: 10%;
+  top: 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
 #BrushTitle {
   font-weight: bold;
   font-size: clamp(0.9rem, 1.1vw, 1.2rem);
@@ -217,9 +234,6 @@ button.MainButtons img {
   font-style: italic;
   background-color: white;
   border: 3px solid black;
-  position: fixed;
-  right: 5%;
-  top: 10%;
 }
 
 #CanvasSizeTitle {

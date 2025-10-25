@@ -105,7 +105,7 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
-      devTools: process.env.NODE_ENV !== 'production',
+      //devTools: process.env.NODE_ENV !== 'production',
     },
   });
 
@@ -117,7 +117,7 @@ const createWindow = () => {
   // Enable remote module for browser devtools access and open DevTools in dev.
   require("@electron/remote/main").enable(mainWindow.webContents);
   if (process.env.NODE_ENV !== 'production') {
-    mainWindow.webContents.openDevTools({ mode: 'detach' });
+   // mainWindow.webContents.openDevTools({ mode: 'detach' });
   }
   let displays = screen.getAllDisplays();
   let externalDisplay = displays.find((display) => {
@@ -134,7 +134,7 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
-      devTools: process.env.NODE_ENV !== 'production',
+      //devTools: process.env.NODE_ENV !== 'production',
     },
   });
   if (externalDisplay) {
@@ -143,7 +143,7 @@ const createWindow = () => {
   contentWindow.loadFile(path.join(__dirname, "ContentScreen.html"));
   require("@electron/remote/main").enable(contentWindow.webContents);
   if (process.env.NODE_ENV !== 'production') {
-    contentWindow.webContents.openDevTools({ mode: 'detach' });
+    //contentWindow.webContents.openDevTools({ mode: 'detach' });
   }
 };
 

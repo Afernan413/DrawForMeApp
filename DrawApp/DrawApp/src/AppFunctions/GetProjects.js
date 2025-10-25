@@ -41,6 +41,19 @@ function GetProjects() {
   setFileLookupButtons();
   return;
 }
+
+function setFileStatusDisplay(name) {
+  const el = document.getElementById("FileStatusContainer");
+  if (!el) return;
+  if (!name || name === "") {
+    el.innerHTML = "'Not Saved'";
+    return;
+  }
+  // show at most first 20 characters to avoid visual overflow
+  const display = name.length > 20 ? name.slice(0, 20) + "..." : name;
+  el.innerHTML = "'" + display + "'";
+  return;
+}
 function updateFileSelection() {
   document.querySelectorAll("div.File").forEach((file) => {
     file.classList.remove("active");
@@ -115,8 +128,7 @@ function selectFile() {
   CurrentPage = CanvasMode + "InitialColorFile";
   window[CanvasMode.toString() + "Mode"]();
 
-  document.getElementById("FileStatusContainer").innerHTML =
-    "'" + activeFile.innerHTML + "'";
+  setFileStatusDisplay(activeFile.innerHTML);
   GridContainer.outerHTML = selectedFile;
   GridContainer = document.querySelector("#CanvasContainer");
   if (GridContainer) {
@@ -141,10 +153,7 @@ function selectFile() {
       }
       GridContainer.style.backgroundColor = normalizedBackground;
       GridContainer.setAttribute("data-background-color", normalizedBackground);
-      if (
-        brushState &&
-        typeof brushState.setBackgroundColor === "function"
-      ) {
+      if (brushState && typeof brushState.setBackgroundColor === "function") {
         brushState.setBackgroundColor(normalizedBackground);
       }
     }
@@ -213,8 +222,8 @@ function saveFile(mode) {
       " " +
       suffix;
     fs.writeFileSync(ProjectsPath + "/" + FileName + ".json", fileContent);
-    document.getElementById("FileStatusContainer").innerHTML =
-      "'" + FileName + "'";
+
+    setFileStatusDisplay(FileName.toString());
     document.getElementById("PrimaryButtons_1").disabled = false;
     swal("File saved in " + ProjectsPath.replaceAll("/", "\\"), {
       buttons: false,
@@ -241,8 +250,7 @@ function setNewName() {
   FileName = FileName.replace(/[\\\/:\*\?"<>\|]/g, "_");
   fs.writeFileSync(ProjectsPath + "/" + FileName + ".json", fileContent);
   document.getElementById("CustomFileNameBar").setAttribute("hidden", "");
-  document.getElementById("FileStatusContainer").innerHTML =
-    "'" + FileName + "'";
+  setFileStatusDisplay(FileName);
   swal("File saved in " + ProjectsPath.replaceAll("/", "\\"), {
     buttons: false,
     timer: 2500,
