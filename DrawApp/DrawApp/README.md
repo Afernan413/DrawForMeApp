@@ -12,17 +12,11 @@ This document tracks feature additions and implementation details as they roll i
 - Cleaned up the active pixel outline
 - Text is now typed without effecting pixel color and different opacity fills will not effect letters/shapes
   > TODO
-  - Choose background color
-    - have it so you can pick a color and then it makes the entire background that  color for the piece you're working on
-  - MS Paint "Fill" effect aka the old "bucket" effect
-    - a color is filled in within a shape, AKA if you make a square, it will fill in the square
   - Undo button
     - when I made a mistake, I would have to reapply the color. I was thinking it might be easier to have an Undo button that's easy to access
-  - Make line
-    - set two points of a line and it fills in the line with a specified color
   - Type bigger on the buttons
     - the on screen buttons are small, it's too small
- 
+
 ## UI flow update (Oct 21, 2025)
 
 - The "More" -> "Change Brush" flow was simplified into a single top-level Change Brush menu with these entries: Change Color, Change Size, Change Opacity, Standard, Eraser, Go Back.

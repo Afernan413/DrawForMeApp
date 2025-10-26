@@ -105,7 +105,7 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
-      //devTools: process.env.NODE_ENV !== 'production',
+      devTools: false, // explicitly disable DevTools for production use
     },
   });
 
@@ -114,10 +114,22 @@ const createWindow = () => {
   mainWindow.maximize();
   mainWindow.isAlwaysOnTop(true);
 
-  // Enable remote module for browser devtools access and open DevTools in dev.
-  require("@electron/remote/main").enable(mainWindow.webContents);
+  // Only enable remote module in development builds.
   if (process.env.NODE_ENV !== 'production') {
-   // mainWindow.webContents.openDevTools({ mode: 'detach' });
+    try {
+      require("@electron/remote/main").enable(mainWindow.webContents);
+      // mainWindow.webContents.openDevTools({ mode: 'detach' });
+    } catch (e) {
+      console.warn('Could not enable @electron/remote in dev:', e && e.message ? e.message : e);
+    }
+  }
+  // In production, prevent context menu actions that could reveal devtools.
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      mainWindow.webContents.on('context-menu', (e) => {
+        e.preventDefault();
+      });
+    } catch (e) {}
   }
   let displays = screen.getAllDisplays();
   let externalDisplay = displays.find((display) => {
@@ -134,16 +146,27 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
-      //devTools: process.env.NODE_ENV !== 'production',
+      devTools: false,
     },
   });
   if (externalDisplay) {
     contentWindow.maximize();
   }
   contentWindow.loadFile(path.join(__dirname, "ContentScreen.html"));
-  require("@electron/remote/main").enable(contentWindow.webContents);
   if (process.env.NODE_ENV !== 'production') {
-    //contentWindow.webContents.openDevTools({ mode: 'detach' });
+    try {
+      require("@electron/remote/main").enable(contentWindow.webContents);
+      //contentWindow.webContents.openDevTools({ mode: 'detach' });
+    } catch (e) {
+      console.warn('Could not enable @electron/remote for contentWindow in dev:', e && e.message ? e.message : e);
+    }
+  }
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      contentWindow.webContents.on('context-menu', (e) => {
+        e.preventDefault();
+      });
+    } catch (e) {}
   }
 };
 
@@ -152,6 +175,22 @@ const createWindow = () => {
 // Some APIs can only be used after this event occurs.
 app.on("ready", createWindow);
 
+// Prevent users from opening DevTools via common shortcuts in production.
+app.on('ready', () => {
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      // Register no-op handlers for common devtools shortcuts
+      const noop = () => {};
+      globalShortcut.register('F12', noop);
+      globalShortcut.register('CommandOrControl+Shift+I', noop);
+      globalShortcut.register('CommandOrControl+Shift+J', noop);
+      globalShortcut.register('CommandOrControl+Alt+I', noop);
+    } catch (e) {
+      console.warn('Failed to register global shortcuts to block devtools:', e && e.message ? e.message : e);
+    }
+  }
+});
+
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
@@ -159,6 +198,12 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
+});
+
+app.on('will-quit', () => {
+  try {
+    globalShortcut.unregisterAll();
+  } catch (e) {}
 });
 
 app.on("activate", () => {

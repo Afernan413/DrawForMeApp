@@ -1,6 +1,33 @@
 var PrinterList = [];
 let currentPrinter = 1;
 var swal = require("sweetalert");
+const PRINT_TIMEOUT = 30000; // ms
+
+function showLoading(message) {
+  try {
+    const el = document.getElementById("LoadingOverlay");
+    const msg = document.getElementById("LoadingMessage");
+    if (msg) msg.textContent = message || "Working...";
+    if (el) {
+      el.removeAttribute("hidden");
+      el.setAttribute("aria-hidden", "false");
+    }
+  } catch (e) {
+    console.warn("showLoading failed", e);
+  }
+}
+
+function hideLoading() {
+  try {
+    const el = document.getElementById("LoadingOverlay");
+    if (el) {
+      el.setAttribute("hidden", "");
+      el.setAttribute("aria-hidden", "true");
+    }
+  } catch (e) {
+    console.warn("hideLoading failed", e);
+  }
+}
 
 function GetPrinters() {
   document.getElementById("PrinterSelection").removeAttribute("hidden");
@@ -18,16 +45,14 @@ function GetPrinters() {
       document.getElementById("PrinterList").innerHTML = "";
       let counter = 1;
       PrinterList.forEach((printer) => {
-        document.getElementById(
-          "PrinterList"
-        ).innerHTML += `<div class="Printer" id="printer-${counter++}">${
-          printer.name
-        }</div>`;
+        document.getElementById("PrinterList").innerHTML +=
+          `<div class="Printer" id="printer-${counter++}">${
+            printer.name
+          }</div>`;
       });
       PrinterList.push("Save As PDF");
-      document.getElementById(
-        "PrinterList"
-      ).innerHTML += `<div class="Printer" id="printer-${counter++}">Save As PDF</div>`;
+      document.getElementById("PrinterList").innerHTML +=
+        `<div class="Printer" id="printer-${counter++}">Save As PDF</div>`;
     }
     if (PrinterList.length !== 0) {
       document
@@ -114,29 +139,103 @@ function selectPrinter() {
       landscape: CanvasMode == "Portrait" ? false : true,
     };
     let win = BrowserWindow.getAllWindows()[0];
-    swal("File saved as PDF in " + filepath1.replaceAll("/", "\\"), {
-      buttons: false,
-      timer: 5000,
-    });
-    win.webContents.printToPDF(options).then((data) => {
-      fs.writeFileSync(filepath1 + "/" + FileName + ".pdf", data);
-    });
+    // Show loading overlay while generating PDF
+    showLoading("Exporting to PDF...");
+    let timer = setTimeout(() => {
+      hideLoading();
+      swal("Export timed out. Please try again.", {
+        icon: "error",
+        buttons: false,
+        timer: 5000,
+      });
+    }, PRINT_TIMEOUT);
+
+    win.webContents
+      .printToPDF(options)
+      .then((data) => {
+        try {
+          fs.writeFileSync(filepath1 + "/" + FileName + ".pdf", data);
+          hideLoading();
+          clearTimeout(timer);
+          swal("File saved as PDF in " + filepath1.replaceAll("/", "\\"), {
+            buttons: false,
+            timer: 5000,
+          });
+        } catch (err) {
+          hideLoading();
+          clearTimeout(timer);
+          console.error("Error writing PDF file:", err);
+          swal("Error saving PDF: " + (err.message || err), {
+            icon: "error",
+            buttons: false,
+            timer: 5000,
+          });
+        }
+      })
+      .catch((err) => {
+        hideLoading();
+        clearTimeout(timer);
+        console.error("printToPDF failed:", err);
+        swal("Error exporting PDF: " + (err.message || err), {
+          icon: "error",
+          buttons: false,
+          timer: 5000,
+        });
+      });
   } else {
     /* swal("Currently using printers is not functioning as intended :)", {
       buttons: false,
       timer: 5000,
     });*/
     let win = BrowserWindow.getAllWindows()[0];
-    win.webContents.print({
-      silent: true,
-      deviceName: PrinterName,
-      color: true,
-      marginsType: 0,
-      pageSize: "Letter",
-      printBackground: true,
-      printSelectionOnly: false,
-      landscape: CanvasMode == "Portrait" ? false : true,
-    });
+    // Show loading overlay while sending print job
+    showLoading("Sending to printer...");
+    let timer = setTimeout(() => {
+      hideLoading();
+      swal("Print request timed out. Please check the printer and try again.", {
+        icon: "error",
+        buttons: false,
+        timer: 5000,
+      });
+    }, PRINT_TIMEOUT);
+
+    try {
+      win.webContents.print(
+        {
+          silent: true,
+          deviceName: PrinterName,
+          color: true,
+          marginsType: 0,
+          pageSize: "Letter",
+          printBackground: true,
+          printSelectionOnly: false,
+          landscape: CanvasMode == "Portrait" ? false : true,
+        },
+        (success, failureReason) => {
+          hideLoading();
+          clearTimeout(timer);
+          if (success) {
+            swal("Print job sent to printer.", { buttons: false, timer: 3000 });
+          } else {
+            console.error("print failed:", failureReason);
+            swal("Printing failed: " + (failureReason || "Unknown reason"), {
+              icon: "error",
+              buttons: false,
+              timer: 5000,
+            });
+          }
+        }
+      );
+    } catch (err) {
+      hideLoading();
+      clearTimeout(timer);
+      console.error("print threw:", err);
+      swal("Printing error: " + (err.message || err), {
+        icon: "error",
+        buttons: false,
+        timer: 5000,
+      });
+    }
   }
   return;
 }

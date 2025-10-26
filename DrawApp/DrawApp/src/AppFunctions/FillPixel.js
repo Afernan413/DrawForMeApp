@@ -230,10 +230,7 @@ function applyBucketTool(paintColor) {
     [0, 1],
   ];
 
-  
-
   while (queue.length > 0) {
-
     const targetIndex = queue.shift();
 
     // Apply the paint to the pixel using the brush strength
