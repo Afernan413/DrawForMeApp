@@ -14,7 +14,7 @@ const path = require("path");
 const { isMainThread } = require("worker_threads");
 const fs = require("fs");
 const os = require("os");
-const events = require('events');
+const events = require("events");
 
 // Increase default max listeners slightly to avoid noisy MaxListenersExceededWarning
 // while guarding against legitimate memory leaks. It's better to fix duplicate
@@ -60,28 +60,40 @@ try {
     tryEnsureDirs(desiredDirs);
   } catch (e) {
     const msg = e && e.message ? e.message : String(e);
-    console.error(`Initial cache directory creation failed for ${userDataPath}:`, msg);
+    console.error(
+      `Initial cache directory creation failed for ${userDataPath}:`,
+      msg
+    );
 
     // If it's a permissions problem on Windows (Access is denied / EACCES),
     // fall back to a temp directory so the app can continue running.
-    if (msg.includes('Access is denied') || e.code === 'EACCES' || e.errno === -4092) {
+    if (
+      msg.includes("Access is denied") ||
+      e.code === "EACCES" ||
+      e.errno === -4092
+    ) {
       try {
-        const fallback = path.join(os.tmpdir(), 'ArtByAbey');
+        const fallback = path.join(os.tmpdir(), "ArtByAbey");
         const fallbackDirs = [
-          path.join(fallback, 'Network'),
-          path.join(fallback, 'Code Cache', 'js'),
-          path.join(fallback, 'Code Cache', 'wasm'),
-          path.join(fallback, 'Shared Dictionary', 'cache'),
-          path.join(fallback, 'GPUCache'),
+          path.join(fallback, "Network"),
+          path.join(fallback, "Code Cache", "js"),
+          path.join(fallback, "Code Cache", "wasm"),
+          path.join(fallback, "Shared Dictionary", "cache"),
+          path.join(fallback, "GPUCache"),
         ];
         tryEnsureDirs(fallbackDirs);
-        app.setPath('userData', fallback);
-        console.warn(`userData path fallback to temp dir due to permissions: ${fallback}`);
+        app.setPath("userData", fallback);
+        console.warn(
+          `userData path fallback to temp dir due to permissions: ${fallback}`
+        );
       } catch (ee) {
-        console.error('Fallback cache directory creation also failed:', ee && ee.message ? ee.message : ee);
+        console.error(
+          "Fallback cache directory creation also failed:",
+          ee && ee.message ? ee.message : ee
+        );
       }
     } else {
-      console.error('Could not create cache directories:', msg);
+      console.error("Could not create cache directories:", msg);
     }
   }
 } catch (err) {
@@ -115,18 +127,21 @@ const createWindow = () => {
   mainWindow.isAlwaysOnTop(true);
 
   // Only enable remote module in development builds.
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== "production") {
     try {
       require("@electron/remote/main").enable(mainWindow.webContents);
       // mainWindow.webContents.openDevTools({ mode: 'detach' });
     } catch (e) {
-      console.warn('Could not enable @electron/remote in dev:', e && e.message ? e.message : e);
+      console.warn(
+        "Could not enable @electron/remote in dev:",
+        e && e.message ? e.message : e
+      );
     }
   }
   // In production, prevent context menu actions that could reveal devtools.
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     try {
-      mainWindow.webContents.on('context-menu', (e) => {
+      mainWindow.webContents.on("context-menu", (e) => {
         e.preventDefault();
       });
     } catch (e) {}
@@ -153,17 +168,20 @@ const createWindow = () => {
     contentWindow.maximize();
   }
   contentWindow.loadFile(path.join(__dirname, "ContentScreen.html"));
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== "production") {
     try {
       require("@electron/remote/main").enable(contentWindow.webContents);
       //contentWindow.webContents.openDevTools({ mode: 'detach' });
     } catch (e) {
-      console.warn('Could not enable @electron/remote for contentWindow in dev:', e && e.message ? e.message : e);
+      console.warn(
+        "Could not enable @electron/remote for contentWindow in dev:",
+        e && e.message ? e.message : e
+      );
     }
   }
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     try {
-      contentWindow.webContents.on('context-menu', (e) => {
+      contentWindow.webContents.on("context-menu", (e) => {
         e.preventDefault();
       });
     } catch (e) {}
@@ -176,17 +194,20 @@ const createWindow = () => {
 app.on("ready", createWindow);
 
 // Prevent users from opening DevTools via common shortcuts in production.
-app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') {
+app.on("ready", () => {
+  if (process.env.NODE_ENV === "production") {
     try {
       // Register no-op handlers for common devtools shortcuts
       const noop = () => {};
-      globalShortcut.register('F12', noop);
-      globalShortcut.register('CommandOrControl+Shift+I', noop);
-      globalShortcut.register('CommandOrControl+Shift+J', noop);
-      globalShortcut.register('CommandOrControl+Alt+I', noop);
+      globalShortcut.register("F12", noop);
+      globalShortcut.register("CommandOrControl+Shift+I", noop);
+      globalShortcut.register("CommandOrControl+Shift+J", noop);
+      globalShortcut.register("CommandOrControl+Alt+I", noop);
     } catch (e) {
-      console.warn('Failed to register global shortcuts to block devtools:', e && e.message ? e.message : e);
+      console.warn(
+        "Failed to register global shortcuts to block devtools:",
+        e && e.message ? e.message : e
+      );
     }
   }
 });
@@ -200,7 +221,7 @@ app.on("window-all-closed", () => {
   }
 });
 
-app.on('will-quit', () => {
+app.on("will-quit", () => {
   try {
     globalShortcut.unregisterAll();
   } catch (e) {}
@@ -227,7 +248,7 @@ ipcMain.on("canvas-update", (event, canvasData) => {
 // can re-register listeners and lead to EventEmitter warnings like
 // "11 render-view-deleted listeners added to [WebContents]".
 try {
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== "production") {
     require("electron-reloader")(module);
   }
 } catch (_) {}
