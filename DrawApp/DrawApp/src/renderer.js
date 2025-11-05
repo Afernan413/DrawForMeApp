@@ -440,7 +440,7 @@ function getShapeSizeLabel(size, mode) {
   const idx = Math.max(0, tiers.indexOf(nearest));
   const labels = ["Small", "Medium", "Large", "XL"];
   const baseLabel = labels[idx] || "Size";
-  return `${baseLabel} (${nearest})`;
+  return `${baseLabel}`;
 }
 
 function getEffectiveBrushSize(mode, overrideSize) {
@@ -460,10 +460,7 @@ function getEffectiveBrushSize(mode, overrideSize) {
     const tiers = getShapeSizeTiers(mode);
     const nearest = getNearestShapeTier(baseSize, mode);
     const floor = tiers[0];
-    const ceiling = Math.min(
-      maxSize,
-      tiers[tiers.length - 1]
-    );
+    const ceiling = Math.min(maxSize, tiers[tiers.length - 1]);
     return Math.max(floor, Math.min(nearest, ceiling));
   }
 
@@ -572,19 +569,29 @@ function applyBackgroundColor(newColor) {
     if (!pixel) {
       return;
     }
-    const hasContent = pixel.innerHTML && pixel.innerHTML.trim().length > 0;
-    const inlineColor = pixel.style.backgroundColor;
-    if (!inlineColor || hasContent || !previousBackground) {
+    // Determine the pixel's current background color. We want the new
+    // background to affect pixels even if they contain text. So consider
+    // inline style first, then computed style if inline is not present.
+    if (!previousBackground) {
       return;
     }
+    let pixelBg = pixel.style.backgroundColor;
+    if (!pixelBg) {
+      try {
+        pixelBg = window.getComputedStyle(pixel).backgroundColor;
+      } catch (e) {
+        pixelBg = null;
+      }
+    }
+    if (!pixelBg) return;
     try {
-      const inlineHex = tinycolor(inlineColor).toHexString();
+      const pixelHex = tinycolor(pixelBg).toHexString();
       const prevHex = tinycolor(previousBackground).toHexString();
-      if (inlineHex === prevHex) {
+      if (pixelHex === prevHex) {
         pixel.style.backgroundColor = appliedColor;
       }
     } catch (error) {
-      if (inlineColor === previousBackground) {
+      if (pixelBg === previousBackground) {
         pixel.style.backgroundColor = appliedColor;
       }
     }
