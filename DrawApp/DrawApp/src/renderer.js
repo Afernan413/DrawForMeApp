@@ -241,12 +241,16 @@ function updateBrushStatsElement() {
   const brushStrength = BrushState.getBrushStrength
     ? BrushState.getBrushStrength()
     : 1;
-  const brushLabel = `${brushSize}`;
+  let brushLabel = `${brushSize}`;
   const opacityLabel = `${Math.round(brushStrength * 100)}%`;
   const eraserActive = color === "transparent";
   const isSquareTool = FillMode === ShapeToolModes.SQUARE;
   const isCircleTool = FillMode === ShapeToolModes.CIRCLE;
   const isLineTool = FillMode === ShapeToolModes.LINE;
+  // For shape tools show a friendly size label instead of a raw number
+  if (isSquareTool || isCircleTool) {
+    brushLabel = getShapeSizeLabel(brushSize);
+  }
   if (FillMode === "Brush") {
     let html = `
     <div><span>Fill Mode: </span> <span>${FillMode}</span></div>
@@ -279,7 +283,7 @@ function updateBrushStatsElement() {
       ) {
         const row = Math.floor(lineStartIndex / pixelLength) + 1;
         const col = (lineStartIndex % pixelLength) + 1;
-        lineStatus = `Start set at r${row}, c${col}`;
+        lineStatus = `Press Fill to set end point`;
       } else {
         lineStatus = "Start point set";
       }
@@ -360,6 +364,57 @@ function getMinimumBrushSizeForMode(mode) {
     return BrushState.MIN_BRUSH_SIZE;
   }
   return 1;
+}
+
+// For shape tools (square/circle) we expose only four discrete sizes:
+// small, medium, large, extra large. These map to odd brush sizes so
+// the shape remains symmetric on the pixel grid.
+const SHAPE_SIZE_TIERS = [3, 5, 7, 9];
+
+function getNearestShapeTier(size) {
+  if (typeof size !== "number" || Number.isNaN(size))
+    return SHAPE_SIZE_TIERS[1];
+  // find the tier with minimal absolute difference
+  let best = SHAPE_SIZE_TIERS[0];
+  let bestDiff = Math.abs(size - best);
+  for (const t of SHAPE_SIZE_TIERS) {
+    const d = Math.abs(size - t);
+    if (d < bestDiff) {
+      best = t;
+      bestDiff = d;
+    }
+  }
+  return best;
+}
+
+function increaseShapeToolSize() {
+  const current = BrushState.getBrushSize
+    ? BrushState.getBrushSize()
+    : SHAPE_SIZE_TIERS[1];
+  const curTier = SHAPE_SIZE_TIERS.indexOf(getNearestShapeTier(current));
+  const nextTier = Math.min(SHAPE_SIZE_TIERS.length - 1, curTier + 1);
+  BrushState.setBrushSize(SHAPE_SIZE_TIERS[nextTier]);
+}
+
+function decreaseShapeToolSize() {
+  const current = BrushState.getBrushSize
+    ? BrushState.getBrushSize()
+    : SHAPE_SIZE_TIERS[1];
+  const curTier = SHAPE_SIZE_TIERS.indexOf(getNearestShapeTier(current));
+  const prevTier = Math.max(0, curTier - 1);
+  BrushState.setBrushSize(SHAPE_SIZE_TIERS[prevTier]);
+}
+
+function resetShapeToolSize() {
+  // default to medium
+  BrushState.setBrushSize(SHAPE_SIZE_TIERS[1]);
+}
+
+function getShapeSizeLabel(size) {
+  const nearest = getNearestShapeTier(size);
+  const idx = SHAPE_SIZE_TIERS.indexOf(nearest);
+  const labels = ["Small", "Medium", "Large", "XL"];
+  return labels[idx] || `${nearest}`;
 }
 
 function getEffectiveBrushSize(mode, overrideSize) {
@@ -775,7 +830,14 @@ Button1.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "BrushSize") {
-    BrushState.increaseBrushSize();
+    if (
+      FillMode === ShapeToolModes.SQUARE ||
+      FillMode === ShapeToolModes.CIRCLE
+    ) {
+      increaseShapeToolSize();
+    } else {
+      BrushState.increaseBrushSize();
+    }
     setBrushSizeButtons();
     refreshBrushUI();
     return;
@@ -960,7 +1022,14 @@ Button2.addEventListener("click", () => {
   }
 
   if (CurrentPage == CanvasMode + "BrushSize") {
-    BrushState.decreaseBrushSize();
+    if (
+      FillMode === ShapeToolModes.SQUARE ||
+      FillMode === ShapeToolModes.CIRCLE
+    ) {
+      decreaseShapeToolSize();
+    } else {
+      BrushState.decreaseBrushSize();
+    }
     setBrushSizeButtons();
     refreshBrushUI();
     return;
@@ -1125,7 +1194,14 @@ Button3.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "BrushSize") {
-    BrushState.resetBrushSize();
+    if (
+      FillMode === ShapeToolModes.SQUARE ||
+      FillMode === ShapeToolModes.CIRCLE
+    ) {
+      resetShapeToolSize();
+    } else {
+      BrushState.resetBrushSize();
+    }
     setBrushSizeButtons();
     refreshBrushUI();
     return;

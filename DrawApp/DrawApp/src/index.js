@@ -21,6 +21,9 @@ const events = require("events");
 // listener registration, but raising the limit here is a safe short-term mitigation.
 events.EventEmitter.defaultMaxListeners = 20;
 
+// Track content window in outer scope so IPC handlers can reference it.
+let contentWindow = null;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();
@@ -124,7 +127,12 @@ const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "index.html"));
   mainWindow.maximize();
-  mainWindow.isAlwaysOnTop(true);
+  // Ensure the main window is shown and focused on startup.
+  // Using show() then focus() to guarantee it receives keyboard input.
+  try {
+    mainWindow.show();
+    mainWindow.focus();
+  } catch (e) {}
 
   // Only enable remote module in development builds.
   if (process.env.NODE_ENV !== "production") {
@@ -146,45 +154,81 @@ const createWindow = () => {
       });
     } catch (e) {}
   }
-  let displays = screen.getAllDisplays();
-  let externalDisplay = displays.find((display) => {
+  // Create the content window only if a secondary display is present.
+  const displays = screen.getAllDisplays();
+  const externalDisplay = displays.find((display) => {
+    // A display that doesn't start at 0,0 is treated as an external/secondary monitor.
     return display.bounds.x !== 0 || display.bounds.y !== 0;
   });
-  contentWindow = new BrowserWindow({
-    x: externalDisplay ? externalDisplay.bounds.x : 0,
-    y: externalDisplay ? externalDisplay.bounds.y : 0,
-    movable: true,
-    titleBarStyle: "hidden",
-    center: true,
-    fullscreen: false,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: false,
-      devTools: false,
-    },
-  });
+
   if (externalDisplay) {
-    contentWindow.maximize();
-  }
-  contentWindow.loadFile(path.join(__dirname, "ContentScreen.html"));
-  if (process.env.NODE_ENV !== "production") {
-    try {
-      require("@electron/remote/main").enable(contentWindow.webContents);
-      //contentWindow.webContents.openDevTools({ mode: 'detach' });
-    } catch (e) {
-      console.warn(
-        "Could not enable @electron/remote for contentWindow in dev:",
-        e && e.message ? e.message : e
-      );
+    // Place the content window on the secondary monitor and make it fullscreen.
+    contentWindow = new BrowserWindow({
+      x: externalDisplay.bounds.x,
+      y: externalDisplay.bounds.y,
+      width: externalDisplay.bounds.width,
+      height: externalDisplay.bounds.height,
+      movable: true,
+      frame: false,
+      center: false,
+      fullscreen: true,
+      show: false, // create hidden so we can show without stealing focus
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        enableRemoteModule: false,
+        devTools: false,
+      },
+    });
+
+    contentWindow.loadFile(path.join(__dirname, "ContentScreen.html"));
+
+    if (process.env.NODE_ENV !== "production") {
+      try {
+        require("@electron/remote/main").enable(contentWindow.webContents);
+        //contentWindow.webContents.openDevTools({ mode: 'detach' });
+      } catch (e) {
+        console.warn(
+          "Could not enable @electron/remote for contentWindow in dev:",
+          e && e.message ? e.message : e
+        );
+      }
     }
-  }
-  if (process.env.NODE_ENV === "production") {
-    try {
-      contentWindow.webContents.on("context-menu", (e) => {
-        e.preventDefault();
-      });
-    } catch (e) {}
+
+    if (process.env.NODE_ENV === "production") {
+      try {
+        contentWindow.webContents.on("context-menu", (e) => {
+          e.preventDefault();
+        });
+      } catch (e) {}
+    }
+
+    // Show the content window without stealing focus from the main window.
+    // On Windows, showInactive() displays the window without focusing it.
+    contentWindow.once("ready-to-show", () => {
+      try {
+        if (
+          process.platform === "win32" &&
+          typeof contentWindow.showInactive === "function"
+        ) {
+          contentWindow.showInactive();
+        } else {
+          // On other platforms, show then immediately refocus the main window.
+          contentWindow.show();
+          try {
+            mainWindow.focus();
+          } catch (e) {}
+        }
+      } catch (e) {
+        // fallback: just show
+        try {
+          contentWindow.show();
+        } catch (ee) {}
+      }
+    });
+  } else {
+    // No external display found; leave contentWindow null and don't create the extra window.
+    contentWindow = null;
   }
 };
 
