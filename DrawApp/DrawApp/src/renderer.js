@@ -249,7 +249,7 @@ function updateBrushStatsElement() {
   const isLineTool = FillMode === ShapeToolModes.LINE;
   // For shape tools show a friendly size label instead of a raw number
   if (isSquareTool || isCircleTool) {
-    brushLabel = getShapeSizeLabel(brushSize);
+    brushLabel = getShapeSizeLabel(brushSize, FillMode);
   }
   if (FillMode === "Brush") {
     let html = `
@@ -358,7 +358,8 @@ function setCurrentBrushColor(newColor, options = {}) {
 
 function getMinimumBrushSizeForMode(mode) {
   if (mode === ShapeToolModes.SQUARE || mode === ShapeToolModes.CIRCLE) {
-    return 3;
+    const tiers = getShapeSizeTiers(mode);
+    return tiers[0];
   }
   if (BrushState && typeof BrushState.MIN_BRUSH_SIZE === "number") {
     return BrushState.MIN_BRUSH_SIZE;
@@ -366,55 +367,80 @@ function getMinimumBrushSizeForMode(mode) {
   return 1;
 }
 
-// For shape tools (square/circle) we expose only four discrete sizes:
-// small, medium, large, extra large. These map to odd brush sizes so
-// the shape remains symmetric on the pixel grid.
-const SHAPE_SIZE_TIERS = [3, 5, 7, 9];
+// Shape tools expose discrete size tiers per mode. Squares remain odd-sized
+// while circles use a slightly larger set that includes an even footprint.
+const SHAPE_SIZE_TIERS = {
+  [ShapeToolModes.SQUARE]: [3, 5, 7, 9],
+  [ShapeToolModes.CIRCLE]: [5, 7, 9, 12],
+};
 
-function getNearestShapeTier(size) {
-  if (typeof size !== "number" || Number.isNaN(size))
-    return SHAPE_SIZE_TIERS[1];
-  // find the tier with minimal absolute difference
-  let best = SHAPE_SIZE_TIERS[0];
+function getShapeSizeTiers(mode) {
+  const fallbackMode = ShapeToolModes.SQUARE;
+  const activeMode =
+    mode && Array.isArray(SHAPE_SIZE_TIERS[mode])
+      ? mode
+      : Array.isArray(SHAPE_SIZE_TIERS[FillMode])
+        ? FillMode
+        : fallbackMode;
+  return SHAPE_SIZE_TIERS[activeMode] || SHAPE_SIZE_TIERS[fallbackMode];
+}
+
+function getNearestShapeTier(size, mode) {
+  const tiers = getShapeSizeTiers(mode);
+  if (typeof size !== "number" || Number.isNaN(size)) {
+    return tiers[Math.min(1, tiers.length - 1)];
+  }
+  let best = tiers[0];
   let bestDiff = Math.abs(size - best);
-  for (const t of SHAPE_SIZE_TIERS) {
-    const d = Math.abs(size - t);
-    if (d < bestDiff) {
-      best = t;
-      bestDiff = d;
+  for (const tier of tiers) {
+    const diff = Math.abs(size - tier);
+    if (diff < bestDiff) {
+      best = tier;
+      bestDiff = diff;
     }
   }
   return best;
 }
 
 function increaseShapeToolSize() {
+  const mode = FillMode;
+  const tiers = getShapeSizeTiers(mode);
+  const defaultIndex = Math.min(1, tiers.length - 1);
   const current = BrushState.getBrushSize
     ? BrushState.getBrushSize()
-    : SHAPE_SIZE_TIERS[1];
-  const curTier = SHAPE_SIZE_TIERS.indexOf(getNearestShapeTier(current));
-  const nextTier = Math.min(SHAPE_SIZE_TIERS.length - 1, curTier + 1);
-  BrushState.setBrushSize(SHAPE_SIZE_TIERS[nextTier]);
+    : tiers[defaultIndex];
+  const currentTierValue = getNearestShapeTier(current, mode);
+  const currentIndex = Math.max(0, tiers.indexOf(currentTierValue));
+  const nextIndex = Math.min(tiers.length - 1, currentIndex + 1);
+  BrushState.setBrushSize(tiers[nextIndex]);
 }
 
 function decreaseShapeToolSize() {
+  const mode = FillMode;
+  const tiers = getShapeSizeTiers(mode);
+  const defaultIndex = Math.min(1, tiers.length - 1);
   const current = BrushState.getBrushSize
     ? BrushState.getBrushSize()
-    : SHAPE_SIZE_TIERS[1];
-  const curTier = SHAPE_SIZE_TIERS.indexOf(getNearestShapeTier(current));
-  const prevTier = Math.max(0, curTier - 1);
-  BrushState.setBrushSize(SHAPE_SIZE_TIERS[prevTier]);
+    : tiers[defaultIndex];
+  const currentTierValue = getNearestShapeTier(current, mode);
+  const currentIndex = Math.max(0, tiers.indexOf(currentTierValue));
+  const prevIndex = Math.max(0, currentIndex - 1);
+  BrushState.setBrushSize(tiers[prevIndex]);
 }
 
 function resetShapeToolSize() {
-  // default to medium
-  BrushState.setBrushSize(SHAPE_SIZE_TIERS[1]);
+  const tiers = getShapeSizeTiers(FillMode);
+  const defaultIndex = Math.min(1, tiers.length - 1);
+  BrushState.setBrushSize(tiers[defaultIndex]);
 }
 
-function getShapeSizeLabel(size) {
-  const nearest = getNearestShapeTier(size);
-  const idx = SHAPE_SIZE_TIERS.indexOf(nearest);
+function getShapeSizeLabel(size, mode) {
+  const tiers = getShapeSizeTiers(mode);
+  const nearest = getNearestShapeTier(size, mode);
+  const idx = Math.max(0, tiers.indexOf(nearest));
   const labels = ["Small", "Medium", "Large", "XL"];
-  return labels[idx] || `${nearest}`;
+  const baseLabel = labels[idx] || "Size";
+  return `${baseLabel} (${nearest})`;
 }
 
 function getEffectiveBrushSize(mode, overrideSize) {
@@ -430,20 +456,18 @@ function getEffectiveBrushSize(mode, overrideSize) {
     BrushState && typeof BrushState.MAX_BRUSH_SIZE === "number"
       ? BrushState.MAX_BRUSH_SIZE
       : 10;
-  const minSize = getMinimumBrushSizeForMode(mode);
-
   if (mode === ShapeToolModes.SQUARE || mode === ShapeToolModes.CIRCLE) {
-    let adjusted = Math.max(baseSize, minSize);
-    if (adjusted % 2 === 0) {
-      if (adjusted + 1 <= maxSize) {
-        adjusted += 1;
-      } else if (adjusted - 1 >= minSize) {
-        adjusted -= 1;
-      }
-    }
-    return Math.max(minSize, Math.min(adjusted, maxSize));
+    const tiers = getShapeSizeTiers(mode);
+    const nearest = getNearestShapeTier(baseSize, mode);
+    const floor = tiers[0];
+    const ceiling = Math.min(
+      maxSize,
+      tiers[tiers.length - 1]
+    );
+    return Math.max(floor, Math.min(nearest, ceiling));
   }
 
+  const minSize = getMinimumBrushSizeForMode(mode);
   return Math.max(minSize, Math.min(baseSize, maxSize));
 }
 

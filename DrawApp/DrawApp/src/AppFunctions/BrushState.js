@@ -1,5 +1,5 @@
 const MIN_BRUSH_SIZE = 1;
-const MAX_BRUSH_SIZE = 10;
+const MAX_BRUSH_SIZE = 12;
 const MIN_BRUSH_STRENGTH = 0.1;
 const MAX_BRUSH_STRENGTH = 1;
 const STRENGTH_STEP = 0.1;

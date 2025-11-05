@@ -114,20 +114,21 @@ function getEffectiveShapeBrushSize(mode) {
   if (typeof window.getEffectiveBrushSizeForMode === "function") {
     return window.getEffectiveBrushSizeForMode(mode, rawSize);
   }
-  const maxSize =
-    brushState && typeof brushState.MAX_BRUSH_SIZE === "number"
-      ? brushState.MAX_BRUSH_SIZE
-      : 10;
-  const minSize = 3;
-  let adjusted = Math.max(rawSize, minSize);
-  if (adjusted % 2 === 0) {
-    if (adjusted + 1 <= maxSize) {
-      adjusted += 1;
-    } else if (adjusted - 1 >= minSize) {
-      adjusted -= 1;
+  const tiers =
+    mode === CIRCLE_TOOL_MODE ? [5, 7, 9, 12] : [3, 5, 7, 9];
+  const minSize = tiers[0];
+  const maxSize = tiers[tiers.length - 1];
+  const clamped = Math.max(minSize, Math.min(rawSize, maxSize));
+  let nearest = tiers[0];
+  let bestDiff = Math.abs(clamped - nearest);
+  for (const tier of tiers) {
+    const diff = Math.abs(clamped - tier);
+    if (diff < bestDiff) {
+      nearest = tier;
+      bestDiff = diff;
     }
   }
-  return Math.max(minSize, Math.min(adjusted, maxSize));
+  return nearest;
 }
 
 function applySquareTool(paintColor) {
