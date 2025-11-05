@@ -391,8 +391,16 @@ div.Printer.active {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  .pixelCanvas.active {
-    box-shadow: none;
+  #BrushFootprintOverlay.active,
+  .pixelCanvas.active,
+  .pixelCanvas.active *,
+  .pixelCanvas.active::before,
+  .pixelCanvas.active::after {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    -webkit-box-shadow: none !important;
+    outline-offset: 0 !important;
   }
 }
 
