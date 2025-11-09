@@ -76,6 +76,16 @@ function SetNewFileButtons() {
   CurrentPage = "PickCanvas";
   return;
 }
+function setUndoRedoButtons() {
+  Button1.innerHTML = "Undo";
+  Button2.innerHTML = "Redo";
+  Button3.innerHTML = "";
+  Button4.innerHTML = "";
+  Button5.innerHTML = "";
+  Button6.innerHTML = "Go Back";
+  CurrentPage = CanvasMode + "UndoRedo";
+  return;
+}
 function setInitialColorButtons() {
   // document.getElementById("CanvasSizeTitle").hidden = true;
   document.getElementById("CustomFileNameBar").innerText =
@@ -158,9 +168,9 @@ function setMoreButtons() {
   Button2.removeAttribute("arrow");
   Button3.innerHTML = "Change Background";
   Button3.removeAttribute("arrow");
-  Button4.innerHTML = "Save <br> Quit";
+  Button4.innerHTML = "Save <br> Print <br> Quit";
   Button4.removeAttribute("arrow");
-  Button5.innerHTML = "Print";
+  Button5.innerHTML = "Undo/Redo";
   Button6.innerHTML = "Go Back";
   CurrentPage = CanvasMode + "More";
   return;
@@ -449,7 +459,7 @@ function setSaveButtons() {
   Button1.innerHTML = "Save with current name";
   Button2.innerHTML = "Save with new name";
   Button3.innerHTML = "Save with default name";
-  Button4.innerHTML = "";
+  Button4.innerHTML = "Print";
   Button5.innerHTML = "Quit";
   Button6.innerHTML = "Back";
   CurrentPage = CanvasMode + "Save";

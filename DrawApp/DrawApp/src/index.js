@@ -120,7 +120,7 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: false,
-      devTools: false, // explicitly disable DevTools for production use
+      devTools: true, // explicitly disable DevTools for production use
     },
   });
 

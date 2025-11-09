@@ -791,6 +791,10 @@ Button1.addEventListener("click", () => {
     colorOptions = ChangeBrush();
     return;
   }
+  if (CurrentPage == CanvasMode + "UndoRedo") {
+    console.log("Undo");
+    return;
+  }
   if (CurrentPage == CanvasMode + "More" && FillMode == "Bucket") {
     colorOptions = ChangeColor();
     return;
@@ -817,6 +821,7 @@ Button1.addEventListener("click", () => {
       .slice(0, 7);
     applyBackgroundColor(selectedColor);
     window[CanvasMode.toString() + "Mode"]();
+    
     refreshBrushUI();
     return;
   }
@@ -984,7 +989,10 @@ Button2.addEventListener("click", () => {
     NavigateGrid(Button2);
     return;
   }
-
+  if (CurrentPage == CanvasMode + "UndoRedo") {
+    console.log("Redo");
+    return;
+  }
   if (CurrentPage == CanvasMode + "ChangeColor") {
     setSelectColorButtons(true, colorOptions[1].innerHTML.split("</canvas>"));
     return;
@@ -1482,6 +1490,10 @@ Button4.addEventListener("click", () => {
     saveKeyboardButtons();
     return;
   }
+  if (CurrentPage == CanvasMode + "Save") {
+    printCanvas();
+    return;
+  }
   if (CurrentPage == CanvasMode + "SetCustomNameLettersMore") {
     document.querySelector("#CustomFileNameBar").innerHTML += " ";
     saveKeyboardButtons();
@@ -1514,6 +1526,10 @@ Button5.addEventListener("click", () => {
     setFillMode("Brush");
     window[CanvasMode.toString() + "Mode"]();
     refreshBrushUI();
+    return;
+  }
+  if (CurrentPage == CanvasMode + "More") {
+    setUndoRedoButtons();
     return;
   }
   if (CurrentPage == "FileLookup") {
@@ -1630,10 +1646,6 @@ Button5.addEventListener("click", () => {
     saveKeyboardButtons();
     return;
   }
-  if (CurrentPage == CanvasMode + "More") {
-    printCanvas();
-    return;
-  }
   if (CurrentPage == CanvasMode + "Save") {
     setQuitButtons();
     return;
@@ -1659,7 +1671,10 @@ Button6.addEventListener("click", () => {
     setChangeBrushButtons();
     return;
   }
-  if (CurrentPage == CanvasMode + "ChangeBrush") {
+  if (
+    CurrentPage == CanvasMode + "ChangeBrush" ||
+    CurrentPage == CanvasMode + "UndoRedo"
+  ) {
     // Back from ChangeBrush should return to navigation
     SetNavigationButtons();
     return;
@@ -1791,7 +1806,7 @@ Button6.addEventListener("click", () => {
     return;
   }
   if (CurrentPage == CanvasMode + "PrinterLookup") {
-    setMoreButtons();
+    setSaveButtons();
     document.getElementById("PrinterSelection").setAttribute("hidden", "");
     document.querySelector("#CanvasContainer").style.display = "grid";
     return;
