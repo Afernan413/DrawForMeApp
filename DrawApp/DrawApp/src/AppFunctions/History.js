@@ -6,44 +6,29 @@ let currentBatch = null;
 function getGridHTML() {
   const grid = document.getElementById("CanvasContainer");
   if (grid.hasAttribute("canvastype")) {
-    return grid.innerHTML;
-  } else return;
+    currentBatch = grid.outerHTML;
+  } else currentBatch = null;
 }
 
 //on grid change, push the current grid html to history
-function logChanges() {
-  if (getGridHTML()) {
-    history.push(getGridHTML());
+function logChanges(mutationsList, observer) {
+  console.log("Grid changed, logging history");
+  console.log(mutationsList);
+  getGridHTML();
+  if(currentBatch !== null) {
+    history.push(currentBatch);
     index++;
-  }
 }
-// Observe a variety of DOM changes so we capture pixel updates which may
-// come from innerHTML/text changes, attribute changes (style/class), or
-// node additions/removals. We watch subtree so changes to individual
-// `.pixelCanvas` children are observed.
+}
 const observerOptions = {
-  childList: true, // detect added/removed pixel nodes
-  attributes: true, // detect style/class changes on pixel nodes
-  attributeOldValue: true,
-  attributeFilter: ["style", "class", "data-background-color"],
-  characterData: true, // detect changes to text nodes inside pixels
-  characterDataOldValue: true,
-  subtree: true, // watch the whole grid subtree
+  attributes: true,
+  attributeFilter: ['class', 'style'],
+  characterData: true, // detect text/innerHTML changes
+  childList: true,
+  subtree: false,
 };
 
 const observer = new MutationObserver(logChanges);
 
 const canvasEl = document.getElementById("CanvasContainer");
-if (canvasEl) {
-  observer.observe(canvasEl, observerOptions);
-} else {
-  // If the grid isn't present yet (startup timing), try to observe later.
-  window.addEventListener(
-    "DOMContentLoaded",
-    () => {
-      const el = document.getElementById("CanvasContainer");
-      if (el) observer.observe(el, observerOptions);
-    },
-    { once: true }
-  );
-}
+observer.observe(canvasEl, observerOptions);
