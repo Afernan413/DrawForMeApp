@@ -793,6 +793,7 @@ Button1.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "UndoRedo") {
     console.log("Undo");
+    undo();
     return;
   }
   if (CurrentPage == CanvasMode + "More" && FillMode == "Bucket") {
@@ -991,6 +992,7 @@ Button2.addEventListener("click", () => {
   }
   if (CurrentPage == CanvasMode + "UndoRedo") {
     console.log("Redo");
+    redo();
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
