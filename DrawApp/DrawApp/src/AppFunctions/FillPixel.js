@@ -61,6 +61,7 @@ function applyColorToPixel(pixelIndex, paintColor, strength) {
   const existingColor = getComputedStyle(targetBox).backgroundColor;
   const blended = blendColors(existingColor, paintColor, strength);
   targetBox.style.backgroundColor = blended;
+  return;
 }
 
 function fillPixelWithBackground(pixelIndex, backgroundColor) {
@@ -70,6 +71,7 @@ function fillPixelWithBackground(pixelIndex, backgroundColor) {
   }
   targetBox.innerHTML = "";
   targetBox.style.backgroundColor = toDisplayColor(backgroundColor);
+  return;
 }
 
 function clampCanvasBounds(row, col) {
@@ -162,6 +164,7 @@ function applySquareTool(paintColor) {
       }
     }
   }
+  recordSnapshot(document.getElementById("CanvasContainer").outerHTML);
 }
 
 function applyCircleTool(paintColor) {
@@ -199,6 +202,7 @@ function applyCircleTool(paintColor) {
       }
     }
   }
+  recordSnapshot(document.getElementById("CanvasContainer").outerHTML);
 }
 
 function applyBucketTool(paintColor) {
@@ -265,6 +269,7 @@ function applyBucketTool(paintColor) {
 
   // After fill, update the content window
   ContentWindow();
+  recordSnapshot(document.getElementById("CanvasContainer").outerHTML);
   return;
 }
 
@@ -320,6 +325,8 @@ function applyLineTool(paintColor) {
   }
 
   resetLineToolProgress();
+  recordSnapshot(document.getElementById("CanvasContainer").outerHTML);
+
 }
 
 window.getLineToolStartPixel = function () {
@@ -453,5 +460,6 @@ function FillPixel(color, Letter) {
     }
   }
   ContentWindow();
+  recordSnapshot(document.getElementById("CanvasContainer").outerHTML);
   return;
 }

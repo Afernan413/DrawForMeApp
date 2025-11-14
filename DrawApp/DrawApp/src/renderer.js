@@ -603,6 +603,7 @@ function applyBackgroundColor(newColor) {
     });
   }
   ContentWindow();
+  recordSnapshot(document.getElementById("CanvasContainer").outerHTML);
 }
 
 window.getBrushPreviewColor = getBrushPreviewColor;
@@ -707,6 +708,7 @@ function PortraitMode() {
     NavigateGrid();
   }
   updatePixel();
+  
   return;
 }
 function LandscapeMode() {
@@ -747,7 +749,6 @@ function SquareMode() {
   updatePixel();
   return;
 }
-
 //Button 1 listener
 Button1.addEventListener("click", () => {
   if (CurrentPage == "Home") {
@@ -834,6 +835,7 @@ Button1.addEventListener("click", () => {
       //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
+      captureInitialSnapshot();
     }
     const selectedColor = colorOptions[0].innerHTML
       .split("background-color:")[1]
@@ -1047,6 +1049,7 @@ Button2.addEventListener("click", () => {
       //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
+      captureInitialSnapshot();
     }
     const selectedColor = colorOptions[1].innerHTML
       .split("background-color:")[1]
@@ -1264,6 +1267,7 @@ Button3.addEventListener("click", () => {
       //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
+      captureInitialSnapshot();
     }
     const selectedColor = colorOptions[2].innerHTML
       .split("background-color:")[1]
@@ -1395,6 +1399,7 @@ Button4.addEventListener("click", () => {
       // document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
+      captureInitialSnapshot();
     }
     const selectedColor = colorOptions[3].innerHTML
       .split("background-color:")[1]
@@ -1555,7 +1560,6 @@ Button5.addEventListener("click", () => {
     } else {
       FillPixel(color);
     }
-
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
@@ -1591,6 +1595,7 @@ Button5.addEventListener("click", () => {
       //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
+      captureInitialSnapshot();
     }
     if (CurrentPage.includes("More")) {
       return;
