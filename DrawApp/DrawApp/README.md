@@ -41,14 +41,3 @@ This section summarizes the main user-facing changes in plain language so you ca
 - **Print-friendly output:** When you print your artwork, the active pixel highlight is suppressed so printed images look clean without the editing outlines.
 
 - **UI polish:** The brush preview and brush stats have been improved for clarity, and the brush menu/flows were simplified so common actions are easier to find.
-
-If you'd like, I can also:
-
-- Add a short in-app help screen that calls out these changes.
-- Wire Undo to a specific on-screen button or keyboard shortcut (Ctrl+Z/Ctrl+Y).
-
-For developers and power users, technical details are still available in the `src/` folder (see the Quick Links at the top of this README).
-
----
-
-_If you prefer the old detailed changelog kept in this README, I can restore it to a separate `CHANGELOG.md` file instead._
