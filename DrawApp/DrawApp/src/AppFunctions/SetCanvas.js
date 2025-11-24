@@ -8,9 +8,17 @@ let CanvasMode;
 function clearGrid() {
   const canvasEl = document.getElementById("CanvasContainer");
   canvasEl.innerHTML = "";
-  canvasEl.style = "";
-  GridContainer.innerHTML = "";
-  GridContainer.style = "";
+  // clear content and hide the container until a new grid is created
+  try {
+    canvasEl.innerHTML = "";
+    canvasEl.removeAttribute("style");
+    canvasEl.setAttribute("hidden", "");
+  } catch (e) {}
+  try {
+    GridContainer.innerHTML = "";
+    GridContainer.removeAttribute("style");
+    GridContainer.setAttribute("hidden", "");
+  } catch (e) {}
   if (brushState && typeof brushState.resetBackgroundColor === "function") {
     const defaultBackground = brushState.resetBackgroundColor();
     canvasEl.style.backgroundColor = defaultBackground;
@@ -23,6 +31,7 @@ function clearGrid() {
 }
 function createGrid(length, height) {
   GridContainer.innerHTML = "";
+  GridContainer.removeAttribute("hidden");
   GridContainer.style.setProperty("--length", length);
   GridContainer.style.setProperty("--height", height);
   const backgroundColor =
@@ -57,6 +66,12 @@ function createGrid(length, height) {
     gridItem.id = "pixel-" + i;
     GridContainer.appendChild(gridItem);
   }
+  // ensure the container is visible now that pixels exist
+  try {
+    GridContainer.removeAttribute("hidden");
+    const canvasEl = document.getElementById("CanvasContainer");
+    if (canvasEl) canvasEl.removeAttribute("hidden");
+  } catch (e) {}
   pixelLength = length;
   pixelHeight = height;
   ContentWindow();

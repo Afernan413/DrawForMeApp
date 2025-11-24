@@ -237,6 +237,19 @@ function updateBrushStatsElement() {
   if (!statsEl) {
     return;
   }
+  const backgroundColor =
+    BrushState && typeof BrushState.getBackgroundColor === "function"
+      ? BrushState.getBackgroundColor()
+      : BrushState && BrushState.DEFAULT_BACKGROUND_COLOR
+        ? BrushState.DEFAULT_BACKGROUND_COLOR
+        : "#FFFFFF";
+  let displayBackgroundColor = backgroundColor;
+  if (window.tinycolor) {
+    try {
+      const parsedBg = window.tinycolor(backgroundColor);
+      if (parsedBg.isValid()) displayBackgroundColor = parsedBg.toHexString();
+    } catch (e) {}
+  }
   const brushSize = BrushState.getBrushSize ? BrushState.getBrushSize() : 1;
   const brushStrength = BrushState.getBrushStrength
     ? BrushState.getBrushStrength()
@@ -261,6 +274,10 @@ function updateBrushStatsElement() {
     <div><span>Opacity: </span><span>${opacityLabel}</span></div>
   `;
     }
+    // show active background color when in brush mode
+    html += `
+    <div><span>Background Color: </span> <span>${displayBackgroundColor}</span></div>
+  `;
     statsEl.innerHTML = html;
   } else if (isSquareTool || isCircleTool) {
     statsEl.innerHTML = `
@@ -603,7 +620,6 @@ function applyBackgroundColor(newColor) {
     });
   }
   ContentWindow();
-  recordSnapshot(document.getElementById("CanvasContainer").outerHTML);
 }
 
 window.getBrushPreviewColor = getBrushPreviewColor;
@@ -682,7 +698,39 @@ var printers = [];
 let contentWindow;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 function ContentWindow() {
-  const canvas = document.getElementById("CanvasContainer").outerHTML;
+  const container = document.getElementById("CanvasContainer");
+  if (!container) return;
+
+  try {
+    // Prefer a PixelGrid wrapper if present; otherwise use the container
+    const pixelGrid = container.querySelector(".PixelGrid") || container;
+    const gridW = Math.round(
+      pixelGrid.clientWidth || pixelGrid.offsetWidth || 0
+    );
+    const gridH = Math.round(
+      pixelGrid.clientHeight || pixelGrid.offsetHeight || 0
+    );
+
+    // Set explicit pixel sizes on the container and pixel grid so the
+    // content preview can render the canvas at the exact same dimensions
+    // (avoids vh/vw or relative units in the preview).
+    if (gridW > 0 && gridH > 0) {
+      try {
+        container.style.width = gridW + "px";
+        container.style.height = gridH + "px";
+        if (pixelGrid && pixelGrid !== container) {
+          pixelGrid.style.width = gridW + "px";
+          pixelGrid.style.height = gridH + "px";
+        }
+      } catch (e) {
+        // ignore style-setting failures
+      }
+    }
+  } catch (e) {
+    // ignore measurement failures
+  }
+
+  const canvas = container.outerHTML;
   require("electron").ipcRenderer.send("canvas-update", canvas);
   return;
 }
@@ -708,7 +756,6 @@ function PortraitMode() {
     NavigateGrid();
   }
   updatePixel();
-  
   return;
 }
 function LandscapeMode() {
@@ -749,6 +796,7 @@ function SquareMode() {
   updatePixel();
   return;
 }
+
 //Button 1 listener
 Button1.addEventListener("click", () => {
   if (CurrentPage == "Home") {
@@ -823,7 +871,7 @@ Button1.addEventListener("click", () => {
       .slice(0, 7);
     applyBackgroundColor(selectedColor);
     window[CanvasMode.toString() + "Mode"]();
-    
+
     refreshBrushUI();
     return;
   }
@@ -835,7 +883,6 @@ Button1.addEventListener("click", () => {
       //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
-      captureInitialSnapshot();
     }
     const selectedColor = colorOptions[0].innerHTML
       .split("background-color:")[1]
@@ -1049,7 +1096,6 @@ Button2.addEventListener("click", () => {
       //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
-      captureInitialSnapshot();
     }
     const selectedColor = colorOptions[1].innerHTML
       .split("background-color:")[1]
@@ -1267,7 +1313,6 @@ Button3.addEventListener("click", () => {
       //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
-      captureInitialSnapshot();
     }
     const selectedColor = colorOptions[2].innerHTML
       .split("background-color:")[1]
@@ -1399,7 +1444,6 @@ Button4.addEventListener("click", () => {
       // document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
-      captureInitialSnapshot();
     }
     const selectedColor = colorOptions[3].innerHTML
       .split("background-color:")[1]
@@ -1560,6 +1604,7 @@ Button5.addEventListener("click", () => {
     } else {
       FillPixel(color);
     }
+
     return;
   }
   if (CurrentPage == CanvasMode + "ChangeColor") {
@@ -1595,7 +1640,6 @@ Button5.addEventListener("click", () => {
       //document.getElementById("CanvasSizeTitle").hidden = false;
       document.getElementById("CustomFileNameBar").innerText = "";
       document.getElementById("CustomFileNameBar").hidden = true;
-      captureInitialSnapshot();
     }
     if (CurrentPage.includes("More")) {
       return;
